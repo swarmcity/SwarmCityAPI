@@ -1,0 +1,18 @@
+{
+  "extends": ["eslint:recommended", "google"],
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "env": {
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "brace-style": "off",
+    "no-tabs": "off",
+    "max-len": ["error", 100]
+  },
+  "globals": {
+    "Promise": false
+}
+}
