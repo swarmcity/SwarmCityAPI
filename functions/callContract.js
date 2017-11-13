@@ -30,7 +30,7 @@ function createTask(socket, data, callback) {
 						const myContract =
 							new web3.eth.Contract(data.abi, data.address);
 						if (data.arguments) {
-							myContract.methods[data.method].apply(data.arguments).call()
+							myContract.methods[data.method].apply(null,data.arguments).call()
 								.then((value) => {
 									resolve(value);
 								}).catch((err) => {
