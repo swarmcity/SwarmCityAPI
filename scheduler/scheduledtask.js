@@ -111,7 +111,7 @@ function status() {
 			let task = tasks[i];
 			logger.info(i + 1, ':', task.func.name, task.socket.id);
 		}
-		logger.info('next run:',nextRun);
+		logger.info('next run:', nextRun);
 	}
 	logger.info('---/Scheduledtask status [', statusId, ']---');
 	return Promise.resolve();

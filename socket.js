@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
 			},
 		});
 	}
-	
+
 	scheduledTask.addTask({
 		func: (task) => {
 			return getFx.getFx();

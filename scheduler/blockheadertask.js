@@ -75,16 +75,15 @@ function removeTasks(taskArray) {
 function status() {
 	let statusId = uuidv4();
 	logger.info('---Blockheadertask status [', statusId, ']---');
-	if (taskArray.length === 0) {
+	if (tasks.length === 0) {
 		logger.info('No tasks');
 	} else {
 		logger.info('tasks:');
 
-		for (let i = 0; i < taskArray.length; i++) {
-			let task = taskArray[i];
+		for (let i = 0; i < tasks.length; i++) {
+			let task = tasks[i];
 			logger.info(i + 1, ':', task.func.name, task.socket.id);
 		}
-
 	}
 	logger.info('---/Blockheadertask status [', statusId, ']---');
 	return Promise.resolve();

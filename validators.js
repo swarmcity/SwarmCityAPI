@@ -1,7 +1,7 @@
 'use strict';
 
 exports.isAddress = function(address) {
-	if (!address){
+	if (!address) {
 		return false;
 	}
 	if (!/^(0x)?[0-9a-f]{40}$/i.test(address.toLowerCase())) {

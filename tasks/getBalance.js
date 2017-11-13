@@ -27,12 +27,11 @@ module.exports = function() {
 								publicKey: data.address,
 								tokenSymbol: token,
 								tokenContractAddress: tokenIndex[token],
-
 							};
-						})).catch((e) => {
-						// 
-						reject(Error(e));
-					});
+						})
+						.catch((e) => {
+							reject(Error(e));
+						}));
 				});
 				promisesList.push(web3.eth.getBalance(data.address)
 					.then((res) => {
