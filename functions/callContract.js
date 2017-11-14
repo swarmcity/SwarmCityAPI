@@ -1,6 +1,6 @@
 'use strict';
 const scheduledTask = require('../scheduler/scheduledtask')();
-const logs = require('../logs.js')();
+const logs = require('../logs')();
 const web3 = require('../globalWeb3').web3;
 const validate = require('../validators');
 
@@ -22,16 +22,15 @@ function name() {
 function createTask(socket, data, callback) {
 	scheduledTask.addTask({
 		func: (task) => {
-			logs.error('callContract start');
+			logs.info('callContract start');
 			return new Promise((resolve, reject) => {
 				try {
-					if (validate.isJson(data.abi) &&
-						validate.isAddress(data.address) &&
+					if (validate.isAddress(data.address) &&
 						data.method) {
 						const myContract =
-							new web3.eth.Contract(JSON.parse(data.abi), data.address);
+							new web3.eth.Contract(data.abi, data.address);
 						if (data.arguments) {
-							myContract.methods[data.method](data.arguments).call()
+							myContract.methods[data.method].apply(null, data.arguments).call()
 								.then((value) => {
 									resolve(value);
 								}).catch((err) => {
@@ -45,6 +44,8 @@ function createTask(socket, data, callback) {
 									reject(err);
 								});
 						}
+					} else {
+						reject(new Error('input params not valid', data));
 					}
 				} catch (error) {
 					logs.error('callContract error', error);
@@ -53,7 +54,6 @@ function createTask(socket, data, callback) {
 			});
 		},
 		responsehandler: (res, task) => {
-			logs.info('received callContract RES=', JSON.stringify(res, null, 4));
 			if (task.success) {
 				let reply = {
 					response: 200,
@@ -78,4 +78,3 @@ module.exports = {
 	name: name,
 	createTask: createTask,
 };
-

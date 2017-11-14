@@ -1,7 +1,6 @@
 'use strict';
 
-const logs = require('../logs.js')();
-// const web3 = require('../globalweb3').web3;
+const logs = require('../logs')();
 
 module.exports = function() {
 	return ({
