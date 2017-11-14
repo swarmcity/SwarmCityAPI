@@ -12,7 +12,7 @@ module.exports = function(web3) {
 					'hashtagContact': [{
 						'contactName': 'Bernd Lapp',
 						'contactLink': 'https://twitter.com/BerndLapp',
-					}, ],
+					}],
 				}],
 				'itemsData': [{
 					'itemId': '0x000',
