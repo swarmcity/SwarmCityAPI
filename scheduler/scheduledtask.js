@@ -96,6 +96,27 @@ function removeTasks(taskArray) {
 	}
 }
 
+/**
+ * dump status of this module to the log
+ *
+ * @return     {Promise}  Resolves when status dumped.
+ */
+function status() {
+	let statusId = uuidv4();
+	logger.info('---Scheduledtask status [', statusId, ']---');
+	if (tasks.length === 0) {
+		logger.info('No tasks');
+	} else {
+		for (let i = 0; i < tasks.length; i++) {
+			let task = tasks[i];
+			logger.info(i + 1, ':', task.func.name, task.socket.id);
+		}
+		logger.info('next run:', nextRun);
+	}
+	logger.info('---/Scheduledtask status [', statusId, ']---');
+	return Promise.resolve();
+}
+
 module.exports = function() {
 	return ({
 		addTask: addTask,
@@ -103,5 +124,6 @@ module.exports = function() {
 		removeTasks: removeTasks,
 		tasks: tasks,
 		nextRun: nextRun,
+		status: status,
 	});
 };

@@ -14,10 +14,11 @@ let q = queue((task, callback) => {
 		task.isRunning = false;
 		task.endDate = (new Date).getTime();
 		task.success = true;
-		logger.info('task success. Duration', task.endDate - task.startDate, 'ms');
+		logger.info('task "' + task.func.name +
+			'" success. Duration', task.endDate - task.startDate, 'ms');
 		callback(res, task);
 	}).catch((err) => {
-		logger.error('task error', err);
+		logger.error('task "' + task.func.name + '" error', err);
 		task.isRunning = false;
 		task.endDate = (new Date).getTime();
 		task.success = false;

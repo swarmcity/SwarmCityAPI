@@ -2,7 +2,8 @@ require('./environment');
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const logs = require('./logs.js')();
+const logs = require('./logs')();
+const validate = require('./validators');
 
 const scheduledTask = require('./scheduler/scheduledtask')();
 
@@ -40,8 +41,9 @@ io.on('connection', (socket) => {
 
 	connectedSockets[socket.id] = client;
 
-	// if user provided a pubkey , register some initial tasks
-	if (socket.handshake.query.publicKey) {
+	// if user provided a pubkey , register getBalance tasks
+	if (validate.isAddress(socket.handshake.query.publicKey)) {
+		logs.info('publicKey provided:', socket.handshake.query.publicKey);
 		scheduledTask.addTask({
 			func: (task) => {
 				return getBalance.getBalance(task.data);
@@ -55,49 +57,49 @@ io.on('connection', (socket) => {
 				address: socket.handshake.query.publicKey,
 			},
 		});
-
-		scheduledTask.addTask({
-			func: (task) => {
-				return getFx.getFx();
-			},
-			responsehandler: (res, task) => {
-				logs.info('received getFx RES=', JSON.stringify(res, null, 4));
-				task.data.socket.emit('fxChanged', res);
-			},
-			data: {
-				socket: socket,
-				address: socket.handshake.query.publicKey,
-			},
-		});
-
-		scheduledTask.addTask({
-			func: (task) => {
-				return getGasPrice.getGasPrice();
-			},
-			responsehandler: (res, task) => {
-				logs.info('received getGasPrice RES=', JSON.stringify(res, null, 4));
-				task.data.socket.emit('gasPriceChanged', res);
-			},
-			data: {
-				socket: socket,
-				address: socket.handshake.query.publicKey,
-			},
-		});
-
-		scheduledTask.addTask({
-			func: (task) => {
-				return getHashtags.getHashtags();
-			},
-			responsehandler: (res, task) => {
-				logs.info('received getHashtags RES=', JSON.stringify(res, null, 4));
-				task.data.socket.emit('hashtagsChanged', res);
-			},
-			data: {
-				socket: socket,
-				address: socket.handshake.query.publicKey,
-			},
-		});
 	}
+
+	scheduledTask.addTask({
+		func: (task) => {
+			return getFx.getFx();
+		},
+		responsehandler: (res, task) => {
+			logs.info('received getFx RES=', JSON.stringify(res, null, 4));
+			task.data.socket.emit('fxChanged', res);
+		},
+		data: {
+			socket: socket,
+			address: socket.handshake.query.publicKey,
+		},
+	});
+
+	scheduledTask.addTask({
+		func: (task) => {
+			return getGasPrice.getGasPrice();
+		},
+		responsehandler: (res, task) => {
+			logs.info('received getGasPrice RES=', JSON.stringify(res, null, 4));
+			task.data.socket.emit('gasPriceChanged', res);
+		},
+		data: {
+			socket: socket,
+			address: socket.handshake.query.publicKey,
+		},
+	});
+
+	scheduledTask.addTask({
+		func: (task) => {
+			return getHashtags.getHashtags();
+		},
+		responsehandler: (res, task) => {
+			logs.info('received getHashtags RES=', JSON.stringify(res, null, 4));
+			task.data.socket.emit('hashtagsChanged', res);
+		},
+		data: {
+			socket: socket,
+			address: socket.handshake.query.publicKey,
+		},
+	});
 
 	socket.on('disconnect', () => {
 		logs.info('socket', socket.id, 'disconnected');

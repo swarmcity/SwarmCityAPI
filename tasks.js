@@ -1,10 +1,10 @@
-const logs = require('./logs.js')();
+const logs = require('./logs')();
 module.exports = function(web3) {
-	const getBalance = require('./tasks/getBalance.js')(web3);
-	const getFx = require('./tasks/getFx.js')(web3);
-	const getGasPrice = require('./tasks/getGasPrice.js')(web3);
-	const getHashtags = require('./tasks/getHashtags.js')(web3);
-	const Avatar = require('./tasks/Avatar.js')(web3);
+	const getBalance = require('./tasks/getBalance')(web3);
+	const getFx = require('./tasks/getFx')(web3);
+	const getGasPrice = require('./tasks/getGasPrice')(web3);
+	const getHashtags = require('./tasks/getHashtags')(web3);
+	const Avatar = require('./tasks/Avatar')(web3);
 
 	return {
 		/**

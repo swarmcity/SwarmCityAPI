@@ -4,6 +4,8 @@ const logger = require('../logs')();
 
 const io = require('socket.io-client');
 
+const tokenABI = require('../contracts/miniMeToken.json');
+
 const options = {
 	'transports': ['websocket'],
 	'force new connection': true,
@@ -18,8 +20,7 @@ describe('Swarm City API socket client > test callContract', function() {
 
 	before(function(done) {
 		server.listen().then((con) => {
-			socketURL = 'http://localhost:' + con.port +
-				'?publicKey=0x7018d8f698bfa076e1bdc916e2c64caddc750944';
+			socketURL = 'http://localhost:' + con.port;
 			logger.info('socketURL=', socketURL);
 			done();
 		});
@@ -32,10 +33,10 @@ describe('Swarm City API socket client > test callContract', function() {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('callContract', {
-				address: '0x0',
-				abi: {},
-				method: 'quaak',
-				arguments: [1, 2, 3, 4],
+				address: '0xb9e7f8568e08d5659f5d29c4997173d84cdf2607',
+				abi: tokenABI.abi,
+				method: 'creationBlock',
+				arguments: null,
 			}, (data) => {
 				logger.info('callContract returned', data);
 				should(data).have.property('response', 200);
@@ -43,6 +44,31 @@ describe('Swarm City API socket client > test callContract', function() {
 			});
 		}));
 
+		promises.push(new Promise((resolve, reject) => {
+			client.emit('callContract', {
+				address: '0xb9e7f8568e08d5659f5d29c4997173d84cdf2607',
+				abi: tokenABI.abi,
+				method: 'balanceOf',
+				arguments: ['0x7018d8f698bfa076e1bdc916e2c64caddc750944'],
+			}, (data) => {
+				logger.info('callContract returned', data);
+				should(data).have.property('response', 200);
+				resolve();
+			});
+		}));
+
+		promises.push(new Promise((resolve, reject) => {
+			client.emit('callContract', {
+				address: '0xb9e7f8568e08d5659f5d29c4997173d84cdf2607',
+				abi: tokenABI.abi,
+				method: 'balanceOf',
+				arguments: ['0x0'],
+			}, (data) => {
+				logger.info('callContract returned', data);
+				should(data).have.property('response', 200);
+				resolve();
+			});
+		}));
 		Promise.all(promises).then(() => {
 			done();
 		}).catch((err) => {

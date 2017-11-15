@@ -67,11 +67,34 @@ function removeTasks(taskArray) {
 	}
 }
 
+/**
+ * dump status of this module to the log
+ *
+ * @return     {Promise}  Resolves when status dumped.
+ */
+function status() {
+	let statusId = uuidv4();
+	logger.info('---Blockheadertask status [', statusId, ']---');
+	if (tasks.length === 0) {
+		logger.info('No tasks');
+	} else {
+		logger.info('tasks:');
+
+		for (let i = 0; i < tasks.length; i++) {
+			let task = tasks[i];
+			logger.info(i + 1, ':', task.func.name, task.socket.id);
+		}
+	}
+	logger.info('---/Blockheadertask status [', statusId, ']---');
+	return Promise.resolve();
+}
+
 module.exports = function() {
 	return ({
 		addTask: addTask,
 		removeTask: removeTask,
 		removeTasks: removeTasks,
 		tasks: tasks,
+		status: status,
 	});
 };

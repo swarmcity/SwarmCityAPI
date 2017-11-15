@@ -1,13 +1,16 @@
 'use strict';
 
 exports.isAddress = function(address) {
+	if (!address) {
+		return false;
+	}
 	if (!/^(0x)?[0-9a-f]{40}$/i.test(address.toLowerCase())) {
-		throw new Error('Address Invalid');
+		return false;
 	} else if (/^(0x)?[0-9a-f]{40}$/.test(address.toLowerCase()) ||
 		/^(0x)?[0-9A-F]{40}$/.test(address.toLowerCase())) {
 		return true;
 	} else {
-		throw new Error('Address Invalid');
+		return false;
 	}
 };
 
@@ -15,7 +18,7 @@ exports.isJson = function(abi) {
 	try {
 		JSON.parse(abi);
 	} catch (e) {
-		throw new Error('ABI Is not JSON');
+		return false;
 	}
 	return true;
 };
