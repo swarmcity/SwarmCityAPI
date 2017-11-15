@@ -9,10 +9,12 @@ const uuidv4 = require('uuid/v4');
 
 // load the channel subscription handlers
 const balance = require('./subscriptionBalance')();
+const logs = require('./subscriptionLogs')();
 
 // initialize available subscriptionchannels
 let channels = {};
 channels[balance.name] = balance;
+channels[logs.name] = logs;
 
 // all subscriptions are kept here
 let subscriptions = {};
