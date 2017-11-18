@@ -4,7 +4,7 @@
 'use strict';
 const uuidv4 = require('uuid/v4');
 const workerQueue = require('./workerqueue')();
-const logger = require('../logs')();
+const logger = require('../logs')('scheduledTask');
 
 let tasks = [];
 let nextTaskTimer;
@@ -24,6 +24,7 @@ function _updateSchedule() {
 
 	let now = (new Date).getTime();
 	while (tasks[0] && tasks[0].nextRun <= now) {
+		logger.info('time to start:', tasks[0].nextRun, '<=', now);
 		let task = tasks.shift();
 		workerQueue.push(task, task.responsehandler || function() {});
 	}
@@ -39,6 +40,9 @@ function _updateSchedule() {
 				_updateSchedule();
 			}, due);
 			nextRun = tasks[0].nextRun;
+			logger.info('scheduler to sleep for ', due, 'ms');
+		}else{
+			_updateSchedule();
 		}
 	} else {
 		// there are no more tasks
@@ -52,17 +56,21 @@ function _updateSchedule() {
  * @param      {Object}  task    The task to add
  */
 function addTask(task) {
-	task.id = uuidv4();
+	task.id = task.id || uuidv4();
 	task.nextRun = task.nextRun || 0;
-	if (!task.responsehandler && task.interval) {
+	task.name = task.name || task.func.name;
+	logger.info('addTask ', task);
+	if (!task.responsehandler && task.interval && task.interval > 0) {
 		task.responsehandler = (res, task) => {
-			task.nextRun = (new Date).getTime() + task.interval;
-			addTask(task);
+			logger.info('Schedule task again in ', task.interval, 'ms');
+			task.nextRun= (new Date).getTime() + task.interval;
+			return addTask(task);
 		};
 	}
 	tasks.push(task);
-	logger.info('******* Added scheduled task ID=', task.id);
+	logger.info('Added scheduled task', task.name, 'with ID=', task.id, 'next run=', task.nextRun ? task.nextRun : 'now');
 	_updateSchedule();
+	return Promise.resolve();
 }
 
 
@@ -83,6 +91,7 @@ function removeTask(task) {
 	if (tasks.length === 0) {
 		logger.info('the scheduledTask scheduler is empty');
 	}
+	return Promise.resolve();
 }
 
 /**

@@ -17,7 +17,7 @@ module.exports = function() {
 				hashtagItems: 11,
 			}];
 			return new Promise((resolve, reject) => {
-				logs._eventLog('Hashtags: ', hashtags);
+				logs.info('Hashtags: ', hashtags);
 				resolve(hashtags);
 			});
 		},

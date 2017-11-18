@@ -2,7 +2,7 @@ require('./environment');
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const logs = require('./logs')();
+const logs = require('./logs')('socketserver');
 const validate = require('./validators');
 
 const scheduledTask = require('./scheduler/scheduledtask')();
@@ -28,7 +28,7 @@ let connectedSockets = {};
 	// schedule getFx task every minute
 	scheduledTask.addTask({
 		func: getFx.updateFx,
-		interval: 60 * 1000,
+		interval: 6 * 1000,
 	});
 })();
 
@@ -59,19 +59,19 @@ io.on('connection', (socket) => {
 		});
 	}
 
-	scheduledTask.addTask({
-		func: (task) => {
-			return getFx.getFx();
-		},
-		responsehandler: (res, task) => {
-			logs.info('received getFx RES=', JSON.stringify(res, null, 4));
-			task.data.socket.emit('fxChanged', res);
-		},
-		data: {
-			socket: socket,
-			address: socket.handshake.query.publicKey,
-		},
-	});
+	// scheduledTask.addTask({
+	// 	func: (task) => {
+	// 		return getFx.getFx();
+	// 	},
+	// 	responsehandler: (res, task) => {
+	// 		logs.info('received getFx RES=', JSON.stringify(res, null, 4));
+	// 		task.data.socket.emit('fxChanged', res);
+	// 	},
+	// 	data: {
+	// 		socket: socket,
+	// 		address: socket.handshake.query.publicKey,
+	// 	},
+	// });
 
 	scheduledTask.addTask({
 		func: (task) => {
@@ -129,6 +129,7 @@ const APIHOST = process.env.APIHOST || '0.0.0.0';
  */
 function listen() {
 	return new Promise((resolve, reject) => {
+		logs.info('opening WS API on',APIHOST,'port',APISOCKETPORT);
 		if (!APISOCKETPORT || !APIHOST) {
 			reject('no APISOCKETPORT defined in environment');
 		} else {

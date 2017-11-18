@@ -34,19 +34,21 @@ function createSubscription(socket, args) {
 	let _task = {
 		func: (task) => {
 			return new Promise((resolve, reject) => {
+
+				//db.get('hashtaglist').then(resolve(..))
 				// TODO : check if 'args' is a valid set of parameters to the 
-				// subscribe function
-				web3.eth.subscribe('logs', args, (err, res) => {
-						if (err) {
-							reject(new Error(err));
-						} else {
-							resolve();
-						}
-					}).on("data", function(log) {
-						logs.info('-----------> ', log);
-					})
-					.on("changed", function(log) {});;
-			});
+			// 	// subscribe function
+			// 	web3.eth.subscribe('logs', args, (err, res) => {
+			// 			if (err) {
+			// 				reject(new Error(err));
+			// 			} else {
+			// 				resolve();
+			// 			}
+			// 		}).on("data", function(log) {
+			// 			logs.info('-----------> ', log);
+			// 		})
+			// 		.on("changed", function(log) {});;
+			 });
 		},
 		responsehandler: (res, task) => {
 			return Promise.resolve();

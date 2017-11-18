@@ -1,34 +1,53 @@
+'use strict';
 const winston = require('winston');
-const logger = new winston.Logger({
-	transports: [
-		new winston.transports.Console({
-			handleExceptions: true,
-			json: false,
-			colorize: true,
-			timestamp: true,
-		}),
-	],
-	exitOnError: false,
-});
 
-
-module.exports = function() {
-	return Object.assign(logger, {
-		/**
-		 * Significant events get logged as an audit trail
-		 * @param {Object} item
-		 * @param {Strring} type
-		 */
-		_eventLog: function(item, type) {
-			logger.info(item);
-		},
-		/**
-		 * Errors get logged
-		 * @param {Object} item
-		 * @param {Strring} type
-		 */
-		_errorLog: function(item, type) {
-			logger.error(item);
-		},
+module.exports = function(prefix) {
+	const logger = winston.createLogger({
+		format: winston.format.combine({
+				transform: function(info, opts) {
+					if (!info) return;
+					info.message =
+						(prefix ? ' ' + prefix + ': ' : '') +
+						info.message.reduce(function(res, cur) {
+							if (typeof cur === 'object') {
+								return res + JSON.stringify(cur, Object.getOwnPropertyNames(cur));
+							}
+							return res + ' ' + cur;
+						}, '');
+					return info;
+				}
+			},
+			winston.format.timestamp(),
+			winston.format.splat(),
+			winston.format.printf(info => {
+				return `${info.timestamp} ${info.level}:${info.message}`;
+			})
+		),
+		transports: [new winston.transports.Console({
+			level: process.env.LOG_LEVEL || 'info'
+		})],
 	});
+
+	return {
+		info: function() {
+			logger.info.apply(logger, [
+				[].slice.call(arguments), {}
+			]);
+		},
+		error: function() {
+			logger.error.apply(logger, [
+				[].slice.call(arguments), {}
+			]);
+		},
+		warn: function() {
+			logger.warn.apply(logger, [
+				[].slice.call(arguments), {}
+			]);
+		},
+		debug: function() {
+			logger.debug.apply(logger, [
+				[].slice.call(arguments), {}
+			]);
+		},
+	};
 };
