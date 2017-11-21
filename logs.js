@@ -4,24 +4,25 @@ const winston = require('winston');
 module.exports = function(prefix) {
 	const logger = winston.createLogger({
 		format: winston.format.combine(
-			winston.format.splat(), {
-				transform: function(info, opts) {
-					if (!info) return;
-					info.message =
-						(prefix ? ' ' + prefix + ': ' : '') +
-						info.message.reduce(function(res, cur) {
-							if (typeof cur === 'object') {
-								return res + JSON.stringify(cur, Object.getOwnPropertyNames(cur));
-							}
-							return res + ' ' + cur;
-						}, '');
-					return info;
-				}
-			},
+			// winston.format.splat(), {
+			// 	transform: function(info, opts) {
+			// 		if (!info) return;
+			// 		info.message =
+			// 			(prefix ? ' ' + prefix + ': ' : '') +
+			// 			info.message.reduce(function(res, cur) {
+			// 				if (typeof cur === 'object') {
+			// 					return res + JSON.stringify(cur, Object.getOwnPropertyNames(cur));
+			// 				}
+			// 				return res + ' ' + cur;
+			// 			}, '');
+			// 		return info;
+			// 	}
+			// },
 			winston.format.timestamp(),
 
 			winston.format.printf(info => {
-				return `${info.timestamp} ${info.level}:${info.message}`;
+				console.log(info);
+				return `${info.timestamp} ${info.level}: ${prefix} - ${info.message}`;
 			})
 		),
 		transports: [new winston.transports.Console({
@@ -29,7 +30,10 @@ module.exports = function(prefix) {
 		})],
 	});
 
+	//return logger;
+
 	return {
+		
 		info: function() {
 			logger.info.apply(logger, [
 				[].slice.call(arguments), {}

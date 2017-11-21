@@ -32,6 +32,12 @@ function getLastBlock() {
 	});
 }
 
+/**
+ * Sets the last block.
+ *
+ * @param      {Number}  blockNumber  The block number
+ * @return     {promise}  promise
+ */
 function setLastBlock(blockNumber) {
 	return db.put('lastblock-' + process.env.PARAMETERSCONTRACT, blockNumber);
 }
@@ -86,38 +92,23 @@ module.exports = function() {
 										address: process.env.PARAMETERSCONTRACT,
 										fromBlock: web3.utils.toHex(startBlock),
 										toBlock: web3.utils.toHex(endBlock),
-										//											topics: ["0x033456732123ffff2342342dd12342434324234234fd234fd23fd4f23d4234"]
 									};
 
 									logger.info('params=', o);
 
 									web3.eth.getPastLogs(o)
 										.then((logs) => {
-											logger.info('I HAZ A LOG');
-											logger.info(logs);
+											if (logs && logs.length > 0) {
+												logger.info('I HAZ A LOG');
+												logger.info(logs);
+console.log(logs);
+											}
 
 											setLastBlock(endBlock).then(() => {
 												task.interval = 100;
 												resolve();
 											});
 										});
-
-									// subscription = web3.eth.subscribe('logs', {
-									// 		//address: '' + process.env.PARAMETERSCONTRACT,
-									// 		//fromBlock: process.env.PARAMETERSCONTRACTSTARTBLOCK,
-									// 		//topics: ['0x52416347a4aa65bcdcfb6915eafb20dc1aad86e01ec22e5bd8cc35b149714c63']
-									// 	}, function(error, result) {
-									// 		logger.info('subscription DONE');
-									// 		logger.info(err, result);
-									// 		resolve();
-									// 	}).on("data", function(log) {
-									// 		logger.info('DATA', log);
-									// 	})
-									// 	.on("changed", function(log) {
-									// 		logger.info('DATA', log);
-									// 	});
-									// logger.info(subscription, subscription);
-
 								}).catch((e) => {
 									logger.error(e);
 									reject(e);
@@ -129,24 +120,24 @@ module.exports = function() {
 
 						});
 					},
-					// responsehandler: (res, task) => {
-
-					// 	//return blockHeaderTask.addTask(task);
-					// 	logger.info('subscription created', subscription);
-					// 	resolve();
-					// }
 				});
 			});
 		},
 
 		stop: function() {
 			return new Promise((resolve, reject) => {
-				subscription.unsubscribe(function(error, success) {
-					if (success)
-						console.log('Successfully unsubscribed!');
-					resolve();
-				});
+				resolve();
+				// subscription.unsubscribe(function(error, success) {
+				// 	if (success)
+				// 		console.log('Successfully unsubscribed!');
+				// 	resolve();
+				// });
+			});
+		},
 
+		reset: function() {
+			return setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
+				return this.start();
 			});
 		},
 
