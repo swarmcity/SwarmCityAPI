@@ -5,6 +5,11 @@
 const level = require('level');
 const db = level('localCache');
 
+// for the interface of this , refer to 
+// https://www.npmjs.com/package/level#api
 module.exports = {
-	db: db,
+	// get: db.get,
+	// put: db.put,
+	// batch: db.batch,
+	db
 };

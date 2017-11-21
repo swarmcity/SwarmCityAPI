@@ -16,7 +16,7 @@ let q = queue((task, callback) => {
 			task.isRunning = false;
 			task.endDate = (new Date).getTime();
 			task.success = true;
-			logger.info('task "' + task.id +
+			logger.info('task "' + task.name +
 				'" success. Duration', task.endDate - task.startDate, 'ms');
 			callback(res, task);
 		})
@@ -24,7 +24,7 @@ let q = queue((task, callback) => {
 			task.endDate = (new Date).getTime();
 			task.isRunning = false;
 			task.success = false;
-			logger.error('task "' + task.id + '" error. Duration',
+			logger.error('task "' + task.name + '" ID=' +task.id + '" error. Duration',
 				task.endDate - task.startDate, 'ms - Error=', err);
 			callback(null, task);
 		});

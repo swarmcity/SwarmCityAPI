@@ -28,7 +28,7 @@ let connectedSockets = {};
 	// schedule getFx task every minute
 	scheduledTask.addTask({
 		func: getFx.updateFx,
-		interval: 6 * 1000,
+		interval: 60 * 1000,
 	});
 })();
 
@@ -45,6 +45,7 @@ io.on('connection', (socket) => {
 	if (validate.isAddress(socket.handshake.query.publicKey)) {
 		logs.info('publicKey provided:', socket.handshake.query.publicKey);
 		scheduledTask.addTask({
+			name: 'get initial balance', // a task name is optional
 			func: (task) => {
 				return getBalance.getBalance(task.data);
 			},
@@ -59,21 +60,23 @@ io.on('connection', (socket) => {
 		});
 	}
 
-	// scheduledTask.addTask({
-	// 	func: (task) => {
-	// 		return getFx.getFx();
-	// 	},
-	// 	responsehandler: (res, task) => {
-	// 		logs.info('received getFx RES=', JSON.stringify(res, null, 4));
-	// 		task.data.socket.emit('fxChanged', res);
-	// 	},
-	// 	data: {
-	// 		socket: socket,
-	// 		address: socket.handshake.query.publicKey,
-	// 	},
-	// });
+	scheduledTask.addTask({
+		name: 'getFX',
+		func: (task) => {
+			return getFx.getFx();
+		},
+		responsehandler: (res, task) => {
+			logs.info('received getFx RES=', JSON.stringify(res, null, 4));
+			task.data.socket.emit('fxChanged', res);
+		},
+		data: {
+			socket: socket,
+			address: socket.handshake.query.publicKey,
+		},
+	});
 
 	scheduledTask.addTask({
+		name: 'get gasprice',
 		func: (task) => {
 			return getGasPrice.getGasPrice();
 		},
@@ -87,19 +90,20 @@ io.on('connection', (socket) => {
 		},
 	});
 
-	scheduledTask.addTask({
-		func: (task) => {
-			return getHashtags.getHashtags();
-		},
-		responsehandler: (res, task) => {
-			logs.info('received getHashtags RES=', JSON.stringify(res, null, 4));
-			task.data.socket.emit('hashtagsChanged', res);
-		},
-		data: {
-			socket: socket,
-			address: socket.handshake.query.publicKey,
-		},
-	});
+	// scheduledTask.addTask({
+	// 	name: 'get hashtags',
+	// 	func: (task) => {
+	// 		return getHashtags.getHashtags();
+	// 	},
+	// 	responsehandler: (res, task) => {
+	// 		logs.info('received getHashtags RES=', JSON.stringify(res, null, 4));
+	// 		task.data.socket.emit('hashtagsChanged', res);
+	// 	},
+	// 	data: {
+	// 		socket: socket,
+	// 		address: socket.handshake.query.publicKey,
+	// 	},
+	// });
 
 	socket.on('disconnect', () => {
 		logs.info('socket', socket.id, 'disconnected');
@@ -129,7 +133,7 @@ const APIHOST = process.env.APIHOST || '0.0.0.0';
  */
 function listen() {
 	return new Promise((resolve, reject) => {
-		logs.info('opening WS API on',APIHOST,'port',APISOCKETPORT);
+		logs.info('opening WS API on', APIHOST, 'port', APISOCKETPORT);
 		if (!APISOCKETPORT || !APIHOST) {
 			reject('no APISOCKETPORT defined in environment');
 		} else {

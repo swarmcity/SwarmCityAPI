@@ -2,7 +2,7 @@
  * Subscription manager for 'balance'
  */
 'use strict';
-const logs = require('../logs.js')();
+const logs = require('../logs.js')('subscriptionHashtags');
 const jsonHash = require('json-hash');
 const web3 = require('../globalWeb3').web3;
 
@@ -33,24 +33,27 @@ function createSubscription(socket, args) {
 	// create task
 	let _task = {
 		func: (task) => {
-			return new Promise((resolve, reject) => {
+			return Promise.resolve('QUAAK');
+			// return new Promise((resolve, reject) => {
 
-				//db.get('hashtaglist').then(resolve(..))
-				// TODO : check if 'args' is a valid set of parameters to the 
-			// 	// subscribe function
-			// 	web3.eth.subscribe('logs', args, (err, res) => {
-			// 			if (err) {
-			// 				reject(new Error(err));
-			// 			} else {
-			// 				resolve();
-			// 			}
-			// 		}).on("data", function(log) {
-			// 			logs.info('-----------> ', log);
-			// 		})
-			// 		.on("changed", function(log) {});;
-			 });
+			// 	//db.get('hashtaglist').then(resolve(..))
+			// 	// TODO : check if 'args' is a valid set of parameters to the 
+			// // 	// subscribe function
+			// // 	web3.eth.subscribe('logs', args, (err, res) => {
+			// // 			if (err) {
+			// // 				reject(new Error(err));
+			// // 			} else {
+			// // 				resolve();
+			// // 			}
+			// // 		}).on("data", function(log) {
+			// // 			logs.info('-----------> ', log);
+			// // 		})
+			// // 		.on("changed", function(log) {});;
+			//  });
 		},
 		responsehandler: (res, task) => {
+
+			task.data.socket.emit('hashtagsChanged', res);
 			return Promise.resolve();
 			// let replyHash = jsonHash.digest(res);
 			// if (task.data.lastReplyHash !== replyHash) {
@@ -65,7 +68,6 @@ function createSubscription(socket, args) {
 		},
 		data: {
 			socket: socket,
-			address: args.address,
 		},
 	};
 	//blockHeaderTask.addTask(_task);

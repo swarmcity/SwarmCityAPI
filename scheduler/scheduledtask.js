@@ -24,7 +24,6 @@ function _updateSchedule() {
 
 	let now = (new Date).getTime();
 	while (tasks[0] && tasks[0].nextRun <= now) {
-		logger.info('time to start:', tasks[0].nextRun, '<=', now);
 		let task = tasks.shift();
 		workerQueue.push(task, task.responsehandler || function() {});
 	}
@@ -58,8 +57,7 @@ function _updateSchedule() {
 function addTask(task) {
 	task.id = task.id || uuidv4();
 	task.nextRun = task.nextRun || 0;
-	task.name = task.name || task.func.name;
-	logger.info('addTask ', task);
+	task.name = task.name || task.func.name || '(anonymous function)';
 	if (!task.responsehandler && task.interval && task.interval > 0) {
 		task.responsehandler = (res, task) => {
 			logger.info('Schedule task again in ', task.interval, 'ms');
@@ -68,7 +66,7 @@ function addTask(task) {
 		};
 	}
 	tasks.push(task);
-	logger.info('Added scheduled task', task.name, 'with ID=', task.id, 'next run=', task.nextRun ? task.nextRun : 'now');
+	logger.info('Added scheduled task "' + task.name + '" with ID=', task.id, 'next run=', task.nextRun ? task.nextRun : 'now');
 	_updateSchedule();
 	return Promise.resolve();
 }

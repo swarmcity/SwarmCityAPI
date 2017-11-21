@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const logger = require('../logs')();
+const logger = require('../logs')('WS subscriptions');
 const uuidv4 = require('uuid/v4');
 
 
@@ -101,6 +101,7 @@ function subscribe(socket, data, callback) {
 			response: 400,
 			message: 'No such channel',
 		};
+		logger.info('No such channel',data.channel);
 		return callback(reply);
 	}
 }

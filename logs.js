@@ -3,7 +3,8 @@ const winston = require('winston');
 
 module.exports = function(prefix) {
 	const logger = winston.createLogger({
-		format: winston.format.combine({
+		format: winston.format.combine(
+			winston.format.splat(), {
 				transform: function(info, opts) {
 					if (!info) return;
 					info.message =
@@ -18,7 +19,7 @@ module.exports = function(prefix) {
 				}
 			},
 			winston.format.timestamp(),
-			winston.format.splat(),
+
 			winston.format.printf(info => {
 				return `${info.timestamp} ${info.level}:${info.message}`;
 			})
