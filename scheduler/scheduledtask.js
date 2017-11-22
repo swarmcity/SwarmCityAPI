@@ -116,7 +116,7 @@ function status() {
 	} else {
 		for (let i = 0; i < tasks.length; i++) {
 			let task = tasks[i];
-			logger.info(i + 1, ':', task.func.name, task.socket.id);
+			logger.info(i + 1, ':', task.name || task.func.name, task.socket ? task.socket.id : '');
 		}
 		logger.info('next run:', nextRun);
 	}

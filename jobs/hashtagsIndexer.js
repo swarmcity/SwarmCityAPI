@@ -7,9 +7,10 @@
 require('../environment');
 const logger = require('../logs')('hashtagIndexer');
 const db = require('../globaldb').db;
+const ipfs = require('../globalIPFS')();
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledtask')();
-
+const parametersContract = require('../contracts/Parameters.json');
 /**
  * Returns last processed block of the parameters contract
  * ( or the deployment block if not initialized yet...)
@@ -62,8 +63,12 @@ module.exports = function() {
 			logger.info('process.env.PARAMETERSCONTRACT=', process.env.PARAMETERSCONTRACT);
 			logger.info('process.env.PARAMETERSCONTRACTSTARTBLOCK=', process.env.PARAMETERSCONTRACTSTARTBLOCK);
 
+			let parametersContractInstance = new web3.eth.Contract(
+				parametersContract.abi,
+				process.env.PARAMETERSCONTRACT
+			);
 
-			return new Promise((resolve, reject) => {
+			return new Promise((jobresolve, reject) => {
 
 				scheduledTask.addTask({
 					name: 'hashtagIndexerTask',
@@ -83,31 +88,61 @@ module.exports = function() {
 									if (startBlock === endBlock) {
 										logger.info('at endblock', endBlock);
 										task.interval = 5000;
-										return resolve();
+										db.put('hashtagindexer-synced', true).then(() => {
+											logger.info('hashtagindexer is synced', endBlock);
+											jobresolve();
+											return resolve();
+										});
 									}
 
 									logger.info('scanning', startBlock, '->', endBlock);
 
-									let o = {
-										address: process.env.PARAMETERSCONTRACT,
-										fromBlock: web3.utils.toHex(startBlock),
-										toBlock: web3.utils.toHex(endBlock),
-									};
-
-									logger.info('params=', o);
-
-									web3.eth.getPastLogs(o)
+									parametersContractInstance.getPastEvents('ParameterSet', {
+											fromBlock: web3.utils.toHex(startBlock),
+											toBlock: web3.utils.toHex(endBlock),
+										})
 										.then((logs) => {
 											if (logs && logs.length > 0) {
-												logger.info('I HAZ A LOG');
-												logger.info(logs);
-console.log(logs);
+												for (let i = 0; i < logs.length; i++) {
+													let log = logs[i];
+													if (log.returnValues && log.returnValues.name === 'hashtaglist') {
+														
+														if (ipfs.isIPFSHash(log.returnValues.value)) {
+															ipfs.cat(log.returnValues.value).then((data) => {
+																logger.info('found hashtaglist : ', data);
+																db.put(process.env.PARAMETERSCONTRACT + '-hashtaglist', data).then(() => {
+																	setLastBlock(endBlock).then(() => {
+																		task.interval = 100;
+																		resolve();
+																	});
+																}).catch((err) => {
+																	// DB error
+																	// don't increase the block number & re-schedule for retry
+																	logger.error(new Error(err));
+																	logger.error('DB put failed. Try again in 1s');
+																	task.interval = 1000;
+																	resolve();
+																});
+															}).catch((err) => {
+																// IPFS resolving failed.
+																// don't increase the block number & re-schedule for retry
+																logger.error(new Error(err));
+																logger.error('IPFS resolve failed. Try again in 1s');
+																task.interval = 1000;
+																resolve();
+															});
+														}
+													}
+												}
+											} else {
+												setLastBlock(endBlock).then(() => {
+													task.interval = 100;
+													resolve();
+												});
 											}
-
-											setLastBlock(endBlock).then(() => {
-												task.interval = 100;
-												resolve();
-											});
+										}).catch((e) => {
+											logger.error(e);
+											reject(e);
 										});
 								}).catch((e) => {
 									logger.error(e);
@@ -127,17 +162,15 @@ console.log(logs);
 		stop: function() {
 			return new Promise((resolve, reject) => {
 				resolve();
-				// subscription.unsubscribe(function(error, success) {
-				// 	if (success)
-				// 		console.log('Successfully unsubscribed!');
-				// 	resolve();
-				// });
 			});
 		},
 
 		reset: function() {
+			logger.info('reset : setLastBlock to ', process.env.PARAMETERSCONTRACTSTARTBLOCK);
 			return setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
-				return this.start();
+				db.put('hashtagindexer-synced', false).then(() => {
+					return this.start();
+				});
 			});
 		},
 

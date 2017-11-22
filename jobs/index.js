@@ -3,22 +3,24 @@
 const logger = require('../logs')('jobs');
 
 let jobPromises = [
-//	require('./hashtagsIndexer')().start(),
-	require('./hashtagsIndexer')().reset(),
+	//	require('./hashtagsIndexer')().start(),
+	require('./hashtagsIndexer')().start(),
 ];
 
 module.exports = function() {
 	return ({
 		startAll: function() {
-			return (
+			return new Promise((resolve, reject) => {
 				Promise.all(jobPromises).then(() => {
-					logger.info('All tasks started up');
-				})
-				.catch((err) => {
-					logger.error('Tasks startup failed');
-					logger.error(new Error(err));
-				})
-			);
+						logger.info('All tasks started up');
+						return resolve();
+					})
+					.catch((err) => {
+						logger.error('Tasks startup failed');
+						logger.error('Error:', new Error(err));
+						reject();
+					});
+			});
 		}
 	});
 }

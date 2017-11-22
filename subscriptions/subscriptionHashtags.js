@@ -2,9 +2,10 @@
  * Subscription manager for 'balance'
  */
 'use strict';
-const logs = require('../logs.js')('subscriptionHashtags');
+const logger = require('../logs.js')('subscriptionHashtags');
 const jsonHash = require('json-hash');
 const web3 = require('../globalWeb3').web3;
+const db = require('../globaldb').db;
 
 //const getBalance = require('../tasks/getBalance')();
 //const blockHeaderTask = require('../scheduler/blockHeaderTask')();
@@ -29,42 +30,29 @@ function cancelSubscription(task) {
  * @return     {Promise}  resolves with the subscription object
  */
 function createSubscription(socket, args) {
-	logs.info('subscribe to hashtags please....');
+	logger.info('subscribe to hashtags please....');
 	// create task
 	let _task = {
 		func: (task) => {
-			return Promise.resolve('QUAAK');
-			// return new Promise((resolve, reject) => {
+			return new Promise((resolve, reject) => {
+				db.get(process.env.PARAMETERSCONTRACT + '-hashtaglist').then((val) => {
+					try {
+						let hashtags = JSON.parse(val);
+						logger.info('Hashtags: ', hashtags);
+						resolve(hashtags);
 
-			// 	//db.get('hashtaglist').then(resolve(..))
-			// 	// TODO : check if 'args' is a valid set of parameters to the 
-			// // 	// subscribe function
-			// // 	web3.eth.subscribe('logs', args, (err, res) => {
-			// // 			if (err) {
-			// // 				reject(new Error(err));
-			// // 			} else {
-			// // 				resolve();
-			// // 			}
-			// // 		}).on("data", function(log) {
-			// // 			logs.info('-----------> ', log);
-			// // 		})
-			// // 		.on("changed", function(log) {});;
-			//  });
+					} catch (e) {
+						reject(new Error(e));
+					}
+				}).catch((err) => {
+					logger.error(new Error(err));
+					reject(new Error(err));
+				});
+			});
 		},
 		responsehandler: (res, task) => {
-
 			task.data.socket.emit('hashtagsChanged', res);
 			return Promise.resolve();
-			// let replyHash = jsonHash.digest(res);
-			// if (task.data.lastReplyHash !== replyHash) {
-			// 	logs.debug('received getBalance RES=', JSON.stringify(res, null, 4));
-			// 	task.data.socket.emit('balanceChanged', res);
-			// 	task.data.lastReplyHash = replyHash;
-			// } else {
-			// 	logs.info('getBalance => data hasn\'t changed.');
-			// }
-			// task.data.socket.emit('balanceChanged', res);
-			// return blockHeaderTask.addTask(task);
 		},
 		data: {
 			socket: socket,
