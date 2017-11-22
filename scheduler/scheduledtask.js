@@ -3,7 +3,7 @@
  */
 'use strict';
 const uuidv4 = require('uuid/v4');
-const workerQueue = require('./workerqueue')();
+const workerQueue = require('./workerQueue')();
 const logger = require('../logs')();
 
 let tasks = [];
