@@ -76,7 +76,7 @@ function createSubscription(socket, args) {
 			}
 			return blockHeaderTask.addTask(task);
 
-			task.data.socket.emit('hashtagsChanged', res);
+			//task.data.socket.emit('hashtagsChanged', res);
 			return Promise.resolve();
 		},
 		data: {
