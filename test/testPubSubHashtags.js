@@ -11,7 +11,7 @@ const options = {
 
 // create a server
 const server = require('../socket');
-var subscriptions = [];
+let subscriptions = [];
 
 describe('Swarm City API socket client > test subscribe hashtags', function() {
 	let client;

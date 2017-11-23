@@ -13,7 +13,7 @@ module.exports = function() {
 						timeout: 15 * 1000,
 					},
 					(error, response, body) => {
-						if (error && error.code === 'ETIMEDOUT'){
+						if (error && error.code === 'ETIMEDOUT') {
 							logger.error('updateFx timeout on request');
 							return reject(new Error(error));
 						}
@@ -39,9 +39,9 @@ module.exports = function() {
 			});
 		},
 		getFx: function() {
-			if (result){
+			if (result) {
 				return Promise.resolve(result);
-			}else{
+			} else {
 				return this.updateFx();
 			}
 		},

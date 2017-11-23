@@ -9,10 +9,10 @@ const logger = require('./logs')('globalIPFS');
 module.exports = function() {
 	return ({
 		cat: function(hash) {
-			logger.info('CAT hash',hash);
+			logger.info('CAT hash', hash);
 			return new Promise((resolve, reject) => {
 				ipfs.files.cat(hash, (err, stream) => {
-					if (err){
+					if (err) {
 						return reject(new Error(err));
 					}
 					stream.pipe(bl((err, data) => {
@@ -23,11 +23,15 @@ module.exports = function() {
 						}
 					}));
 				});
-
 			});
 		},
-		isIPFSHash: function(possibleHash){
-			return (possibleHash && possibleHash.length === 46 && possibleHash.substring(0,2) === 'Qm');
-		}
+
+		isIPFSHash: function(possibleHash) {
+			return (
+				possibleHash &&
+				possibleHash.length === 46 &&
+				possibleHash.substring(0, 2) === 'Qm'
+			);
+		},
 	});
 }

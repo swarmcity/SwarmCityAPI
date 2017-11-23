@@ -1,7 +1,7 @@
 'use strict';
 require('../environment');
 
-const logs = require('../logs')();
+
 const ipfsAPI = require('ipfs-api');
 const ipfs = ipfsAPI(process.env.IPFSAPI);
 const bl = require('bl');
@@ -19,8 +19,7 @@ module.exports = function() {
 						}
 					}));
 				});
-
 			});
-		}
+		},
 	});
-}
+};

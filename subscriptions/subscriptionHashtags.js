@@ -4,12 +4,8 @@
 'use strict';
 const logger = require('../logs.js')('subscriptionHashtags');
 const jsonHash = require('json-hash');
-const web3 = require('../globalWeb3').web3;
 const db = require('../globaldb').db;
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
-
-//const getBalance = require('../tasks/getBalance')();
-//const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
@@ -18,9 +14,7 @@ const blockHeaderTask = require('../scheduler/blockHeaderTask')();
  * @return     {Promise}  result of removing the task (no return value)
  */
 function cancelSubscription(task) {
-	return Promise.resolve(
-		//blockHeaderTask.removeTask(task)
-	);
+	return Promise.resolve();
 }
 
 /**
@@ -48,14 +42,13 @@ function createSubscription(socket, args) {
 							maintainer: '0x369D787F3EcF4a0e57cDfCFB2Db92134e1982e09',
 							contact: [{
 								name: 'hashtagman2@gmail.com',
-								link: 'mailto:hashtagman2@gmail.com'
+								link: 'mailto:hashtagman2@gmail.com',
 							}, {
 								name: '@hashtag2 (Twitter)',
-								link: 'http://twitter.com/@hashtag2'
-							}, ],
+								link: 'http://twitter.com/@hashtag2',
+							}],
 						});
 						resolve(hashtags);
-
 					} catch (e) {
 						reject(new Error(e));
 					}
@@ -75,9 +68,6 @@ function createSubscription(socket, args) {
 				logger.info('Data hasn\'t changed.');
 			}
 			return blockHeaderTask.addTask(task);
-
-			//task.data.socket.emit('hashtagsChanged', res);
-			return Promise.resolve();
 		},
 		data: {
 			socket: socket,
