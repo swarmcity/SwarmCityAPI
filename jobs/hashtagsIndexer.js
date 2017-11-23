@@ -56,8 +56,12 @@ function getBlockHeight() {
 
 module.exports = function() {
 	let subscription;
+	let cumulativeEthClientTime = 0;
+	let taskStartTime = 0;
 	return ({
 		start: function() {
+
+			taskStartTime = Date.now();
 
 			// start up this task... print some parameters
 			logger.info('process.env.PARAMETERSCONTRACT=', process.env.PARAMETERSCONTRACT);
@@ -78,7 +82,7 @@ module.exports = function() {
 							getLastBlock().then((startBlock) => {
 								getBlockHeight().then((endBlock) => {
 
-									let range = 100;
+									let range = 30000;
 									if (startBlock + range < endBlock) {
 										endBlock = startBlock + range;
 									}
@@ -88,6 +92,13 @@ module.exports = function() {
 									if (startBlock === endBlock) {
 										logger.info('at endblock', endBlock);
 										task.interval = 5000;
+
+										let taskTime = Date.now() - taskStartTime;
+										logger.info('++++++++++++++++++++++++++++++');
+										logger.info('took', taskTime, 'ms to start');
+										logger.info('cumulativeEthClientTime', cumulativeEthClientTime, 'ms');
+										logger.info('++++++++++++++++++++++++++++++');
+
 										db.put('hashtagindexer-synced', true).then(() => {
 											logger.info('hashtagindexer is synced', endBlock);
 											jobresolve();
@@ -97,16 +108,24 @@ module.exports = function() {
 
 									logger.info('scanning', startBlock, '->', endBlock);
 
+									let startTime = Date.now();
+
 									parametersContractInstance.getPastEvents('ParameterSet', {
 											fromBlock: web3.utils.toHex(startBlock),
 											toBlock: web3.utils.toHex(endBlock),
 										})
 										.then((logs) => {
+											let duration = Date.now() - startTime;
+											logger.info('duration', duration);
+
+											cumulativeEthClientTime += duration;
+											logger.info('cumulativeEthClientTime', cumulativeEthClientTime, 'ms');
+
 											if (logs && logs.length > 0) {
 												for (let i = 0; i < logs.length; i++) {
 													let log = logs[i];
 													if (log.returnValues && log.returnValues.name === 'hashtaglist') {
-														
+
 														if (ipfs.isIPFSHash(log.returnValues.value)) {
 															ipfs.cat(log.returnValues.value).then((data) => {
 																logger.info('found hashtaglist : ', data);
