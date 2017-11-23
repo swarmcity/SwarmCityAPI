@@ -6,6 +6,7 @@ const logger = require('../logs.js')('subscriptionHashtags');
 const jsonHash = require('json-hash');
 const web3 = require('../globalWeb3').web3;
 const db = require('../globaldb').db;
+const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 
 //const getBalance = require('../tasks/getBalance')();
 //const blockHeaderTask = require('../scheduler/blockHeaderTask')();
@@ -38,7 +39,21 @@ function createSubscription(socket, args) {
 				db.get(process.env.PARAMETERSCONTRACT + '-hashtaglist').then((val) => {
 					try {
 						let hashtags = JSON.parse(val);
-						logger.info('Hashtags: ', hashtags);
+						// this is debug stuff
+						hashtags.push({
+							name: 'Random ' + Math.floor(Math.random() * 10 + 5),
+							deals: Math.floor(Math.random() * 10 + 5),
+							id: '1c9v87bc98v7a',
+							commission: 0.05,
+							maintainer: '0x369D787F3EcF4a0e57cDfCFB2Db92134e1982e09',
+							contact: [{
+								name: 'hashtagman2@gmail.com',
+								link: 'mailto:hashtagman2@gmail.com'
+							}, {
+								name: '@hashtag2 (Twitter)',
+								link: 'http://twitter.com/@hashtag2'
+							}, ],
+						});
 						resolve(hashtags);
 
 					} catch (e) {
@@ -51,6 +66,16 @@ function createSubscription(socket, args) {
 			});
 		},
 		responsehandler: (res, task) => {
+			let responseHash = jsonHash.digest(res);
+			if (task.data.lastResponse !== responseHash) {
+				logger.debug('received modified response RES=', JSON.stringify(res, null, 4));
+				task.data.socket.emit('hashtagsChanged', res);
+				task.data.lastResponse = responseHash;
+			} else {
+				logger.info('Data hasn\'t changed.');
+			}
+			return blockHeaderTask.addTask(task);
+
 			task.data.socket.emit('hashtagsChanged', res);
 			return Promise.resolve();
 		},
@@ -58,7 +83,7 @@ function createSubscription(socket, args) {
 			socket: socket,
 		},
 	};
-	//blockHeaderTask.addTask(_task);
+	blockHeaderTask.addTask(_task);
 	// run it a first time return subscription
 	return _task.func(_task).then((reply) => {
 		return Promise.resolve({
