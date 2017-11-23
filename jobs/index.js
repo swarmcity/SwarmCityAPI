@@ -3,7 +3,6 @@
 const logger = require('../logs')('jobs');
 
 let jobPromises = [
-	//	require('./hashtagsIndexer')().start(),
 	require('./hashtagsIndexer')().start(),
 ];
 
@@ -21,6 +20,6 @@ module.exports = function() {
 						reject();
 					});
 			});
-		}
+		},
 	});
-}
+};

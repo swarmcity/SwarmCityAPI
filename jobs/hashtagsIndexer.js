@@ -1,5 +1,5 @@
 /**
- * This module will scan the blockchain for events on the parameter contract and will 
+ * This module will scan the blockchain for events on the parameter contract and will
  * keep an updated list with hashtags available for the getHashtags task. ( see tasks/ )
  */
 'use strict';
@@ -52,20 +52,83 @@ function getBlockHeight() {
 	return web3.eth.getBlockNumber();
 }
 
+/**
+ * Gets the past events.
+ *
+ * @param      {Number}   startBlock                  The start block
+ * @param      {Number}   endBlock                    The end block
+ * @param      {Object}   parametersContractInstance  The parameters contract instance
+ * @param      {Object}   task                        The task
+ * @return     {Promise}  The past events.
+ */
+function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
+	return new Promise((resolve, reject) => {
+		let startTime = Date.now();
+		parametersContractInstance.getPastEvents('ParameterSet', {
+				fromBlock: web3.utils.toHex(startBlock),
+				toBlock: web3.utils.toHex(endBlock),
+			})
+			.then((logs) => {
+				let duration = Date.now() - startTime;
+				logger.info('duration', duration);
 
+				if (logs && logs.length > 0) {
+					for (let i = 0; i < logs.length; i++) {
+						let log = logs[i];
+						if (log.returnValues && log.returnValues.name === 'hashtaglist') {
+							if (ipfs.isIPFSHash(log.returnValues.value)) {
+								ipfs.cat(log.returnValues.value).then((data) => {
+									logger.info('found hashtaglist : ', data);
+									db.put(process.env.PARAMETERSCONTRACT +
+										'-hashtaglist', data).then(() => {
+										setLastBlock(endBlock).then(() => {
+											task.interval = 100;
+											resolve(duration);
+										});
+									}).catch((err) => {
+										// DB error
+										// don't increase the block number & re-schedule for retry
+										logger.error(new Error(err));
+										logger.error('DB put failed. Try again in 1s');
+										task.interval = 1000;
+										resolve(duration);
+									});
+								}).catch((err) => {
+									// IPFS resolving failed.
+									// don't increase the block number & re-schedule for retry
+									logger.error(new Error(err));
+									logger.error('IPFS resolve failed. Try again in 1s');
+									task.interval = 1000;
+									resolve(duration);
+								});
+							}
+						}
+					}
+				} else {
+					setLastBlock(endBlock).then(() => {
+						task.interval = 100;
+						resolve(duration);
+					});
+				}
+			}).catch((e) => {
+				logger.error(e);
+				reject(e);
+			});
+	});
+}
 
 module.exports = function() {
-	let subscription;
 	let cumulativeEthClientTime = 0;
 	let taskStartTime = 0;
 	return ({
 		start: function() {
-
 			taskStartTime = Date.now();
 
 			// start up this task... print some parameters
-			logger.info('process.env.PARAMETERSCONTRACT=', process.env.PARAMETERSCONTRACT);
-			logger.info('process.env.PARAMETERSCONTRACTSTARTBLOCK=', process.env.PARAMETERSCONTRACTSTARTBLOCK);
+			logger.info('process.env.PARAMETERSCONTRACT=',
+				process.env.PARAMETERSCONTRACT);
+			logger.info('process.env.PARAMETERSCONTRACTSTARTBLOCK=',
+				process.env.PARAMETERSCONTRACTSTARTBLOCK);
 
 			let parametersContractInstance = new web3.eth.Contract(
 				parametersContract.abi,
@@ -73,7 +136,6 @@ module.exports = function() {
 			);
 
 			return new Promise((jobresolve, reject) => {
-
 				scheduledTask.addTask({
 					name: 'hashtagIndexerTask',
 					interval: 100,
@@ -81,7 +143,6 @@ module.exports = function() {
 						return new Promise((resolve, reject) => {
 							getLastBlock().then((startBlock) => {
 								getBlockHeight().then((endBlock) => {
-
 									let range = 30000;
 									if (startBlock + range < endBlock) {
 										endBlock = startBlock + range;
@@ -96,7 +157,8 @@ module.exports = function() {
 										let taskTime = Date.now() - taskStartTime;
 										logger.info('++++++++++++++++++++++++++++++');
 										logger.info('took', taskTime, 'ms to start');
-										logger.info('cumulativeEthClientTime', cumulativeEthClientTime, 'ms');
+										logger.info('cumulativeEthClientTime',
+											cumulativeEthClientTime, 'ms');
 										logger.info('++++++++++++++++++++++++++++++');
 
 										db.put('hashtagindexer-synced', true).then(() => {
@@ -108,61 +170,11 @@ module.exports = function() {
 
 									logger.info('scanning', startBlock, '->', endBlock);
 
-									let startTime = Date.now();
-
-									parametersContractInstance.getPastEvents('ParameterSet', {
-											fromBlock: web3.utils.toHex(startBlock),
-											toBlock: web3.utils.toHex(endBlock),
-										})
-										.then((logs) => {
-											let duration = Date.now() - startTime;
-											logger.info('duration', duration);
-
-											cumulativeEthClientTime += duration;
-											logger.info('cumulativeEthClientTime', cumulativeEthClientTime, 'ms');
-
-											if (logs && logs.length > 0) {
-												for (let i = 0; i < logs.length; i++) {
-													let log = logs[i];
-													if (log.returnValues && log.returnValues.name === 'hashtaglist') {
-
-														if (ipfs.isIPFSHash(log.returnValues.value)) {
-															ipfs.cat(log.returnValues.value).then((data) => {
-																logger.info('found hashtaglist : ', data);
-																db.put(process.env.PARAMETERSCONTRACT + '-hashtaglist', data).then(() => {
-																	setLastBlock(endBlock).then(() => {
-																		task.interval = 100;
-																		resolve();
-																	});
-																}).catch((err) => {
-																	// DB error
-																	// don't increase the block number & re-schedule for retry
-																	logger.error(new Error(err));
-																	logger.error('DB put failed. Try again in 1s');
-																	task.interval = 1000;
-																	resolve();
-																});
-															}).catch((err) => {
-																// IPFS resolving failed.
-																// don't increase the block number & re-schedule for retry
-																logger.error(new Error(err));
-																logger.error('IPFS resolve failed. Try again in 1s');
-																task.interval = 1000;
-																resolve();
-															});
-														}
-													}
-												}
-											} else {
-												setLastBlock(endBlock).then(() => {
-													task.interval = 100;
-													resolve();
-												});
-											}
-										}).catch((e) => {
-											logger.error(e);
-											reject(e);
-										});
+									getPastEvents(startBlock, endBlock,
+										parametersContractInstance, task).then((scanDuration) => {
+										cumulativeEthClientTime += scanDuration;
+										resolve();
+									});
 								}).catch((e) => {
 									logger.error(e);
 									reject(e);
@@ -170,8 +182,7 @@ module.exports = function() {
 							}).catch((e) => {
 								logger.error(e);
 								reject(e);
-							});;
-
+							});
 						});
 					},
 				});
@@ -192,6 +203,5 @@ module.exports = function() {
 				});
 			});
 		},
-
 	});
-}
+};

@@ -40,7 +40,7 @@ function _updateSchedule() {
 			}, due);
 			nextRun = tasks[0].nextRun;
 			logger.info('scheduler to sleep for ', due, 'ms');
-		}else{
+		} else {
 			_updateSchedule();
 		}
 	} else {
@@ -53,6 +53,7 @@ function _updateSchedule() {
  * add a task to the scheduledTask scheduler
  *
  * @param      {Object}  task    The task to add
+ * @return     {Promise}  promise that resolves after addTask is ready
  */
 function addTask(task) {
 	task.id = task.id || uuidv4();
@@ -61,12 +62,14 @@ function addTask(task) {
 	if (!task.responsehandler && task.interval && task.interval > 0) {
 		task.responsehandler = (res, task) => {
 			logger.info('Schedule task again in ', task.interval, 'ms');
-			task.nextRun= (new Date).getTime() + task.interval;
+			task.nextRun = (new Date).getTime() + task.interval;
 			return addTask(task);
 		};
 	}
 	tasks.push(task);
-	logger.info('Added scheduled task "' + task.name + '" with ID=', task.id, 'next run=', task.nextRun ? task.nextRun : 'now');
+	logger.info('Added scheduled task "' +
+		task.name + '" with ID=', task.id, 'next run=',
+		task.nextRun ? task.nextRun : 'now');
 	_updateSchedule();
 	return Promise.resolve();
 }
@@ -77,6 +80,7 @@ function addTask(task) {
  * keep running until complete )
  *
  * @param      {object}  task    - the task to remove
+ * @return     {Promise}  promise that resolves after removeTask is ready
  */
 function removeTask(task) {
 	let index = tasks.indexOf(task);

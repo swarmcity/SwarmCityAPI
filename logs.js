@@ -10,51 +10,39 @@ module.exports = function(prefix) {
 					info.message =
 						info.message.reduce(function(res, cur) {
 							if (typeof cur === 'object') {
-								var append = JSON.stringify(cur);
-								if (append === '{}'){
+								let append = JSON.stringify(cur);
+								if (append === '{}') {
 									append = JSON.stringify(cur, Object.getOwnPropertyNames(cur));
 								}
-								return res + ' ' + append; 
+								return res + ' ' + append;
 							}
 							return res + ' ' + cur;
 						}, '');
 					return info;
-				}
+				},
 			},
 			winston.format.timestamp(),
-
-			winston.format.printf(info => {
+			winston.format.printf((info) => {
 				return `${info.timestamp} ${info.level}: ${prefix} - ${info.message}`;
 			})
 		),
 		transports: [new winston.transports.Console({
-			level: process.env.LOG_LEVEL || 'info'
+			level: process.env.LOG_LEVEL || 'info',
 		})],
 	});
 
-	//return logger;
-
 	return {
-
-		info: function() {
-			logger.info.apply(logger, [
-				[].slice.call(arguments), {}
-			]);
+		info: function(...args) {
+			logger.info.apply(logger, [args, {}]);
 		},
-		error: function() {
-			logger.error.apply(logger, [
-				[].slice.call(arguments), {}
-			]);
+		error: function(...args) {
+			logger.error.apply(logger, [args, {}]);
 		},
-		warn: function() {
-			logger.warn.apply(logger, [
-				[].slice.call(arguments), {}
-			]);
+		warn: function(...args) {
+			logger.warn.apply(logger, [args, {}]);
 		},
-		debug: function() {
-			logger.debug.apply(logger, [
-				[].slice.call(arguments), {}
-			]);
+		debug: function(...args) {
+			logger.debug.apply(logger, [args, {}]);
 		},
 	};
 };

@@ -10,7 +10,6 @@ const scheduledTask = require('./scheduler/scheduledtask')();
 // scheduled task handlers
 const getFx = require('./tasks/getFx')();
 const getGasPrice = require('./tasks/getGasPrice')();
-const getHashtags = require('./tasks/getHashtags')();
 
 // socket task handlers
 const getBalance = require('./tasks/getBalance')();

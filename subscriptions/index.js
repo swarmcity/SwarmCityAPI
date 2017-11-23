@@ -101,7 +101,7 @@ function subscribe(socket, data, callback) {
 			response: 400,
 			message: 'No such channel',
 		};
-		logger.info('No such channel',data.channel);
+		logger.info('No such channel', data.channel);
 		return callback(reply);
 	}
 }

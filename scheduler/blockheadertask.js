@@ -24,7 +24,9 @@ function checkListenerState() {
 		startListening();
 	}
 }
-
+/**
+ * Stop listening to web3 events
+ */
 function stopListening() {
 	if (newBlockHeadersSubscription) {
 		logger.info('stop listening to newblock events');
@@ -37,6 +39,9 @@ function stopListening() {
 	}
 }
 
+/**
+ * Starts listening to web3 newBlockHeaders events.
+ */
 function startListening() {
 	if (!newBlockHeadersSubscription) {
 		newBlockHeadersSubscription = web3.eth.subscribe('newBlockHeaders', (error, result) => {
@@ -80,7 +85,6 @@ function removeTask(task) {
 	} else {
 		logger.error('removeTask: cannot find task in task list', task.id);
 	}
-
 }
 
 /**
