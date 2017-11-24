@@ -61,11 +61,11 @@ describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', funct
 	});
 
 
-	it('should wait a while', (done) => {
-		setTimeout(() => {
-			done();
-		}, 2 * 1000);
-	});
+	// it('should wait a while', (done) => {
+	// 	setTimeout(() => {
+	// 		done();
+	// 	}, 2 * 1000);
+	// });
 
 	it('should unsubscribe / receive a confirmation', (done) => {
 		let promises = [];
