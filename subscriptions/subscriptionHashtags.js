@@ -52,7 +52,7 @@ function createSubscription(socket, args) {
 						resolve(hashtags);
 					} catch (e) {
 						logger.info('Returning empty hashtag list');
-						logger.error('Cannot parse hashtag data from DB',val,e);
+						logger.error('Cannot parse hashtag data from DB', val, e);
 						return resolve([]);
 					}
 				}).catch((err) => {
@@ -62,7 +62,6 @@ function createSubscription(socket, args) {
 						logger.info('Returning empty hashtag list');
 						return resolve([]);
 					}
-					//logger.error(new Error(err));
 					reject(new Error(err));
 				});
 			});
