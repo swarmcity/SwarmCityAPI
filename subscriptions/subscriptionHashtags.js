@@ -30,7 +30,8 @@ function createSubscription(socket, args) {
 	let _task = {
 		func: (task) => {
 			return new Promise((resolve, reject) => {
-				db.get(process.env.PARAMETERSCONTRACT + '-hashtaglist').then((val) => {
+				let key = process.env.PARAMETERSCONTRACT + '-hashtaglist';
+				db.get(key).then((val) => {
 					try {
 						let hashtags = JSON.parse(val);
 						// this is debug stuff
@@ -50,10 +51,18 @@ function createSubscription(socket, args) {
 						});
 						resolve(hashtags);
 					} catch (e) {
-						reject(new Error(e));
+						logger.info('Returning empty hashtag list');
+						logger.error('Cannot parse hashtag data from DB',val,e);
+						return resolve([]);
 					}
 				}).catch((err) => {
-					logger.error(new Error(err));
+					logger.error(JSON.stringify(err));
+					if (err.notFound) {
+						logger.error('key', key, 'not found (yet) in DB. ');
+						logger.info('Returning empty hashtag list');
+						return resolve([]);
+					}
+					//logger.error(new Error(err));
 					reject(new Error(err));
 				});
 			});
