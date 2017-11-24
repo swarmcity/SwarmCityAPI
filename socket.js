@@ -5,7 +5,7 @@ const io = require('socket.io')(server);
 const logs = require('./logs')('socketServer');
 const validate = require('./validators');
 
-const scheduledTask = require('./scheduler/scheduledtask')();
+const scheduledTask = require('./scheduler/scheduledTask')();
 
 // scheduled task handlers
 const getFx = require('./tasks/getFx')();
