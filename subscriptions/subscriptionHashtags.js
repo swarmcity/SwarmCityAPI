@@ -4,7 +4,7 @@
 'use strict';
 const logger = require('../logs.js')('subscriptionHashtags');
 const jsonHash = require('json-hash');
-const db = require('../globaldb').db;
+const db = require('../globalDB').db;
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 
 /**
