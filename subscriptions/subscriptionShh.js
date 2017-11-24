@@ -4,7 +4,7 @@
 'use strict';
 const logger = require('../logs.js')();
 const web3 = require('../globalWeb3').web3;
-const sha3 = require('crypto-js/SHA3');
+const sha3 = require('crypto-js/sha3');
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
