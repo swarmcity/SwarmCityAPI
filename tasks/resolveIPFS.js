@@ -1,6 +1,8 @@
+/**
+ * resolve an IPFS hash to data
+ */
 'use strict';
 require('../environment');
-
 
 const ipfsAPI = require('ipfs-api');
 const ipfs = ipfsAPI(process.env.IPFSAPI);
