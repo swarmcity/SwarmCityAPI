@@ -5,7 +5,8 @@
   "main": "socket.js",
   "scripts": {
     "test": "mocha --timeout 50000 test/*",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "showconfig": "node showEnv.js"
   },
   "author": "",
   "license": "MIT",
