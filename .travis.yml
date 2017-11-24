@@ -3,6 +3,10 @@ dist: trusty
 sudo: required
 env:
   - ETHWS=ws://138.197.179.88:8546
+  - APISOCKETPORT=8011
+  - IPFSAPI=/ip4/127.0.0.1/tcp/5001
+  - PARAMETERSCONTRACT=0x452a72e290fEEeb08fF80A08aCdac2267CC29c06
+  - PARAMETERSCONTRACTSTARTBLOCK=4556969
 node_js:
   - "node"
 cache:
