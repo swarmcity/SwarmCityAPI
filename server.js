@@ -1,3 +1,4 @@
+require('./showEnv');
 let s = require('./socket');
 
 
