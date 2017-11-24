@@ -3,8 +3,8 @@
  */
 'use strict';
 const uuidv4 = require('uuid/v4');
-const workerQueue = require('./workerqueue')();
-const logger = require('../logs')('scheduledTask');
+const workerQueue = require('./workerQueue')();
+const logger = require('../logs')();
 
 let tasks = [];
 let nextTaskTimer;
