@@ -41,12 +41,11 @@ describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', funct
 					channel: 'shhsubscribe',
 					args: {
 						address: '0x7018d8f698bfa076e1bdc916e2c64caddc750944',
-						mode: 'shortcode'
+						mode: 'shortcode',
 					},
 				}, (data) => {
 					should(data).have.property('response', 200);
 					should(data).have.property('subscriptionId');
-					//should(data).have.property('data');
 
 					subscriptionsArray.push(data.subscriptionId);
 
@@ -63,18 +62,6 @@ describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', funct
 			done();
 		});
 	});
-
-	// it('should wait a while for a block', (done) => {
-	// 	// listen to updates....
-	// 	client.on('balanceChanged', (data) => {
-	// 		logger.info('balanceChanged');
-	// 		logger.info('received balance update...', data);
-	// 	});
-
-	// setTimeout(() => {
-	// 	done();
-	// }, 1 * 1000);
-	// 
 
 	it('should list subscriptions', (done) => {
 		subscriptions.status().then(done);
