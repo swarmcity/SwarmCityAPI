@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')();
+const logger = require('../logs')('Mocha test');
 
 const io = require('socket.io-client');
 
@@ -79,9 +79,7 @@ describe('Swarm City API socket client > test callContract', function() {
 
 	after(function(done) {
 		logger.info('closing client socket');
-		client.close(() => {
-			logger.info('client closed...');
-		});
+		client.close();
 		server.close().then(() => {
 			logger.info('server closed...');
 			done();

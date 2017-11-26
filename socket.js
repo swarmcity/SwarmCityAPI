@@ -6,6 +6,7 @@ const logs = require('./logs')('socketServer');
 const validate = require('./validators');
 
 const scheduledTask = require('./scheduler/scheduledTask')();
+const blockHeaderTask = require('./scheduler/blockHeaderTask')();
 
 // scheduled task handlers
 const getFx = require('./tasks/getFx')();
@@ -158,6 +159,8 @@ function listen() {
  */
 function close() {
 	return new Promise((resolve, reject) => {
+		scheduledTask.removeAllTasks();
+		blockHeaderTask.removeAllTasks();
 		server.close((err) => {
 			if (err) {
 				reject(err);

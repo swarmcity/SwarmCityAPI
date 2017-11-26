@@ -4,7 +4,7 @@
   "description": "",
   "main": "socket.js",
   "scripts": {
-    "test": "mocha --timeout 50000 test/*",
+    "test": "mocha --exit --timeout 50000 test/*",
     "lint": "eslint .",
     "showconfig": "node showEnv.js"
   },

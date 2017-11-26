@@ -98,6 +98,18 @@ function removeTasks(taskArray) {
 	}
 }
 
+
+/**
+ * Removes all tasks.
+ */
+function removeAllTasks() {
+	logger.info('removing all task from blockHeaderTask scheduler (', tasks.length, ')');
+	for (let i = 0; i < tasks.length; i++) {
+		removeTask(tasks[i]);
+	}
+}
+
+
 /**
  * dump status of this module to the log
  *
@@ -125,6 +137,7 @@ module.exports = function() {
 		addTask: addTask,
 		removeTask: removeTask,
 		removeTasks: removeTasks,
+		removeAllTasks: removeAllTasks,
 		tasks: tasks,
 		status: status,
 	});
