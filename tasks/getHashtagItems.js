@@ -44,7 +44,7 @@ module.exports = function(web3) {
 				}],
 			};
 			return new Promise((resolve, reject) => {
-				logs._eventLog('HashtagsItems: ', returnObject);
+				logs.info('HashtagsItems: ', returnObject);
 				resolve(returnObject);
 			});
 		},

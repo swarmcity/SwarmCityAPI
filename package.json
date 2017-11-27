@@ -4,21 +4,25 @@
   "description": "",
   "main": "socket.js",
   "scripts": {
-    "test": "mocha --timeout 50000 test/*",
-    "lint": "eslint ."
+    "test": "mocha --exit --timeout 50000 test/*",
+    "lint": "eslint .",
+    "showconfig": "node showEnv.js"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "async": "^2.5.0",
+    "bl": "^1.2.1",
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
+    "ipfs-api": "^15.1.0",
     "json-hash": "^1.2.0",
+    "level": "^2.0.1",
     "request": "^2.83.0",
     "socket.io": "^2.0.4",
     "uuid": "^3.1.0",
     "web3": "^1.0.0-beta.24",
-    "winston": "^2.4.0"
+    "winston": "^3.0.0-rc1"
   },
   "devDependencies": {
     "eslint": "^4.10.0",

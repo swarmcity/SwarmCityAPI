@@ -2,7 +2,7 @@
 
 // Scheduled tasks are tasks that need to run when the next ETH block arrives.
 
-const logger = require('../logs')();
+const logger = require('../logs')('blockheadertask');
 const web3 = require('../globalWeb3').web3;
 const uuidv4 = require('uuid/v4');
 
@@ -12,20 +12,53 @@ let newBlockHeadersSubscription;
 let tasks = [];
 let blockNumber = 0;
 
-
-if (!newBlockHeadersSubscription) {
-	newBlockHeadersSubscription = web3.eth.subscribe('newBlockHeaders', (error, result) => {
-		if (result && result.number > blockNumber) {
-			blockNumber = result.number;
-			logger.info('newBlockHeaders event occured. Block height=', blockNumber);
-			let task;
-			while (task = tasks.shift()) {
-				workerQueue.push(task, task.responsehandler);
-			}
-		}
-	});
-	logger.info('subscribed to newBlockHeaders via Web3 WS');
+/**
+ * checks if the tasks queue is empty or not - and switch the WEB3 listener
+ * accordinly on or off
+ */
+function checkListenerState() {
+	if (tasks.length === 0) {
+		logger.info('the blockheadertask scheduler is empty');
+		stopListening();
+	} else {
+		startListening();
+	}
 }
+/**
+ * Stop listening to web3 events
+ */
+function stopListening() {
+	if (newBlockHeadersSubscription) {
+		logger.info('stop listening to newblock events');
+		newBlockHeadersSubscription.unsubscribe(function(error, success) {
+			if (success) {
+				logger.info('Successfully unsubscribed!');
+				newBlockHeadersSubscription = null;
+			}
+		});
+	}
+}
+
+/**
+ * Starts listening to web3 newBlockHeaders events.
+ */
+function startListening() {
+	if (!newBlockHeadersSubscription) {
+		newBlockHeadersSubscription = web3.eth.subscribe('newBlockHeaders', (error, result) => {
+			if (result && result.number > blockNumber) {
+				blockNumber = result.number;
+				logger.info('newBlockHeaders event occured. Block height=', blockNumber);
+				let task;
+				while (task = tasks.shift()) {
+					workerQueue.push(task, task.responsehandler);
+				}
+				checkListenerState();
+			}
+		});
+		logger.info('start listening to newBlockHeaders via Web3 WS');
+	}
+}
+
 
 /**
  * Add a new task to the newBlockHeaders scheduler
@@ -37,6 +70,7 @@ function addTask(task) {
 	tasks.push(task);
 	logger.info('******* Added blockheader task ID=', task.id);
 	logger.info('newBlockHeaders tasks count=', tasks.length);
+	startListening();
 }
 
 /**
@@ -50,9 +84,6 @@ function removeTask(task) {
 		tasks.splice(index, 1);
 	} else {
 		logger.error('removeTask: cannot find task in task list', task.id);
-	}
-	if (tasks.length === 0) {
-		logger.info('the blockheadertask scheduler is empty');
 	}
 }
 

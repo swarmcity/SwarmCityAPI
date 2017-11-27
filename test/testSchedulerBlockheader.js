@@ -1,11 +1,12 @@
 'use strict';
-const logger = require('../logs')();
+const logger = require('../logs')('testSchedulerBlockheader');
 
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 
 describe('Swarm City scheduler', function() {
 	it('should add & unroll blockHeaderTask task', function(done) {
 		blockHeaderTask.addTask({
+			name: 'print blockheader',
 			func: (task) => {
 				return new Promise((resolve, reject) => {
 					logger.info('Hello', task.data);

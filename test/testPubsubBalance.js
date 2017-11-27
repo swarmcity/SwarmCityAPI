@@ -22,7 +22,7 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 	before(function(done) {
 		server.listen().then((con) => {
 			socketURL = 'http://localhost:' +
-				con.port + '?publicKey=0x7018d8f698bfa076e1bdc916e2c64caddc750944';
+				con.port;
 			logger.info('socketURL=', socketURL);
 			done();
 		});
@@ -60,17 +60,17 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 		});
 	});
 
-	it('should wait a while for a block', (done) => {
-		// listen to updates....
-		client.on('balanceChanged', (data) => {
-			logger.info('balanceChanged');
-			logger.info('received balance update...', data);
-		});
+	// it('should wait a while for a block', (done) => {
+	// 	// listen to updates....
+	// 	client.on('balanceChanged', (data) => {
+	// 		logger.info('balanceChanged');
+	// 		logger.info('received balance update...', data);
+	// 	});
 
-		setTimeout(() => {
-			done();
-		}, 50 * 1000);
-	});
+	// setTimeout(() => {
+	// 	done();
+	// }, 1 * 1000);
+
 
 	it('should unsubscribe / receive a confirmation', (done) => {
 		let promises = [];

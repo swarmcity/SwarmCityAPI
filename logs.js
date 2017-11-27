@@ -1,34 +1,48 @@
+'use strict';
 const winston = require('winston');
-const logger = new winston.Logger({
-	transports: [
-		new winston.transports.Console({
-			handleExceptions: true,
-			json: false,
-			colorize: true,
-			timestamp: true,
-		}),
-	],
-	exitOnError: false,
-});
 
-
-module.exports = function() {
-	return Object.assign(logger, {
-		/**
-		 * Significant events get logged as an audit trail
-		 * @param {Object} item
-		 * @param {Strring} type
-		 */
-		_eventLog: function(item, type) {
-			logger.info(item);
-		},
-		/**
-		 * Errors get logged
-		 * @param {Object} item
-		 * @param {Strring} type
-		 */
-		_errorLog: function(item, type) {
-			logger.error(item);
-		},
+module.exports = function(prefix) {
+	const logger = winston.createLogger({
+		format: winston.format.combine(
+			winston.format.splat(), {
+				transform: function(info, opts) {
+					if (!info) return;
+					info.message =
+						info.message.reduce(function(res, cur) {
+							if (typeof cur === 'object') {
+								let append = JSON.stringify(cur);
+								if (append === '{}') {
+									append = JSON.stringify(cur, Object.getOwnPropertyNames(cur));
+								}
+								return res + ' ' + append;
+							}
+							return res + ' ' + cur;
+						}, '');
+					return info;
+				},
+			},
+			winston.format.timestamp(),
+			winston.format.printf((info) => {
+				return `${info.timestamp} ${info.level}: ${prefix} - ${info.message}`;
+			})
+		),
+		transports: [new winston.transports.Console({
+			level: process.env.LOG_LEVEL || 'info',
+		})],
 	});
+
+	return {
+		info: function(...args) {
+			logger.info.apply(logger, [args, {}]);
+		},
+		error: function(...args) {
+			logger.error.apply(logger, [args, {}]);
+		},
+		warn: function(...args) {
+			logger.warn.apply(logger, [args, {}]);
+		},
+		debug: function(...args) {
+			logger.debug.apply(logger, [args, {}]);
+		},
+	};
 };

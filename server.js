@@ -1,8 +1,17 @@
+require('./showEnv');
 let s = require('./socket');
 
 
-const scheduledTask = require('./scheduler/scheduledtask')();
+const scheduledTask = require('./scheduler/scheduledTask')();
+const jobs = require('./jobs')();
+const logger = require('./logs')('server');
 
-s.listen();
+logger.info('Starting up jobs..');
 
-scheduledTask.status();
+jobs.startAll().then(() => {
+	logger.info('All jobs started up. Start listening');
+	s.listen();
+	scheduledTask.status();
+}).catch((e) => {
+	logger.error(new Error(e));
+});

@@ -3,19 +3,20 @@
  */
 'use strict';
 
-const logger = require('../logs')();
+const logger = require('../logs')('WS subscriptions');
 const uuidv4 = require('uuid/v4');
 
 
 // load the channel subscription handlers
 const balance = require('./subscriptionBalance')();
+const hashtags = require('./subscriptionHashtags')();
 const hashtagItems = require('./subscriptionHashtagItems')();
 
 // initialize available subscriptionchannels
 let channels = {};
 channels[balance.name] = balance;
+channels[hashtags.name] = hashtags;
 channels[hashtagItems.name] = hashtagItems;
-
 
 // all subscriptions are kept here
 let subscriptions = {};
@@ -102,6 +103,7 @@ function subscribe(socket, data, callback) {
 			response: 400,
 			message: 'No such channel',
 		};
+		logger.info('No such channel', data.channel);
 		return callback(reply);
 	}
 }

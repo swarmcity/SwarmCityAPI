@@ -2,15 +2,14 @@ require('./environment');
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
-const logs = require('./logs')();
+const logs = require('./logs')('socketServer');
 const validate = require('./validators');
 
-const scheduledTask = require('./scheduler/scheduledtask')();
+const scheduledTask = require('./scheduler/scheduledTask')();
 
 // scheduled task handlers
 const getFx = require('./tasks/getFx')();
 const getGasPrice = require('./tasks/getGasPrice')();
-const getHashtags = require('./tasks/getHashtags')();
 
 // socket task handlers
 const getBalance = require('./tasks/getBalance')();
@@ -45,6 +44,7 @@ io.on('connection', (socket) => {
 	if (validate.isAddress(socket.handshake.query.publicKey)) {
 		logs.info('publicKey provided:', socket.handshake.query.publicKey);
 		scheduledTask.addTask({
+			name: 'get initial balance', // a task name is optional
 			func: (task) => {
 				return getBalance.getBalance(task.data);
 			},
@@ -60,6 +60,7 @@ io.on('connection', (socket) => {
 	}
 
 	scheduledTask.addTask({
+		name: 'getFX',
 		func: (task) => {
 			return getFx.getFx();
 		},
@@ -74,6 +75,7 @@ io.on('connection', (socket) => {
 	});
 
 	scheduledTask.addTask({
+		name: 'get gasprice',
 		func: (task) => {
 			return getGasPrice.getGasPrice();
 		},
@@ -87,19 +89,20 @@ io.on('connection', (socket) => {
 		},
 	});
 
-	scheduledTask.addTask({
-		func: (task) => {
-			return getHashtags.getHashtags();
-		},
-		responsehandler: (res, task) => {
-			logs.info('received getHashtags RES=', JSON.stringify(res, null, 4));
-			task.data.socket.emit('hashtagsChanged', res);
-		},
-		data: {
-			socket: socket,
-			address: socket.handshake.query.publicKey,
-		},
-	});
+	// scheduledTask.addTask({
+	// 	name: 'get hashtags',
+	// 	func: (task) => {
+	// 		return getHashtags.getHashtags();
+	// 	},
+	// 	responsehandler: (res, task) => {
+	// 		logs.info('received getHashtags RES=', JSON.stringify(res, null, 4));
+	// 		task.data.socket.emit('hashtagsChanged', res);
+	// 	},
+	// 	data: {
+	// 		socket: socket,
+	// 		address: socket.handshake.query.publicKey,
+	// 	},
+	// });
 
 	socket.on('disconnect', () => {
 		logs.info('socket', socket.id, 'disconnected');
@@ -129,6 +132,7 @@ const APIHOST = process.env.APIHOST || '0.0.0.0';
  */
 function listen() {
 	return new Promise((resolve, reject) => {
+		logs.info('opening WS API on', APIHOST, 'port', APISOCKETPORT);
 		if (!APISOCKETPORT || !APIHOST) {
 			reject('no APISOCKETPORT defined in environment');
 		} else {

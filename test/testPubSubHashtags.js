@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')();
+const logger = require('../logs')('testPubSubHashtags');
 
 const io = require('socket.io-client');
 
@@ -11,46 +11,36 @@ const options = {
 
 // create a server
 const server = require('../socket');
+let subscriptions = [];
 
-describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', function() {
+describe('Swarm City API socket client > test subscribe hashtags', function() {
 	let client;
-	let subscriptions = [];
-
 	let socketURL;
-
 
 	before(function(done) {
 		server.listen().then((con) => {
-			socketURL = 'http://localhost:' +
-				con.port;
+			socketURL = 'http://localhost:' + con.port;
 			logger.info('socketURL=', socketURL);
 			done();
 		});
 	});
 
-	it('should subscribe / receive a subscription ID', function(done) {
+	it('should subscribe to hashtags', function(done) {
 		logger.info('connecting to ', socketURL);
 		client = io.connect(socketURL, options);
 
 		let promises = [];
-		for (let i = 0; i < 1; i++) {
-			promises.push(new Promise((resolve, reject) => {
-				client.emit('subscribe', {
-					channel: 'hashtagitems',
-					args: {
-						address: '0x7018d8f698bfa076e1bdc916e2c64caddc750944',
-					},
-				}, (data) => {
-					should(data).have.property('response', 200);
-					should(data).have.property('subscriptionId');
-
-					subscriptions.push(data.subscriptionId);
-
-					logger.info('subscribe>>>balance', data);
-					resolve();
-				});
-			}));
-		}
+		promises.push(new Promise((resolve, reject) => {
+			client.emit('subscribe', {
+				channel: 'hashtags',
+				args: {},
+			}, (data) => {
+				logger.info('call returned data', data);
+				should(data).have.property('response', 200);
+				subscriptions.push(data.subscriptionId);
+				resolve();
+			});
+		}));
 
 		Promise.all(promises).then(() => {
 			done();
@@ -60,14 +50,7 @@ describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', funct
 		});
 	});
 
-
-	// it('should wait a while', (done) => {
-	// 	setTimeout(() => {
-	// 		done();
-	// 	}, 2 * 1000);
-	// });
-
-	it('should unsubscribe / receive a confirmation', (done) => {
+	it('should unsubscribe', (done) => {
 		let promises = [];
 		subscriptions.forEach((subscription) => {
 			logger.info('unsubscribe from', subscription);

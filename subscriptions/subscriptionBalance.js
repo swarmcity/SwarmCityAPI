@@ -45,7 +45,6 @@ function createSubscription(socket, args) {
 			} else {
 				logs.info('getBalance => data hasn\'t changed.');
 			}
-			task.data.socket.emit('balanceChanged', res);
 			return blockHeaderTask.addTask(task);
 		},
 		data: {

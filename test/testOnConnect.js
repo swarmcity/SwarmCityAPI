@@ -47,12 +47,12 @@ describe('Swarm City API socket client', function() {
 				resolve();
 			});
 		}));
-		promises.push(new Promise((resolve, reject) => {
-			client.on('hashtagsChanged', (data) => {
-				logger.info('hashtagsChanged');
-				resolve();
-			});
-		}));
+		// promises.push(new Promise((resolve, reject) => {
+		// 	client.on('hashtagsChanged', (data) => {
+		// 		logger.info('hashtagsChanged');
+		// 		resolve();
+		// 	});
+		// }));
 		Promise.all(promises).then(() => {
 			done();
 		}).catch((err) => {
