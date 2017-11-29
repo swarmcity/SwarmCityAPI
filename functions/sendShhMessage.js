@@ -25,52 +25,18 @@ function createTask(socket, data, callback) {
 		func: (task) => {
 			logger.info('sendShhMessage start', data);
 			return new Promise((resolve, reject) => {
-				let identities = [];
-
-				// Promise.all([
-				// 	web3.shh.newSymKey().then((id) => {
-				// 		identities.push(id);
-				// 	}),
-				// 	web3.shh.newKeyPair().then((id) => {
-				// 		identities.push(id);
-				// 	})
-
-				// ]).then(() => {
-
-				// 	// will receive also its own message send, below
-				// 	// subscription = web3.shh.subscribe("messages", {
-				// 	// 	symKeyID: identities[0],
-				// 	// 	topics: [shhHelpers.shhHash(data.shortcode)],
-				// 	// }).on('data', console.log);
-
-				// }).then(() => {
-
 				web3.shh.generateSymKeyFromPassword(data.shortcode).then((symKeyID) => {
 					const opts = {
-						symKeyID: symKeyID, // identities[0], // encrypts using the sym key ID
-						//sig: identities[1], // signs the message using the keyPair ID
+						symKeyID: symKeyID,
 						ttl: 10,
 						topic: shhHelpers.shhHash(data.shortcode),
-
 						payload: web3.utils.asciiToHex(JSON.stringify(data.payload)),
 						powTime: 10,
-						powTarget: 0.3
+						powTarget: 0.3,
 					};
 					logger.info('shh opts', opts, data);
 					web3.shh.post(opts);
 				});
-
-				// }).catch((e) => {
-				// 	logger.error('HODL', e);
-				// });
-
-
-				// try {
-				// 	resolve();
-				// } catch (error) {
-				// 	logger.error(error);
-				// 	reject(error);
-				// }
 			});
 		},
 		responsehandler: (res, task) => {

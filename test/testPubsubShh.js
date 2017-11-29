@@ -35,16 +35,15 @@ describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', funct
 		logger.info('connecting to ', socketURL);
 		client = io.connect(socketURL, options);
 
-
 		let messagehandler = function() {
 			return new Promise((resolve, reject) => {
 				// wait for SHH message to arrive..
 				client.on('sshMessage', (data) => {
 					logger.info('got sshMessage', data);
-					should(data).have.property('hello','world');
+					should(data).have.property('hello', 'world');
 					resolve();
 				});
-			})
+			});
 		};
 
 		let subscribe = function() {
@@ -65,7 +64,7 @@ describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', funct
 
 					resolve(reply);
 				});
-			})
+			});
 		};
 
 
@@ -81,29 +80,21 @@ describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', funct
 					should(reply).have.property('response', 200);
 					resolve();
 				});
-
-			})
+			});
 		};
 
-		messagehandler().then(()=>{
+		messagehandler().then(() => {
 			logger.info('now unregister & quit.');
 			done();
 		});
 
-		subscribe().then((reply)=>{
-			logger.info('got subscribe reply',reply);
+		subscribe().then((reply) => {
+			logger.info('got subscribe reply', reply);
 			return Promise.resolve(reply.data.shortcode);
-		}).then((shortcode)=>{
-			logger.info('the shortcode is',shortcode);
+		}).then((shortcode) => {
+			logger.info('the shortcode is', shortcode);
 			return emitssh(shortcode);
 		});
-
-		// logger.info('We have', promises.length, 'promises to resolve.');
-
-		// Promise.all(promises).then(() => {
-		// 	logger.info('>>>>>RRRRESOLVED');
-		// 	done();
-		// })
 	});
 
 	it('should list subscriptions', (done) => {
