@@ -5,6 +5,7 @@ const logger = require('../logs')('Mocha test');
 const io = require('socket.io-client');
 const subscriptions = require('../subscriptions')();
 
+require('../showEnv');
 
 const options = {
 	'transports': ['websocket'],
@@ -34,33 +35,75 @@ describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', funct
 		logger.info('connecting to ', socketURL);
 		client = io.connect(socketURL, options);
 
-		let promises = [];
-		for (let i = 0; i < 1; i++) {
-			promises.push(new Promise((resolve, reject) => {
+
+		let messagehandler = function() {
+			return new Promise((resolve, reject) => {
+				// wait for SHH message to arrive..
+				client.on('sshMessage', (data) => {
+					logger.info('got sshMessage', data);
+					should(data).have.property('hello','world');
+					resolve();
+				});
+			})
+		};
+
+		let subscribe = function() {
+			return new Promise((resolve, reject) => {
 				client.emit('subscribe', {
 					channel: 'shhsubscribe',
 					args: {
-						address: '0x7018d8f698bfa076e1bdc916e2c64caddc750944',
 						mode: 'shortcode',
 					},
-				}, (data) => {
-					should(data).have.property('response', 200);
-					should(data).have.property('subscriptionId');
+				}, (reply) => {
+					logger.info('shhsubscribe reply', reply);
 
-					subscriptionsArray.push(data.subscriptionId);
+					should(reply).have.property('response', 200);
+					should(reply).have.property('subscriptionId');
+					should(reply).have.property('data').with.a.property('shortcode');
 
-					logger.info('subscribe>>>', data);
+					subscriptionsArray.push(reply.subscriptionId);
+
+					resolve(reply);
+				});
+			})
+		};
+
+
+		let emitssh = function(shortcode) {
+			return new Promise((resolve, reject) => {
+				client.emit('sendShhMessage', {
+					shortcode: shortcode, // reply.data.shortcode,
+					payload: {
+						hello: 'world',
+					},
+				}, (reply) => {
+					logger.info('sendShhMessage reply>>>', reply);
+					should(reply).have.property('response', 200);
 					resolve();
 				});
-			}));
-		}
 
-		Promise.all(promises).then(() => {
-			done();
-		}).catch((err) => {
-			logger.info(err);
+			})
+		};
+
+		messagehandler().then(()=>{
+			logger.info('now unregister & quit.');
 			done();
 		});
+
+		subscribe().then((reply)=>{
+			logger.info('got subscribe reply',reply);
+			return Promise.resolve(reply.data.shortcode);
+		}).then((shortcode)=>{
+			logger.info('the shortcode is',shortcode);
+			return emitssh(shortcode);
+		});
+
+		// logger.info('We have', promises.length, 'promises to resolve.');
+
+		// Promise.all(promises).then(() => {
+		// 	logger.info('>>>>>RRRRESOLVED');
+		// 	done();
+		// })
 	});
 
 	it('should list subscriptions', (done) => {

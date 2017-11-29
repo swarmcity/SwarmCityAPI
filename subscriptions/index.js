@@ -77,11 +77,12 @@ function status() {
  */
 function subscribe(socket, data, callback) {
 	let subscriptionId = uuidv4();
-	logger.info('socket', socket.id, 'subscribes to', data.channel,
+	logger.info('socket', socket.id, 'subscribes to ', data.channel,
 		'subscriptionId=', subscriptionId);
 
 	if (channels[data.channel]) {
-		channels[data.channel].createSubscription(socket, data.args).then((subscription) => {
+		channels[data.channel].createSubscription(socket, data.args)
+			.then((subscription) => {
 				subscriptions[subscriptionId] = {
 					socketId: socket.id,
 					subscription: subscription,
@@ -94,6 +95,7 @@ function subscribe(socket, data, callback) {
 				return callback(reply);
 			})
 			.catch((e) => {
+				logger.error('subscribe failed',e);
 				let reply = {
 					response: 500,
 					message: e,

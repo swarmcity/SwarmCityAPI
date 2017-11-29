@@ -2,9 +2,10 @@
  * Subscription manager for 'sshsubscription'
  */
 'use strict';
-const logger = require('../logs.js')();
+const logger = require('../logs.js')('subscriptionshh');
 const web3 = require('../globalWeb3').web3;
-const sha3 = require('crypto-js/sha3');
+const shhHelpers = require('../globalWeb3').shhHelpers;
+
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
@@ -22,12 +23,12 @@ function cancelSubscription(task) {
 }
 
 /**
- * create random pincode
+ * create random shortcode
  *
  * @param      {number}  decimals  The decimals
  * @return     {string}  a shortcode
  */
-function getPinCode(decimals) {
+function createShortCode(decimals) {
 	if (decimals < 2) {
 		decimals = 2;
 	}
@@ -55,49 +56,70 @@ function createSubscription(socket, args) {
 		switch (args.mode) {
 			case 'shortcode':
 				{
-					let pincode = getPinCode(5);
-					let topic = '0x' + sha3(pincode, {
-						outputLength: 32,
-					}).toString();
-					logger.info('topic', topic);
+					let shortcode = args.value || createShortCode(5);
+					logger.info(shhHelpers);
+					logger.info('shortcode=', shortcode, 'topic=', shhHelpers.shhHash(shortcode));
 
-					web3.shh.generateSymKeyFromPassword(topic)
+					web3.shh.getInfo().then(logger.info);
+
+
+					web3.shh.generateSymKeyFromPassword(shortcode)
 					.then((symKeyID) => {
 						logger.info('key ID', symKeyID);
-						web3.shh.newMessageFilter({
-							symKeyID: symKeyID,
-							ttl: 20,
-							topics: [topic],
-							minPow: 0.8,
-						}).then((filter) => {
+						try {
+							logger.info('1');
+							var subscription = web3.shh.subscribe('messages', {
+								symKeyID: symKeyID,
+								topics: [
+									//shhHelpers.shhHash(shhHelpers.SshBaseTopic),
+									shhHelpers.shhHash(shortcode),
+								],
+								minPow: 0.3,
+							}).on('data', (message) => {
+								logger.info('2');
+								// if (error) {
+								// 	logger.error(error);
+								// 	return reject(error);
+								// } else {
+									// logger.info('******RECEIVED Whisper MSG******');
+									// logger.info(message);
+									let decoded = web3.utils.hexToAscii(message.payload);
+									var payload = JSON.parse(decoded);
+									// logger.info('******/RECEIVED Whisper MSG******');
+								//}
+								//
+								socket.emit('sshMessage', payload);
+							});
+
+
+							//.catch((e) => {
+							//logger.info('shhsubscribe', subscription);
 							resolve({
-								task: {
-									data: {
-										pincode: pincode,
-										filterID: filter,
-									},
-								},
 								initialResponse: {
-									pincode: pincode,
-									symKeyID: symKeyID,
-									topic: topic,
+									shortcode: shortcode,
+									//symKeyID: symKeyID,
 								},
 								cancelSubscription: cancelSubscription,
 							});
-						}).catch((e) => {
-							logger.error('newMessageFilter', e);
-							resolve({
-								task: {},
-								cancelSubscription: cancelSubscription,
-							});
-						});
+						} catch (e) {
+							logger.info('3');
+
+							logger.error('error subscribe...', e);
+							return reject();
+						}
+
+						logger.info('4');
+
+
+						//});
 					})
 					.catch((e) => {
-						logger.error('generateSymKeyFromPassword', e);
-						resolve({
-							task: {},
-							cancelSubscription: cancelSubscription,
-						});
+						logger.error('shhsubscribe', e);
+						reject();
+						// resolve({
+						// 	task: {},
+						// 	cancelSubscription: cancelSubscription,
+						// });
 					});
 					break;
 				}
