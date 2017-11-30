@@ -18,7 +18,7 @@ describe('Swarm City API socket client', function() {
 	before(function(done) {
 		server.listen().then((con) => {
 			socketURL = 'http://localhost:' +
-				con.port + '?publicKey=0x7018d8f698bfa076e1bdc916e2c64caddc750944';
+				con.port ; //+ '?publicKey=0x7018d8f698bfa076e1bdc916e2c64caddc750944';
 			logger.info('socketURL=', socketURL);
 			done();
 		});
@@ -29,12 +29,12 @@ describe('Swarm City API socket client', function() {
 		client = io.connect(socketURL, options);
 
 		let promises = [];
-		promises.push(new Promise((resolve, reject) => {
-			client.on('balanceChanged', (data) => {
-				logger.info('balanceChanged', data);
-				resolve();
-			});
-		}));
+		// promises.push(new Promise((resolve, reject) => {
+		// 	client.on('balanceChanged', (data) => {
+		// 		logger.info('balanceChanged', data);
+		// 		resolve();
+		// 	});
+		// }));
 		promises.push(new Promise((resolve, reject) => {
 			client.on('fxChanged', (data) => {
 				logger.info('fxChanged', data);
