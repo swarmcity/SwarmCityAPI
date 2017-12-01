@@ -16,7 +16,7 @@ const options = {
 const server = require('../socket');
 
 if (!process.env.TESTSHH) {
-	logger.log('SSH test disabled');
+	logger.info('SSH test disabled');
 } else {
 	describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', function() {
 		let client;
@@ -85,6 +85,7 @@ if (!process.env.TESTSHH) {
 					}, (reply) => {
 						logger.info('sendShhMessage reply>>>', reply);
 						should(reply).have.property('response', 200);
+						should(reply).have.property('data');
 						resolve();
 					});
 				});

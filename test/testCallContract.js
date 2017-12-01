@@ -39,9 +39,10 @@ describe('Swarm City API socket client > test callContract', function() {
 				abi: tokenABI.abi,
 				method: 'creationBlock',
 				arguments: null,
-			}, (data) => {
-				logger.info('callContract returned', data);
-				should(data).have.property('response', 200);
+			}, (reply) => {
+				logger.info('callContract returned', reply);
+				should(reply).have.property('response', 200);
+				should(reply).have.property('data');
 				resolve();
 			});
 		}));
@@ -52,9 +53,10 @@ describe('Swarm City API socket client > test callContract', function() {
 				abi: tokenABI.abi,
 				method: 'balanceOf',
 				arguments: ['0x7018d8f698bfa076e1bdc916e2c64caddc750944'],
-			}, (data) => {
-				logger.info('callContract returned', data);
-				should(data).have.property('response', 200);
+			}, (reply) => {
+				logger.info('callContract returned', reply);
+				should(reply).have.property('response', 200);
+				should(reply).have.property('data');
 				resolve();
 			});
 		}));
@@ -65,9 +67,10 @@ describe('Swarm City API socket client > test callContract', function() {
 				abi: tokenABI.abi,
 				method: 'balanceOf',
 				arguments: ['0x0'],
-			}, (data) => {
-				logger.info('callContract returned', data);
-				should(data).have.property('response', 200);
+			}, (reply) => {
+				logger.info('callContract returned', reply);
+				should(reply).have.property('response', 200);
+				should(reply).have.property('data');
 				resolve();
 			});
 		}));

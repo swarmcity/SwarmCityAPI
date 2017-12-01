@@ -25,7 +25,6 @@ function cancelSubscription(task) {
  * @return     {Promise}  	resolves with the subscription object
  */
 function createSubscription(emitToSubscriber, args) {
-	logger.info('subscribe to hashtags please....');
 	// create task
 	let _task = {
 		func: (task) => {

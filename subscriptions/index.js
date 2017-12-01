@@ -118,7 +118,7 @@ function subscribe(socket, data, callback) {
 				logger.error('subscribe failed', e);
 				let reply = {
 					response: 500,
-					message: e,
+					message: e.message,
 				};
 				return callback(reply);
 			});

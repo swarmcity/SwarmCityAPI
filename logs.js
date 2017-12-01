@@ -2,19 +2,6 @@
 const winston = require('winston');
 
 module.exports = function(prefix) {
-	const config = {
-		configurable: true,
-		value: function() {
-			let alt = {};
-			let storeKey = function(key) {
-				alt[key] = key;
-			};
-			Object.getOwnPropertyNames(this).forEach(storeKey, this);
-			return alt;
-		},
-	};
-	Object.defineProperty(Error.prototype, 'toJSON', config); // eslint-disable-line
-
 	const logger = winston.createLogger({
 		format: winston.format.combine(
 			winston.format.splat(), {
@@ -23,7 +10,12 @@ module.exports = function(prefix) {
 					info.message =
 						info.message.reduce(function(res, cur) {
 							if (typeof cur === 'object') {
-								let append = JSON.stringify(cur);
+								let append;
+								if (cur instanceof Error) {
+									append = JSON.stringify(cur, Object.getOwnPropertyNames(cur));
+								} else {
+									append = JSON.stringify(cur);
+								}
 								return res + ' ' + append;
 							}
 							return res + ' ' + cur;

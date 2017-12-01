@@ -32,13 +32,13 @@ function createTask(socket, data, callback) {
 			if (task.success) {
 				let reply = {
 					response: 200,
-					result: res,
+					data: res,
 				};
 				return callback(reply);
 			} else {
 				let reply = {
 					response: 500,
-					result: res,
+					data: res,
 					error: task.error,
 				};
 				return callback(reply);
