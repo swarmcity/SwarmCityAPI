@@ -6,6 +6,7 @@ const logs = require('../logs.js')();
 const jsonHash = require('json-hash');
 const getNonce = require('../tasks/getNonce')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
+const validate = require('../validators');
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
@@ -22,12 +23,16 @@ function cancelSubscription(task) {
 /**
  * Creates a subscription.
  *
- * @param      {Object}  socket  The socket to send data to
+ * @param      {Function}  the function to call when you want to emit data
  * @param      {Object}  args    The parameters sent with the subscription
  * @return     {Promise}  resolves with the subscription object
  */
-function createSubscription(socket, args) {
-	logs.info('subscribe to Nonce please....');
+function createSubscription(emitToSubscriber, args) {
+	// check arguments
+	if (!args || !args.address || !validate.isAddress(args.address)) {
+		return Promise.reject('no valid address provided');
+	}
+
 	// create task
 	let _task = {
 		func: (task) => {
@@ -40,7 +45,7 @@ function createSubscription(socket, args) {
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
 				logs.debug('received getNonce RES=', JSON.stringify(res, null, 4));
-				task.data.socket.emit('nonceChanged', res);
+				emitToSubscriber('nonceChanged', res);
 				task.data.lastReplyHash = replyHash;
 			} else {
 				logs.info('getNonce => data hasn\'t changed.');
@@ -48,7 +53,6 @@ function createSubscription(socket, args) {
 			return blockHeaderTask.addTask(task);
 		},
 		data: {
-			socket: socket,
 			address: args.address,
 		},
 	};

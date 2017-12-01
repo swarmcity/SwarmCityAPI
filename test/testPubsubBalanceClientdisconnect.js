@@ -22,7 +22,9 @@ describe('Swarm City API socket client > test client disconnect', function() {
 	let socketURL;
 
 	before(function(done) {
-		server.listen().then((con) => {
+		server.listen({
+			APISOCKETPORT: 12205
+		}).then((con) => {
 			socketURL = 'http://localhost:' +
 				con.port + '?publicKey=0x7018d8f698bfa076e1bdc916e2c64caddc750944';
 			logger.info('socketURL=', socketURL);

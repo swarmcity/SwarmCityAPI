@@ -124,14 +124,20 @@ io.on('connection', (socket) => {
 	functions.registerHandlers(socket);
 });
 
-const APISOCKETPORT = process.env.APISOCKETPORT;
-const APIHOST = process.env.APIHOST || '0.0.0.0';
 /**
  * start the socket server and start listening
  *
  * @return     {Promise}  { resolves with { port , host} when listening }
  */
-function listen() {
+function listen(customConfig) {
+
+	if (!customConfig) {
+		customConfig = {};
+	}
+
+	const APISOCKETPORT = customConfig.APISOCKETPORT || process.env.APISOCKETPORT || 2205;
+	const APIHOST = customConfig.APIHOST || process.env.APIHOST || '0.0.0.0';
+
 	return new Promise((resolve, reject) => {
 		logs.info('opening WS API on', APIHOST, 'port', APISOCKETPORT);
 		if (!APISOCKETPORT || !APIHOST) {

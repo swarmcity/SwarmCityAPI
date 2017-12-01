@@ -48,11 +48,11 @@ function createShortCode(decimals) {
 /**
  * Creates a subscription.
  *
- * @param      {Object}  socket  The socket to send data to
+ * @param      {Function}  the function to call when you want to emit data
  * @param      {Object}  args    The parameters sent with the subscription
  * @return     {Promise}  resolves with the subscription object
  */
-function createSubscription(socket, args) {
+function createSubscription(emitToSubscriber, args) {
 	return new Promise((resolve, reject) => {
 		switch (args.mode) {
 			case 'shortcode':
@@ -77,7 +77,7 @@ function createSubscription(socket, args) {
 							}).on('data', (message) => {
 								let decoded = web3.utils.hexToAscii(message.payload);
 								let payload = JSON.parse(decoded);
-								socket.emit('sshMessage', payload);
+								emitToSubscriber('sshMessage', payload);
 							});
 							resolve({
 								initialResponse: {

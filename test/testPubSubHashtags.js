@@ -11,14 +11,16 @@ const options = {
 
 // create a server
 const server = require('../socket');
-let subscriptions = [];
+let subscription;
 
 describe('Swarm City API socket client > test subscribe hashtags', function() {
 	let client;
 	let socketURL;
 
 	before(function(done) {
-		server.listen().then((con) => {
+		server.listen({
+			APISOCKETPORT: 12205
+		}).then((con) => {
 			socketURL = 'http://localhost:' + con.port;
 			logger.info('socketURL=', socketURL);
 			done();
@@ -37,7 +39,28 @@ describe('Swarm City API socket client > test subscribe hashtags', function() {
 			}, (data) => {
 				logger.info('call returned data', data);
 				should(data).have.property('response', 200);
-				subscriptions.push(data.subscriptionId);
+				subscription = data.subscriptionId;
+				resolve();
+			});
+		}));
+
+		Promise.all(promises).then(() => {
+			done();
+		}).catch((err) => {
+			logger.info(err);
+			done();
+		});
+	});
+
+	it('should receive update to hashtags', function(done) {
+
+		let promises = [];
+		promises.push(new Promise((resolve, reject) => {
+
+			client.on('hashtagsChanged', (data) => {
+				should(data).have.property('response', 200);
+				should(data).have.property('subscriptionId', subscription);
+				should(data).have.property('data');
 				resolve();
 			});
 		}));
@@ -52,18 +75,16 @@ describe('Swarm City API socket client > test subscribe hashtags', function() {
 
 	it('should unsubscribe', (done) => {
 		let promises = [];
-		subscriptions.forEach((subscription) => {
-			logger.info('unsubscribe from', subscription);
-			promises.push(new Promise((resolve, reject) => {
-				client.emit('unsubscribe', {
-					subscriptionId: subscription,
-				}, (data) => {
-					should(data).have.property('response', 200);
-					logger.info('unsubscribe>>>', data);
-					resolve();
-				});
-			}));
-		});
+		logger.info('unsubscribe from', subscription);
+		promises.push(new Promise((resolve, reject) => {
+			client.emit('unsubscribe', {
+				subscriptionId: subscription,
+			}, (data) => {
+				should(data).have.property('response', 200);
+				logger.info('unsubscribe>>>', data);
+				resolve();
+			});
+		}));
 
 		Promise.all(promises).then(() => {
 			done();

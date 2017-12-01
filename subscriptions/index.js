@@ -61,7 +61,9 @@ function status() {
 		let count = 1;
 		for (let subscription in subscriptions) {
 			if (Object.prototype.hasOwnProperty.call(subscriptions, subscription)) {
-				logger.info(count++, ':', subscription, '->', subscriptions[subscription]);
+				logger.info(count++, ':', subscription,
+					'-> channel', subscriptions[subscription].channel,
+					'socket', subscriptions[subscription].socket.id);
 			}
 		}
 	}
@@ -82,11 +84,21 @@ function subscribe(socket, data, callback) {
 	logger.info('socket', socket.id, 'subscribes to ', data.channel,
 		'subscriptionId=', subscriptionId);
 
+	function dispatchResponse(eventName, args) {
+		let reply = {
+			response: 200,
+			subscriptionId: subscriptionId,
+			data: args,
+		};
+		socket.emit(eventName, reply);
+	}
+
 	if (channels[data.channel]) {
-		channels[data.channel].createSubscription(socket, data.args)
+		channels[data.channel].createSubscription(dispatchResponse, data.args)
 			.then((subscription) => {
 				subscriptions[subscriptionId] = {
-					socketId: socket.id,
+					channel: data.channel,
+					socket: socket,
 					subscription: subscription,
 				};
 				let reply = {
@@ -145,7 +157,7 @@ function unsubscribeAll(socketId) {
 	logger.info('socket', socketId, 'unsubscribeAll called');
 	for (let subscription in subscriptions) {
 		if (Object.prototype.hasOwnProperty.call(subscriptions, subscription)) {
-			if (subscriptions[subscription].socketId === socketId) {
+			if (subscriptions[subscription].socket.id === socketId) {
 				_removeSubscription(subscription);
 			}
 		}

@@ -18,7 +18,9 @@ describe('Swarm City API socket client > test subscribe nonce', function() {
 	let socketURL;
 
 	before(function(done) {
-		server.listen().then((con) => {
+		server.listen({
+			APISOCKETPORT: 12205
+		}).then((con) => {
 			socketURL = 'http://localhost:' + con.port;
 			logger.info('socketURL=', socketURL);
 
@@ -28,16 +30,15 @@ describe('Swarm City API socket client > test subscribe nonce', function() {
 			done();
 		});
 	});
-it('should subscribe to nonce without data', function(done) {
 
+	it('should subscribe to nonce without data', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('subscribe', {
 				channel: 'nonce',
 			}, (data) => {
 				logger.info('call returned data', data);
-				should(data).have.property('response', 200);
-				subscriptions.push(data.subscriptionId);
+				should(data).have.property('response', 500);
 				resolve();
 			});
 		}));
@@ -51,17 +52,17 @@ it('should subscribe to nonce without data', function(done) {
 	});
 
 	it('should subscribe to nonce', function(done) {
-
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('subscribe', {
 				channel: 'nonce',
 				args: {
-					address: '0x47735dd54355d306529125c2f4db0678975e135a'
+					address: '0x47735dd54355d306529125c2f4db0678975e135a',
 				},
 			}, (data) => {
 				logger.info('call returned data', data);
 				should(data).have.property('response', 200);
+				should(data).have.property('subscriptionId');
 				subscriptions.push(data.subscriptionId);
 				resolve();
 			});

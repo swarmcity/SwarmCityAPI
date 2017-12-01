@@ -24,6 +24,7 @@ let q = queue((task, callback) => {
 			task.endDate = (new Date).getTime();
 			task.isRunning = false;
 			task.success = false;
+			task.error = err ? err.message : '';
 			logger.error('task "' + task.name + '" ID=' +task.id + '" error. Duration',
 				task.endDate - task.startDate, 'ms - Error=', err);
 			callback(null, task);
