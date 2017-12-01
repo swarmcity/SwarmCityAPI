@@ -83,12 +83,18 @@ function subscribe(socket, data, callback) {
 	let subscriptionId = uuidv4();
 	logger.info('socket', socket.id, 'subscribes to ', data.channel,
 		'subscriptionId=', subscriptionId);
-
-	function dispatchResponse(eventName, args) {
+	/**
+	 * dispatches response back to socket
+	 * and adds subscriptionID
+	 *
+	 * @param      {String}  eventName  The event name
+	 * @param      {Object}  data       The returned data
+	 */
+	function dispatchResponse(eventName, data) {
 		let reply = {
 			response: 200,
 			subscriptionId: subscriptionId,
-			data: args,
+			data: data,
 		};
 		socket.emit(eventName, reply);
 	}

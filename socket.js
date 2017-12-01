@@ -127,10 +127,11 @@ io.on('connection', (socket) => {
 /**
  * start the socket server and start listening
  *
- * @return     {Promise}  { resolves with { port , host} when listening }
+ * @param      {Object}   customConfig cstom config that overrides env
+ *
+ * @return     {Promise}  resolves with { port , host} when listening
  */
 function listen(customConfig) {
-
 	if (!customConfig) {
 		customConfig = {};
 	}

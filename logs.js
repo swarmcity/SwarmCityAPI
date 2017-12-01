@@ -13,7 +13,7 @@ module.exports = function(prefix) {
 			return alt;
 		},
 	};
-	//Object.defineProperty(Error.prototype, 'toJSON', config); // eslint-disable-line
+	Object.defineProperty(Error.prototype, 'toJSON', config); // eslint-disable-line
 
 	const logger = winston.createLogger({
 		format: winston.format.combine(
@@ -25,9 +25,6 @@ module.exports = function(prefix) {
 							if (typeof cur === 'object') {
 								let append = JSON.stringify(cur);
 								return res + ' ' + append;
-							}
-							if (typeof cur === 'Error') {
-
 							}
 							return res + ' ' + cur;
 						}, '');

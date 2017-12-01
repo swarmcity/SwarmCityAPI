@@ -20,9 +20,9 @@ function cancelSubscription(task) {
 /**
  * Creates a subscription.
  *
- * @param      {Function}  the function to call when you want to emit data
- * @param      {Object}  args    The parameters sent with the subscription
- * @return     {Promise}  resolves with the subscription object
+ * @param      {Function} 	emitToSubscriber the function to call when you want to emit data
+ * @param      {Object}  	args    The parameters sent with the subscription
+ * @return     {Promise}  	resolves with the subscription object
  */
 function createSubscription(emitToSubscriber, args) {
 	logger.info('subscribe to hashtags please....');

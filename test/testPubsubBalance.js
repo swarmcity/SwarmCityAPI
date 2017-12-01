@@ -21,7 +21,7 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 
 	before(function(done) {
 		server.listen({
-			APISOCKETPORT: 12205
+			APISOCKETPORT: 12205,
 		}).then((con) => {
 			socketURL = 'http://localhost:' +
 				con.port;
