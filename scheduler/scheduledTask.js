@@ -40,6 +40,7 @@ function _updateSchedule() {
 			}, due);
 			nextRun = tasks[0].nextRun;
 			logger.info('scheduler to sleep for ', due, 'ms');
+			logger.info('next task is \'', tasks[0].name, '\'');
 		} else {
 			_updateSchedule();
 		}

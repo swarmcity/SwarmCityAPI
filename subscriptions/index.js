@@ -13,6 +13,7 @@ const hashtags = require('./subscriptionHashtags')();
 const hashtagItems = require('./subscriptionHashtagItems')();
 const shh = require('./subscriptionShh')();
 const nonce = require('./subscriptionNonce')();
+const shortcode = require('./subscriptionShortCode')();
 
 // initialize available subscriptionchannels
 let channels = {};
@@ -21,6 +22,8 @@ channels[hashtags.name] = hashtags;
 channels[hashtagItems.name] = hashtagItems;
 channels[shh.name] = shh;
 channels[nonce.name] = nonce;
+channels[shortcode.name] = shortcode;
+
 
 // all subscriptions are kept here
 let subscriptions = {};
@@ -100,7 +103,7 @@ function subscribe(socket, data, callback) {
 	}
 
 	if (channels[data.channel]) {
-		channels[data.channel].createSubscription(dispatchResponse, data.args)
+		channels[data.channel].createSubscription(dispatchResponse, data.args || {})
 			.then((subscription) => {
 				subscriptions[subscriptionId] = {
 					channel: data.channel,

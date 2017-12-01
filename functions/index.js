@@ -6,6 +6,7 @@ let handlers = [
 	require('./callContract'),
 	require('./sendShhMessage'),
 	require('./sendRawTx'),
+	require('./readShortCode'),
 ];
 
 /**
