@@ -18,7 +18,6 @@ const server = require('../socket');
 if (!process.env.TESTSHH) {
 	logger.log('SSH test disabled');
 } else {
-
 	describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', function() {
 		let client;
 		let subscriptionsArray = [];

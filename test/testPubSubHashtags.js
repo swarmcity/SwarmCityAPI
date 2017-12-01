@@ -53,10 +53,8 @@ describe('Swarm City API socket client > test subscribe hashtags', function() {
 	});
 
 	it('should receive update to hashtags', function(done) {
-
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
-
 			client.on('hashtagsChanged', (data) => {
 				should(data).have.property('response', 200);
 				should(data).have.property('subscriptionId', subscription);

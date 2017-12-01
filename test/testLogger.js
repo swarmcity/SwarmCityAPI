@@ -23,7 +23,7 @@ describe('test of logging capabilities', function() {
 		logger.error(new Error('an error'));
 		logger.error({
 			a: 'an error in another object',
-			error: new Error('an error')
+			error: new Error('an error'),
 		});
 		done();
 	});
