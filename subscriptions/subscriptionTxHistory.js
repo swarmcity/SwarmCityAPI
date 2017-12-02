@@ -1,13 +1,11 @@
 /**
- * Subscription manager for 'balance'
+ * Subscription manager for 'transaction history' of an account
  */
 'use strict';
 const logger = require('../logs.js')('subscriptionHashtags');
 const jsonHash = require('json-hash');
-const db = require('../globalDB').db;
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
-
-const web3 = require('../globalWeb3').web3;
+// const web3 = require('../globalWeb3').web3;
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
