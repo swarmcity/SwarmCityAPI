@@ -1,11 +1,12 @@
 /**
- * Subscription manager for 'balance'
+ * Subscription manager for 'Nonce'
  */
 'use strict';
 const logs = require('../logs.js')();
 const jsonHash = require('json-hash');
-const getBalance = require('../tasks/getBalance')();
+const getNonce = require('../tasks/getNonce')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
+const validate = require('../validators');
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
@@ -27,11 +28,15 @@ function cancelSubscription(task) {
  * @return     {Promise}  	resolves with the subscription object
  */
 function createSubscription(emitToSubscriber, args) {
-	logs.info('subscribe to balance please....');
+	// check arguments
+	if (!args || !args.address || !validate.isAddress(args.address)) {
+		return Promise.reject('no valid address provided');
+	}
+
 	// create task
 	let _task = {
 		func: (task) => {
-			return Promise.resolve(getBalance.getBalance(task.data).then((res) => {
+			return Promise.resolve(getNonce.getNonce(task.data).then((res) => {
 				task.data.lastReplyHash = jsonHash.digest(res);
 				return (res);
 			}));
@@ -39,11 +44,11 @@ function createSubscription(emitToSubscriber, args) {
 		responsehandler: (res, task) => {
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
-				logs.debug('received getBalance RES=', JSON.stringify(res, null, 4));
-				emitToSubscriber('balanceChanged', res);
+				logs.debug('received getNonce RES=', JSON.stringify(res, null, 4));
+				emitToSubscriber('nonceChanged', res);
 				task.data.lastReplyHash = replyHash;
 			} else {
-				logs.info('getBalance => data hasn\'t changed.');
+				logs.info('getNonce => data hasn\'t changed.');
 			}
 			return blockHeaderTask.addTask(task);
 		},
@@ -64,7 +69,7 @@ function createSubscription(emitToSubscriber, args) {
 
 module.exports = function() {
 	return ({
-		name: 'balance',
+		name: 'nonce',
 		createSubscription: createSubscription,
 	});
 };

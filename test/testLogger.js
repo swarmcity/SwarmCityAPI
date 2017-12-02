@@ -7,6 +7,7 @@ const logger = require('../logs')('testLogger');
 
 describe('test of logging capabilities', function() {
 	it('should receive all related events right after socket connects', function(done) {
+		logger.info('a string');
 		logger.info('a string and an object', {
 			a: 1,
 			b: 2,
@@ -19,12 +20,11 @@ describe('test of logging capabilities', function() {
 			a: 3,
 			b: 4,
 		}]);
-		logger.error('a error string');
-		logger.error('a error string with an object', {
-			a: 1,
-			b: 2,
-		});
 		logger.error(new Error('an error'));
+		logger.error({
+			a: 'an error in another object',
+			error: new Error('an error'),
+		});
 		done();
 	});
 });

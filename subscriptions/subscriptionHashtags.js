@@ -20,12 +20,11 @@ function cancelSubscription(task) {
 /**
  * Creates a subscription.
  *
- * @param      {Object}  socket  The socket to send data to
- * @param      {Object}  args    The parameters sent with the subscription
- * @return     {Promise}  resolves with the subscription object
+ * @param      {Function} 	emitToSubscriber the function to call when you want to emit data
+ * @param      {Object}  	args    The parameters sent with the subscription
+ * @return     {Promise}  	resolves with the subscription object
  */
-function createSubscription(socket, args) {
-	logger.info('subscribe to hashtags please....');
+function createSubscription(emitToSubscriber, args) {
 	// create task
 	let _task = {
 		func: (task) => {
@@ -70,16 +69,14 @@ function createSubscription(socket, args) {
 			let responseHash = jsonHash.digest(res);
 			if (task.data.lastResponse !== responseHash) {
 				logger.debug('received modified response RES=', JSON.stringify(res, null, 4));
-				task.data.socket.emit('hashtagsChanged', res);
+				emitToSubscriber('hashtagsChanged', res);
 				task.data.lastResponse = responseHash;
 			} else {
 				logger.info('Data hasn\'t changed.');
 			}
 			return blockHeaderTask.addTask(task);
 		},
-		data: {
-			socket: socket,
-		},
+		data: {},
 	};
 	blockHeaderTask.addTask(_task);
 	// run it a first time return subscription

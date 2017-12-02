@@ -11,12 +11,19 @@ const uuidv4 = require('uuid/v4');
 const balance = require('./subscriptionBalance')();
 const hashtags = require('./subscriptionHashtags')();
 const hashtagItems = require('./subscriptionHashtagItems')();
+const shh = require('./subscriptionShh')();
+const nonce = require('./subscriptionNonce')();
+const shortcode = require('./subscriptionShortCode')();
 
 // initialize available subscriptionchannels
 let channels = {};
 channels[balance.name] = balance;
 channels[hashtags.name] = hashtags;
 channels[hashtagItems.name] = hashtagItems;
+channels[shh.name] = shh;
+channels[nonce.name] = nonce;
+channels[shortcode.name] = shortcode;
+
 
 // all subscriptions are kept here
 let subscriptions = {};
@@ -57,7 +64,9 @@ function status() {
 		let count = 1;
 		for (let subscription in subscriptions) {
 			if (Object.prototype.hasOwnProperty.call(subscriptions, subscription)) {
-				logger.info(count++, ':', subscription, '->', subscriptions[subscription]);
+				logger.info(count++, ':', subscription,
+					'-> channel', subscriptions[subscription].channel,
+					'socket', subscriptions[subscription].socket.id);
 			}
 		}
 	}
@@ -75,13 +84,30 @@ function status() {
  */
 function subscribe(socket, data, callback) {
 	let subscriptionId = uuidv4();
-	logger.info('socket', socket.id, 'subscribes to', data.channel,
+	logger.info('socket', socket.id, 'subscribes to ', data.channel,
 		'subscriptionId=', subscriptionId);
+	/**
+	 * dispatches response back to socket
+	 * and adds subscriptionID
+	 *
+	 * @param      {String}  eventName  The event name
+	 * @param      {Object}  data       The returned data
+	 */
+	function dispatchResponse(eventName, data) {
+		let reply = {
+			response: 200,
+			subscriptionId: subscriptionId,
+			data: data,
+		};
+		socket.emit(eventName, reply);
+	}
 
 	if (channels[data.channel]) {
-		channels[data.channel].createSubscription(socket, data.args).then((subscription) => {
+		channels[data.channel].createSubscription(dispatchResponse, data.args || {})
+			.then((subscription) => {
 				subscriptions[subscriptionId] = {
-					socketId: socket.id,
+					channel: data.channel,
+					socket: socket,
 					subscription: subscription,
 				};
 				let reply = {
@@ -92,9 +118,10 @@ function subscribe(socket, data, callback) {
 				return callback(reply);
 			})
 			.catch((e) => {
+				logger.error('subscribe failed', e);
 				let reply = {
 					response: 500,
-					message: e,
+					message: e.message,
 				};
 				return callback(reply);
 			});
@@ -139,7 +166,7 @@ function unsubscribeAll(socketId) {
 	logger.info('socket', socketId, 'unsubscribeAll called');
 	for (let subscription in subscriptions) {
 		if (Object.prototype.hasOwnProperty.call(subscriptions, subscription)) {
-			if (subscriptions[subscription].socketId === socketId) {
+			if (subscriptions[subscription].socket.id === socketId) {
 				_removeSubscription(subscription);
 			}
 		}

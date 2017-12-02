@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')();
+const logger = require('../logs')('Mocha test');
 
 const io = require('socket.io-client');
 
@@ -19,7 +19,9 @@ describe('Swarm City API socket client > test callContract', function() {
 	let socketURL;
 
 	before(function(done) {
-		server.listen().then((con) => {
+		server.listen({
+			APISOCKETPORT: 12205,
+		}).then((con) => {
 			socketURL = 'http://localhost:' + con.port;
 			logger.info('socketURL=', socketURL);
 			done();
@@ -37,9 +39,10 @@ describe('Swarm City API socket client > test callContract', function() {
 				abi: tokenABI.abi,
 				method: 'creationBlock',
 				arguments: null,
-			}, (data) => {
-				logger.info('callContract returned', data);
-				should(data).have.property('response', 200);
+			}, (reply) => {
+				logger.info('callContract returned', reply);
+				should(reply).have.property('response', 200);
+				should(reply).have.property('data');
 				resolve();
 			});
 		}));
@@ -50,9 +53,10 @@ describe('Swarm City API socket client > test callContract', function() {
 				abi: tokenABI.abi,
 				method: 'balanceOf',
 				arguments: ['0x7018d8f698bfa076e1bdc916e2c64caddc750944'],
-			}, (data) => {
-				logger.info('callContract returned', data);
-				should(data).have.property('response', 200);
+			}, (reply) => {
+				logger.info('callContract returned', reply);
+				should(reply).have.property('response', 200);
+				should(reply).have.property('data');
 				resolve();
 			});
 		}));
@@ -63,9 +67,10 @@ describe('Swarm City API socket client > test callContract', function() {
 				abi: tokenABI.abi,
 				method: 'balanceOf',
 				arguments: ['0x0'],
-			}, (data) => {
-				logger.info('callContract returned', data);
-				should(data).have.property('response', 200);
+			}, (reply) => {
+				logger.info('callContract returned', reply);
+				should(reply).have.property('response', 200);
+				should(reply).have.property('data');
 				resolve();
 			});
 		}));
@@ -79,9 +84,7 @@ describe('Swarm City API socket client > test callContract', function() {
 
 	after(function(done) {
 		logger.info('closing client socket');
-		client.close(() => {
-			logger.info('client closed...');
-		});
+		client.close();
 		server.close().then(() => {
 			logger.info('server closed...');
 			done();

@@ -1,15 +1,15 @@
 'use strict';
 const scheduledTask = require('../scheduler/scheduledTask')();
-const logs = require('../logs')();
+const logger = require('../logs')('sendShhMessage');
 const web3 = require('../globalWeb3').web3;
-const validate = require('../validators');
+const shhHelpers = require('../globalWeb3').shhHelpers;
 
 /**
  * returns name (verb) of this function
  * @return     {null}   none
  */
 function name() {
-	return 'callContract';
+	return 'sendShhMessage';
 }
 
 /**
@@ -21,36 +21,22 @@ function name() {
  */
 function createTask(socket, data, callback) {
 	scheduledTask.addTask({
+		name: 'sendShhMessage',
 		func: (task) => {
-			logs.info('callContract start');
+			logger.info('sendShhMessage start', data);
 			return new Promise((resolve, reject) => {
-				try {
-					if (validate.isAddress(data.address) &&
-						data.method) {
-						const myContract =
-							new web3.eth.Contract(data.abi, data.address);
-						if (data.arguments) {
-							myContract.methods[data.method].apply(null, data.arguments).call()
-								.then((value) => {
-									resolve(value);
-								}).catch((err) => {
-									reject(err);
-								});
-						} else {
-							myContract.methods[data.method]().call()
-								.then((value) => {
-									resolve(value);
-								}).catch((err) => {
-									reject(err);
-								});
-						}
-					} else {
-						reject(new Error('input params not valid', data));
-					}
-				} catch (error) {
-					logs.error('callContract error', error);
-					reject(error);
-				}
+				web3.shh.generateSymKeyFromPassword(data.shortcode).then((symKeyID) => {
+					const opts = {
+						symKeyID: symKeyID,
+						ttl: 10,
+						topic: shhHelpers.shhHash(data.shortcode),
+						payload: web3.utils.asciiToHex(JSON.stringify(data.payload)),
+						powTime: 10,
+						powTarget: 0.3,
+					};
+					logger.info('shh opts', opts, data);
+					web3.shh.post(opts);
+				});
 			});
 		},
 		responsehandler: (res, task) => {

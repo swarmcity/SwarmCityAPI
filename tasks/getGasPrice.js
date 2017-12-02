@@ -1,5 +1,4 @@
 const logs = require('../logs.js')();
-
 const web3 = require('../globalWeb3').web3;
 
 module.exports = function() {

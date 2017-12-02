@@ -40,6 +40,7 @@ function _updateSchedule() {
 			}, due);
 			nextRun = tasks[0].nextRun;
 			logger.info('scheduler to sleep for ', due, 'ms');
+			logger.info('next task is \'', tasks[0].name, '\'');
 		} else {
 			_updateSchedule();
 		}
@@ -108,6 +109,16 @@ function removeTasks(taskArray) {
 }
 
 /**
+ * Removes all tasks.
+ */
+function removeAllTasks() {
+	logger.info('removing all task from scheduledTask scheduler (', tasks.length, ')');
+	for (let i = 0; i < tasks.length; i++) {
+		removeTask(tasks[i]);
+	}
+}
+
+/**
  * dump status of this module to the log
  *
  * @return     {Promise}  Resolves when status dumped.
@@ -133,6 +144,7 @@ module.exports = function() {
 		addTask: addTask,
 		removeTask: removeTask,
 		removeTasks: removeTasks,
+		removeAllTasks: removeAllTasks,
 		tasks: tasks,
 		nextRun: nextRun,
 		status: status,

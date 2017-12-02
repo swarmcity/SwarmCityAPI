@@ -6,6 +6,7 @@ const logs = require('./logs')('socketServer');
 const validate = require('./validators');
 
 const scheduledTask = require('./scheduler/scheduledTask')();
+const blockHeaderTask = require('./scheduler/blockHeaderTask')();
 
 // scheduled task handlers
 const getFx = require('./tasks/getFx')();
@@ -123,14 +124,21 @@ io.on('connection', (socket) => {
 	functions.registerHandlers(socket);
 });
 
-const APISOCKETPORT = process.env.APISOCKETPORT;
-const APIHOST = process.env.APIHOST || '0.0.0.0';
 /**
  * start the socket server and start listening
  *
- * @return     {Promise}  { resolves with { port , host} when listening }
+ * @param      {Object}   customConfig cstom config that overrides env
+ *
+ * @return     {Promise}  resolves with { port , host} when listening
  */
-function listen() {
+function listen(customConfig) {
+	if (!customConfig) {
+		customConfig = {};
+	}
+
+	const APISOCKETPORT = customConfig.APISOCKETPORT || process.env.APISOCKETPORT || 2205;
+	const APIHOST = customConfig.APIHOST || process.env.APIHOST || '0.0.0.0';
+
 	return new Promise((resolve, reject) => {
 		logs.info('opening WS API on', APIHOST, 'port', APISOCKETPORT);
 		if (!APISOCKETPORT || !APIHOST) {
@@ -158,6 +166,8 @@ function listen() {
  */
 function close() {
 	return new Promise((resolve, reject) => {
+		scheduledTask.removeAllTasks();
+		blockHeaderTask.removeAllTasks();
 		server.close((err) => {
 			if (err) {
 				reject(err);

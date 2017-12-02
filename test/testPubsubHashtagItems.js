@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')();
+const logger = require('../logs')('Mocha test');
 
 const io = require('socket.io-client');
 
@@ -20,7 +20,9 @@ describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', funct
 
 
 	before(function(done) {
-		server.listen().then((con) => {
+		server.listen({
+			APISOCKETPORT: 12205,
+		}).then((con) => {
 			socketURL = 'http://localhost:' +
 				con.port;
 			logger.info('socketURL=', socketURL);

@@ -10,9 +10,11 @@ module.exports = function(prefix) {
 					info.message =
 						info.message.reduce(function(res, cur) {
 							if (typeof cur === 'object') {
-								let append = JSON.stringify(cur);
-								if (append === '{}') {
+								let append;
+								if (cur instanceof Error) {
 									append = JSON.stringify(cur, Object.getOwnPropertyNames(cur));
+								} else {
+									append = JSON.stringify(cur);
 								}
 								return res + ' ' + append;
 							}

@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')('testPubSubHashtags');
+const logger = require('../logs')('testPubSubnonce');
 
 const io = require('socket.io-client');
 
@@ -11,9 +11,9 @@ const options = {
 
 // create a server
 const server = require('../socket');
-let subscription;
+let subscriptions = [];
 
-describe('Swarm City API socket client > test subscribe hashtags', function() {
+describe('Swarm City API socket client > test subscribe nonce', function() {
 	let client;
 	let socketURL;
 
@@ -23,23 +23,22 @@ describe('Swarm City API socket client > test subscribe hashtags', function() {
 		}).then((con) => {
 			socketURL = 'http://localhost:' + con.port;
 			logger.info('socketURL=', socketURL);
+
+			logger.info('connecting to ', socketURL);
+			client = io.connect(socketURL, options);
+
 			done();
 		});
 	});
 
-	it('should subscribe to hashtags', function(done) {
-		logger.info('connecting to ', socketURL);
-		client = io.connect(socketURL, options);
-
+	it('should subscribe to nonce without data', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('subscribe', {
-				channel: 'hashtags',
-				args: {},
+				channel: 'nonce',
 			}, (data) => {
 				logger.info('call returned data', data);
-				should(data).have.property('response', 200);
-				subscription = data.subscriptionId;
+				should(data).have.property('response', 500);
 				resolve();
 			});
 		}));
@@ -52,13 +51,19 @@ describe('Swarm City API socket client > test subscribe hashtags', function() {
 		});
 	});
 
-	it('should receive update to hashtags', function(done) {
+	it('should subscribe to nonce', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
-			client.on('hashtagsChanged', (data) => {
+			client.emit('subscribe', {
+				channel: 'nonce',
+				args: {
+					address: '0x47735dd54355d306529125c2f4db0678975e135a',
+				},
+			}, (data) => {
+				logger.info('call returned data', data);
 				should(data).have.property('response', 200);
-				should(data).have.property('subscriptionId', subscription);
-				should(data).have.property('data');
+				should(data).have.property('subscriptionId');
+				subscriptions.push(data.subscriptionId);
 				resolve();
 			});
 		}));
@@ -73,16 +78,18 @@ describe('Swarm City API socket client > test subscribe hashtags', function() {
 
 	it('should unsubscribe', (done) => {
 		let promises = [];
-		logger.info('unsubscribe from', subscription);
-		promises.push(new Promise((resolve, reject) => {
-			client.emit('unsubscribe', {
-				subscriptionId: subscription,
-			}, (data) => {
-				should(data).have.property('response', 200);
-				logger.info('unsubscribe>>>', data);
-				resolve();
-			});
-		}));
+		subscriptions.forEach((subscription) => {
+			logger.info('unsubscribe from', subscription);
+			promises.push(new Promise((resolve, reject) => {
+				client.emit('unsubscribe', {
+					subscriptionId: subscription,
+				}, (data) => {
+					should(data).have.property('response', 200);
+					logger.info('unsubscribe>>>', data);
+					resolve();
+				});
+			}));
+		});
 
 		Promise.all(promises).then(() => {
 			done();
