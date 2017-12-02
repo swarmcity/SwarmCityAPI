@@ -11,19 +11,20 @@ const uuidv4 = require('uuid/v4');
 const balance = require('./subscriptionBalance')();
 const hashtags = require('./subscriptionHashtags')();
 const hashtagItems = require('./subscriptionHashtagItems')();
-const shh = require('./subscriptionShh')();
+// const shh = require('./subscriptionShh')();
 const nonce = require('./subscriptionNonce')();
 const shortcode = require('./subscriptionShortCode')();
+const txhistory = require('./subscriptionTxHistory')();
 
 // initialize available subscriptionchannels
 let channels = {};
 channels[balance.name] = balance;
 channels[hashtags.name] = hashtags;
 channels[hashtagItems.name] = hashtagItems;
-channels[shh.name] = shh;
+// channels[shh.name] = shh;
 channels[nonce.name] = nonce;
 channels[shortcode.name] = shortcode;
-
+channels[txhistory.name] = txhistory;
 
 // all subscriptions are kept here
 let subscriptions = {};
