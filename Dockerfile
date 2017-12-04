@@ -15,7 +15,6 @@ COPY environment.js ./
 COPY globalWeb3.js ./
 COPY logs.js ./
 COPY server.js ./
-COPY tasks.js ./
 COPY validators.js ./
 COPY .env-dist ./.env  
 
