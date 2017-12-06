@@ -1,4 +1,4 @@
-FROM node:6
+FROM node
 WORKDIR /root
 ENV HOME /root
 
@@ -10,13 +10,8 @@ COPY functions ./functions
 COPY scheduler ./scheduler
 COPY subscriptions ./subscriptions
 COPY tasks ./tasks
-COPY socket.js ./
-COPY environment.js ./
-COPY globalWeb3.js ./
-COPY logs.js ./
-COPY server.js ./
-COPY validators.js ./
-COPY .env-dist ./.env  
+COPY *.js ./
 
 EXPOSE 8011
-CMD [ "node", "server.js" ]
+ENTRYPOINT [ "node" ]
+
