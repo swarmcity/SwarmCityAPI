@@ -15,16 +15,24 @@ describe('Validators', function() {
             validators.isAddress('0x123456789').should.be.equal(false);
         });
         it('should return False when address contains more than 40 characters', function() {
-            validators.isAddress('0x123456789012345678901234567890123456789012345').should.be.equal(false);
+            validators
+                .isAddress('0x123456789012345678901234567890123456789012345')
+                .should.be.equal(false);
         });
         it('should return True when address is valid lowercase', function() {
-            validators.isAddress('0xabcde67890abcde67890abcde67890abcde67890').should.be.equal(true);
+            validators
+                .isAddress('0xabcde67890abcde67890abcde67890abcde67890')
+                .should.be.equal(true);
         });
         it('should return True when address is valid and contains uppercase', function() {
-            validators.isAddress('0xabcde67890abcde67890abcde67890ABCDE67890').should.be.equal(true);
+            validators
+                .isAddress('0xabcde67890abcde67890abcde67890ABCDE67890')
+                .should.be.equal(true);
         });
         it('should return True when address does not start with 0x', function() {
-            validators.isAddress('abcde67890abcde67890abcde67890ABCDE67890').should.be.equal(true);
+            validators
+                .isAddress('abcde67890abcde67890abcde67890ABCDE67890')
+                .should.be.equal(true);
         });
     });
 });
