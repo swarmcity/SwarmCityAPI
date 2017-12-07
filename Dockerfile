@@ -12,7 +12,6 @@ COPY subscriptions ./subscriptions
 COPY tasks ./tasks
 COPY jobs ./jobs
 COPY *.js ./
-COPY .env-dist .env
 
 EXPOSE 8011
 CMD [ "node", "server.js" ]
