@@ -10,8 +10,9 @@ COPY functions ./functions
 COPY scheduler ./scheduler
 COPY subscriptions ./subscriptions
 COPY tasks ./tasks
+COPY jobs ./jobs
 COPY *.js ./
+COPY .env-dist .env
 
 EXPOSE 8011
-ENTRYPOINT [ "node" ]
-
+CMD [ "node", "server.js" ]
