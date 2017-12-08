@@ -86,6 +86,28 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		});
 	});
 
+
+	it('should not find the data non-existing shortcode', function(done) {
+		let promises = [];
+		promises.push(new Promise((resolve, reject) => {
+			client.emit('readShortCode', {
+				shortcode: 666,
+			}, (reply) => {
+				logger.info('call returned reply', reply);
+				should(reply).have.property('response', 400);
+				should(reply).not.have.property('data');
+				resolve();
+			});
+		}));
+
+		Promise.all(promises).then(() => {
+			done();
+		}).catch((err) => {
+			logger.info(err);
+			done();
+		});
+	});
+
 	it('should receive update to shortcode', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
