@@ -42,7 +42,6 @@ module.exports = function() {
 				resolve(Promise.all(promisesList).then((res) => {
 					return res.reduce((accumulator, currentValue) => {
 						let symbol = currentValue.tokenSymbol;
-						console.info('symbol',symbol);
 						delete currentValue.tokenSymbol;
 						accumulator[symbol.toLowerCase()] = currentValue;
 						return accumulator;
