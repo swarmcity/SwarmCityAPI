@@ -3,7 +3,7 @@ const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
     path: '/api',
-    transports: ['websocket', 'xhr-polling']
+    transports: ['websocket', 'xhr-polling'],
 });
 const logs = require('./logs')('socketServer');
 const validate = require('./validators');
