@@ -23,10 +23,10 @@ module.exports = function() {
 						try {
 							let parsedBody = JSON.parse(body);
 							result = {
-								price_btc: parsedBody[0].price_btc,
-								price_eur: Number(parsedBody[0].price_eur).toFixed(2),
-								price_usd: Number(parsedBody[0].price_usd).toFixed(2),
-								symbol: parsedBody[0].symbol,
+								priceBtc: parsedBody[0].price_btc,
+								priceEur: Number(parsedBody[0].price_eur).toFixed(2),
+								priceUsd: Number(parsedBody[0].price_usd).toFixed(2),
+								symbol: parsedBody[0].symbol.toLowerCase(),
 							};
 							logger.info('updateFx success');
 							logger.debug('updateFx result=', result);
