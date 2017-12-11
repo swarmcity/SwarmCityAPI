@@ -4,8 +4,8 @@ const logger = require('../logs')('Mocha test');
 const io = require('socket.io-client');
 
 const options = {
-	'transports': ['websocket'],
-	'force new connection': true,
+	transports: ['websocket', 'xhr-polling'],
+	path: '/api',
 };
 
 // create a server
@@ -40,7 +40,6 @@ describe('Swarm City API socket client', function() {
 		promises.push(new Promise((resolve, reject) => {
 			client.on('fxChanged', (reply) => {
 				logger.info('fxChanged', reply);
-				should(reply).have.property('symbol', 'swt');
 				should(reply).have.property('priceBtc');
 				should(reply).have.property('priceEur');
 				should(reply).have.property('priceUsd');

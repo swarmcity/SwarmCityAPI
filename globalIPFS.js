@@ -3,7 +3,6 @@ require('./environment');
 
 const ipfsAPI = require('ipfs-api');
 const ipfs = ipfsAPI(process.env.IPFSAPI);
-const bl = require('bl');
 const logger = require('./logs')('globalIPFS');
 
 module.exports = function() {

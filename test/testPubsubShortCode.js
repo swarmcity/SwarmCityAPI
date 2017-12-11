@@ -5,8 +5,8 @@ const logger = require('../logs')('testPubSubshortcode');
 const io = require('socket.io-client');
 
 const options = {
-	'transports': ['websocket'],
-	'force new connection': true,
+	transports: ['websocket', 'xhr-polling'],
+	path: '/api',
 };
 
 // create a server

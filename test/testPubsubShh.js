@@ -8,14 +8,14 @@ const subscriptions = require('../subscriptions')();
 require('../showEnv');
 
 const options = {
-	'transports': ['websocket'],
-	'force new connection': true,
+	transports: ['websocket', 'xhr-polling'],
+	path: '/api',
 };
 
 // create a server
 const server = require('../socket');
 
-if (!process.env.TESTSHH) {
+if (!process.env.TESTSHH || process.env.TESTSHH == '0') {
 	logger.info('SSH test disabled');
 } else {
 	describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', function() {
