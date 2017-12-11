@@ -42,13 +42,31 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 					args: {
 						address: '0x7018d8f698bfa076e1bdc916e2c64caddc750944',
 					},
-				}, (data) => {
-					should(data).have.property('response', 200);
-					should(data).have.property('subscriptionId');
+				}, (reply) => {
+					should(reply).have.property('response', 200);
+					should(reply).have.property('subscriptionId');
 
-					subscriptions.push(data.subscriptionId);
+					// check the format of a ERC-20 balance
+					// which should have a contractAddress
+					should(reply).have.property('data')
+						.with.a.property('swt')
+						.with.a.property('balance');
+					should(reply).have.property('data')
+						.with.a.property('swt')
+						.with.a.property('contractAddress');
 
-					logger.info('subscribe>>>balance', data);
+					// check the format of a ERC-20 balance
+					// which should not have a contractAddress
+					should(reply).have.property('data')
+						.with.a.property('eth')
+						.with.a.property('balance');
+					should(reply).have.property('data')
+						.with.a.property('eth')
+						.should.not.have.property('contractAddress');
+
+					subscriptions.push(reply.subscriptionId);
+
+					logger.info('subscribe>>>balance', reply);
 					resolve();
 				});
 			}));

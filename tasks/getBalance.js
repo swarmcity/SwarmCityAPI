@@ -24,9 +24,8 @@ module.exports = function() {
 						.then((res) => {
 							return {
 								balance: res,
-								publicKey: data.address,
 								tokenSymbol: token,
-								tokenContractAddress: tokenIndex[token],
+								contractAddress: tokenIndex[token],
 							};
 						})
 						.catch((e) => {
@@ -37,12 +36,17 @@ module.exports = function() {
 					.then((res) => {
 						return {
 							balance: res,
-							publicKey: data.address,
 							tokenSymbol: 'ETH',
-							tokenContractAddress: '0x0',
 						};
 					}));
-				resolve(Promise.all(promisesList));
+				resolve(Promise.all(promisesList).then((res) => {
+					return res.reduce((accumulator, currentValue) => {
+						let symbol = currentValue.tokenSymbol;
+						delete currentValue.tokenSymbol;
+						accumulator[symbol.toLowerCase()] = currentValue;
+						return accumulator;
+					}, {});
+				}));
 			});
 		},
 	});
