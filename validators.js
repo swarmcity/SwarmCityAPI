@@ -1,17 +1,10 @@
 'use strict';
 
 exports.isAddress = function(address) {
-	if (!address) {
+	if (!address || !(typeof address === 'string')) {
 		return false;
 	}
-	if (!/^(0x)?[0-9a-f]{40}$/i.test(address.toLowerCase())) {
-		return false;
-	} else if (/^(0x)?[0-9a-f]{40}$/.test(address.toLowerCase()) ||
-		/^(0x)?[0-9A-F]{40}$/.test(address.toLowerCase())) {
-		return true;
-	} else {
-		return false;
-	}
+    return /^(0x)?[0-9a-f]{40}$/i.test(address);
 };
 
 exports.isJson = function(abi) {
