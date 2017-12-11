@@ -11,17 +11,11 @@ module.exports = function() {
 		cat: function(hash) {
 			logger.info('CAT hash', hash);
 			return new Promise((resolve, reject) => {
-				ipfs.files.cat(hash, (err, stream) => {
+				ipfs.files.cat(hash, (err, buf) => {
 					if (err) {
 						return reject(new Error(err));
 					}
-					stream.pipe(bl((err, data) => {
-						if (err) {
-							reject(new Error(err));
-						} else {
-							resolve(data.toString());
-						}
-					}));
+					resolve(buf.toString('utf8'));
 				});
 			});
 		},
