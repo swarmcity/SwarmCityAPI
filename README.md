@@ -1,5 +1,6 @@
 # Swarm City API accelerator
 
+[![Coverage Status](https://coveralls.io/repos/github/swarmcity/SwarmCityAPI/badge.svg)](https://coveralls.io/github/swarmcity/SwarmCityAPI)
 
 # Usage
 
