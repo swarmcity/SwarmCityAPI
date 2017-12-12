@@ -3,6 +3,7 @@ require('./environment');
 
 const ipfsAPI = require('ipfs-api');
 const ipfs = ipfsAPI(process.env.IPFSAPI);
+const bl = require('bl');
 const logger = require('./logs')('globalIPFS');
 
 module.exports = function() {
@@ -10,11 +11,17 @@ module.exports = function() {
 		cat: function(hash) {
 			logger.info('CAT hash', hash);
 			return new Promise((resolve, reject) => {
-				ipfs.files.cat(hash, (err, buf) => {
+				ipfs.files.cat(hash, (err, stream) => {
 					if (err) {
 						return reject(new Error(err));
 					}
-					resolve(buf.toString('utf8'));
+					stream.pipe(bl((err, data) => {
+						if (err) {
+							reject(new Error(err));
+						} else {
+							resolve(data.toString());
+						}
+					}));
 				});
 			});
 		},
