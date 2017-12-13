@@ -7,9 +7,10 @@ const io = require('socket.io-client');
 // var patch = require('socketio-wildcard')(io.Manager);
 
 const options = {
-	'transports': ['websocket'],
-	'force new connection': true,
+	transports: ['websocket', 'xhr-polling'],
+	path: '/api',
 };
+
 
 // create a server
 const server = require('../socket');
