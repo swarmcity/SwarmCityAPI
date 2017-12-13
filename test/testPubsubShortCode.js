@@ -5,8 +5,8 @@ const logger = require('../logs')('testPubSubshortcode');
 const io = require('socket.io-client');
 
 const options = {
-	'transports': ['websocket'],
-	'force new connection': true,
+	transports: ['websocket', 'xhr-polling'],
+	path: '/api',
 };
 
 // create a server
@@ -74,6 +74,28 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 				should(reply).have.property('data')
 					.with.a.property('payload')
 					.with.a.property('hello', 'world');
+				resolve();
+			});
+		}));
+
+		Promise.all(promises).then(() => {
+			done();
+		}).catch((err) => {
+			logger.info(err);
+			done();
+		});
+	});
+
+
+	it('should not find the data non-existing shortcode', function(done) {
+		let promises = [];
+		promises.push(new Promise((resolve, reject) => {
+			client.emit('readShortCode', {
+				shortcode: 666,
+			}, (reply) => {
+				logger.info('call returned reply', reply);
+				should(reply).have.property('response', 400);
+				should(reply).not.have.property('data');
 				resolve();
 			});
 		}));
