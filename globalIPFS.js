@@ -13,7 +13,7 @@ if (process.env.IPFSAPIHOST && process.env.IPFSAPIPORT) {
 	ipfs = ipfsAPI({
 		host: process.env.IPFSAPIHOST,
 		port: process.env.IPFSAPIPORT,
-		protocol: 'http'
+		protocol: 'http',
 	});
 } else {
 	logger.info('connecting via multiaddr IPFSAPI', process.env.IPFSAPI);
