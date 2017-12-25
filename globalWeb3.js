@@ -1,6 +1,6 @@
 'use strict';
 
-const web3 = require('./connections/web3.js');
+const web3 = require('./connections/web3').web3;
 const sha3 = require('crypto-js/sha3');
 
 /**
