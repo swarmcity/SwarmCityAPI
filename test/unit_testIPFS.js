@@ -1,14 +1,9 @@
 'use strict';
-require('dotenv').config({
-	path: '../.env',
-});
-const ipfs = require('../globalIPFS')();
+
 const should = require('should');
-const logger = require('../logs')('Mocha');
+const ipfs = require('../globalIPFS')();
 
 describe('globalIPFS', function() {
-    let helloworldIPFShash = 'QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT';
-
     describe('isIPFSHash()', function() {
         it('should always start with Qm', function() {
             should(ipfs.isIPFSHash('RneV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT')).not.be.ok;
@@ -23,5 +18,4 @@ describe('globalIPFS', function() {
             should(ipfs.isIPFSHash('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT')).be.ok;
         });
     });
-
 });
