@@ -3,6 +3,7 @@
 const logger = require('./logs')('globalIPFS');
 
 const ipfs = require('./connections/ipfs').ipfs;
+const bl = require('bl');
 
 module.exports = function() {
 	return ({

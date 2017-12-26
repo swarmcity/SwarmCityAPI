@@ -20,5 +20,5 @@ web3WebsocketProvider.on('connect', (e) => {
 const web3 = new Web3(web3WebsocketProvider);
 
 module.exports = {
-	web3: web3
+	web3: web3,
 };

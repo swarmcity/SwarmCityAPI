@@ -2,7 +2,6 @@
 require('../environment');
 
 const ipfsAPI = require('ipfs-api');
-const bl = require('bl');
 const logger = require('../logs')();
 
 let ipfs;
@@ -21,5 +20,5 @@ if (process.env.IPFSAPIHOST && process.env.IPFSAPIPORT) {
 }
 
 module.exports = {
-    ipfs: ipfs
+    ipfs: ipfs,
 };
