@@ -12,12 +12,6 @@ if (!process.env.TESTIPFS || process.env.TESTIPFS == '0') {
 	describe('test of globalIPFS', function() {
 		let helloworldIPFShash = 'QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT';
 
-		it('isIPFSHash test', function(done) {
-			should(ipfs.isIPFSHash('notanipfshash')).equal(false);
-			should(ipfs.isIPFSHash(helloworldIPFShash)).equal(true);
-			done();
-		});
-
 		it('ipfs.cat test', function(done) {
 			ipfs.cat(helloworldIPFShash).then((data) => {
 				logger.info('data', data);
