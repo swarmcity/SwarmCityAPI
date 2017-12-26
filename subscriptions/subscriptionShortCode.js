@@ -5,7 +5,7 @@
 const logger = require('../logs.js')();
 const jsonHash = require('json-hash');
 const scheduledTask = require('../scheduler/scheduledTask')();
-const db = require('../globalDB').db;
+const db = require('../connections/db').db;
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe

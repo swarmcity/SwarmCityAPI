@@ -6,7 +6,7 @@
 
 require('../environment');
 const logger = require('../logs')('hashtagIndexer');
-const db = require('../globalDB').db;
+const db = require('../connections/db').db;
 const ipfs = require('../globalIPFS')();
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();

@@ -1,6 +1,6 @@
 'use strict';
 const scheduledTask = require('../scheduler/scheduledTask')();
-const db = require('../globalDB').db;
+const db = require('../connections/db').db;
 const logger = require('../logs')('readShortCode');
 
 /**
