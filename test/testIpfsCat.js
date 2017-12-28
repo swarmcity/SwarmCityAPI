@@ -53,7 +53,7 @@ describe('Swarm City API socket client > test ipfsCat', function() {
 		});
 	});
 
-	it('should fail on invalid hash', function(done) {
+	it('should fail on invalid hash when calling ipfsCat', function(done) {
 		client.emit('ipfscat', {
 			hash: 'QUAAK',
 			format: 'base64',
@@ -63,7 +63,7 @@ describe('Swarm City API socket client > test ipfsCat', function() {
 		});
 	});
 
-	it('unknown return format should default to Buffer', function(done) {
+	it('unknown return format should default to Buffer when calling ipfsCat', function(done) {
 		client.emit('ipfscat', {
 			hash: 'QmXxr6WpiGhDD83P5DdjyEXAxbxmNZg6CZ3Gsh3ARuAvc2',
 			format: 'unknown',
