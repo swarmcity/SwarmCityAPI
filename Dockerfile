@@ -5,6 +5,7 @@ ENV HOME /root
 COPY package.json ./
 RUN npm install
 
+COPY connections ./connections
 COPY contracts ./contracts
 COPY functions ./functions
 COPY scheduler ./scheduler
