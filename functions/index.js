@@ -7,6 +7,7 @@ let handlers = [
 	require('./sendShhMessage'),
 	require('./sendRawTx'),
 	require('./readShortCode'),
+	require('./ipfsCat'),
 ];
 
 /**

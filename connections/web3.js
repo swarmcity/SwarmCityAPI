@@ -10,11 +10,11 @@ const web3WebsocketProvider = new Web3.providers.WebsocketProvider(process.env.E
 web3WebsocketProvider.on('error', (e) => {
 	logger.error('WEB3 ERROR', e.message);
 });
-web3WebsocketProvider.on('end', (e) => {
-	logger.info('WEB3 WS DISCONNECTED', e);
+web3WebsocketProvider.on('end', () => {
+	logger.info('WEB3 WS DISCONNECTED');
 });
-web3WebsocketProvider.on('connect', (e) => {
-	logger.info('WEB3 WS CONNECTED', e.message);
+web3WebsocketProvider.on('connect', () => {
+	logger.info('WEB3 WS CONNECTED');
 });
 
 const web3 = new Web3(web3WebsocketProvider);

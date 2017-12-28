@@ -10,9 +10,9 @@ const scheduledTask = require('../scheduler/scheduledTask')();
 describe('Swarm City scheduler', function() {
 	it('should receive all related events right after socket connects', function(done) {
 		scheduledTask.addTask({
-			nextRun: (new Date).getTime() + 1000,
+			nextRun: (new Date).getTime() + 100,
 			func: hello,
-			interval: 1000,
+			interval: 100,
 			data: 'a',
 		});
 
@@ -22,7 +22,7 @@ describe('Swarm City scheduler', function() {
 
 
 		scheduledTask.addTask({
-			nextRun: (new Date).getTime() + 2000,
+			nextRun: (new Date).getTime() + 200,
 			func: hello,
 			responsehandler: responseHandler,
 			data: 'b',
@@ -34,7 +34,7 @@ describe('Swarm City scheduler', function() {
 
 
 		scheduledTask.addTask({
-			nextRun: (new Date).getTime() + 3000,
+			nextRun: (new Date).getTime() + 300,
 			func: hello,
 			responsehandler: responseHandler,
 			data: 'c',
@@ -45,7 +45,7 @@ describe('Swarm City scheduler', function() {
 	it('should wait a few moments', function(done) {
 		setTimeout(() => {
 			done();
-		}, 4 * 1000);
+		}, 1 * 1000);
 	});
 
 	it('should cancel all tasks', function(done) {
