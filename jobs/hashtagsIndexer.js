@@ -82,6 +82,7 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 						if (log.returnValues && log.returnValues.name === 'hashtaglist') {
 							if (ipfsService.isIPFSHash(log.returnValues.value)) {
 								ipfsService.cat(log.returnValues.value).then((data) => {
+									data = data.toString();
 									logger.info('found hashtaglist : ', data);
 									db.put(process.env.PARAMETERSCONTRACT +
 										'-hashtaglist', data).then(() => {

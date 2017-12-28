@@ -12,7 +12,7 @@ const IPFSService= require('../services/ipfs').IPFSService;
 if (!process.env.TESTIPFS || process.env.TESTIPFS == '0') {
 	logger.info('SSH test disabled');
 } else {
-	describe('test of globalIPFS', function() {
+	describe('functional test of IPFSService', function() {
 		let helloworldIPFShash = 'QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT';
 
         let ipfsService = new IPFSService(ipfsc);
