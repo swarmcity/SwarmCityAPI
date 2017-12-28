@@ -7,8 +7,17 @@ const bl = require('bl');
 
 module.exports = function() {
 	return ({
+		/**
+		 * Returns a Buffer with the IPFS data of the given hash
+		 *
+		 * @param      {String}   hash    The IPFS hash
+		 * @return     {Promise}  resolves with a Buffer object, rejects with an Error object
+		 */
 		cat: function(hash) {
 			logger.info('CAT hash', hash);
+			if (!this.isIPFSHash(hash)) {
+				return Promise.reject(new Error(hash + ' is not a valid IPFS hash'));
+			}
 			return new Promise((resolve, reject) => {
 				ipfs.files.cat(hash, (err, stream) => {
 					if (err) {
@@ -18,13 +27,19 @@ module.exports = function() {
 						if (err) {
 							reject(new Error(err));
 						} else {
-							resolve(data.toString());
+							resolve(data);
 						}
 					}));
 				});
 			});
 		},
 
+		/**
+		 * Checks if the given string is a valid IPFS hash
+		 *
+		 * @param      {string}   possibleHash  The string to test
+		 * @return     {boolean}  True if it validates as an ipfs hash, False otherwise.
+		 */
 		isIPFSHash: function(possibleHash) {
 			return (
 				possibleHash &&
