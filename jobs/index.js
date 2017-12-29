@@ -4,6 +4,7 @@ const logger = require('../logs')('jobs');
 
 let jobPromises = [
 	require('./hashtagsIndexer')().start(),
+	require('./tokenTransferIndexer')().start(),
 ];
 
 module.exports = function() {
