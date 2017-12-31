@@ -11,6 +11,11 @@ const ipfs = require('../globalIPFS')();
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
 const minimeToken = require('../contracts/miniMeToken.json');
+
+function lastBlockKey() {
+	return ('1lastblock-' + process.env.SWTTOKENCONTRACT);
+}
+
 /**
  * Returns last processed block of the parameters contract
  * ( or the deployment block if not initialized yet...)
@@ -19,7 +24,7 @@ const minimeToken = require('../contracts/miniMeToken.json');
  */
 function getLastBlock() {
 	return new Promise((resolve, reject) => {
-		db.get('lastblock-' + process.env.SWTTOKENCONTRACT, function(err, value) {
+		db.get(lastBlockKey(), function(err, value) {
 			if (err) {
 				if (err.notFound) {
 					// handle a 'NotFoundError' here
@@ -40,7 +45,7 @@ function getLastBlock() {
  * @return     {promise}  promise
  */
 function setLastBlock(blockNumber) {
-	return db.put('lastblock-' + process.env.SWTTOKENCONTRACT, blockNumber);
+	return db.put(lastBlockKey(), blockNumber);
 }
 
 /**
@@ -64,6 +69,7 @@ function getBlockHeight() {
 function getPastEvents(startBlock, endBlock, minimeTokenInstance, task) {
 	return new Promise((resolve, reject) => {
 		let startTime = Date.now();
+		logger.info('-------> getPastEvents', startBlock, endBlock);
 		minimeTokenInstance.getPastEvents('Transfer', {
 				fromBlock: web3.utils.toHex(startBlock),
 				toBlock: web3.utils.toHex(endBlock),
@@ -75,7 +81,7 @@ function getPastEvents(startBlock, endBlock, minimeTokenInstance, task) {
 				if (logs && logs.length > 0) {
 					for (let i = 0; i < logs.length; i++) {
 						let log = logs[i];
-						logger.info('-------> TX EVENT',log);
+						logger.info('-------> TX EVENT', log);
 						resolve(duration);
 						// if (log.returnValues && log.returnValues.name === 'hashtaglist') {
 						// 	if (ipfs.isIPFSHash(log.returnValues.value)) {
@@ -108,6 +114,7 @@ function getPastEvents(startBlock, endBlock, minimeTokenInstance, task) {
 						// }
 					}
 				} else {
+					logger.info('-------> NO TX EVENT in this range');
 					setLastBlock(endBlock).then(() => {
 						task.interval = 100;
 						resolve(duration);
@@ -174,7 +181,7 @@ module.exports = function() {
 									logger.info('scanning range', startBlock, '->', endBlock);
 
 									getPastEvents(startBlock, endBlock,
-										parametersContractInstance, task).then((scanDuration) => {
+										minimeTokenInstance, task).then((scanDuration) => {
 										cumulativeEthClientTime += scanDuration;
 										resolve();
 									});
