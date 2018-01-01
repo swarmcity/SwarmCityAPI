@@ -15,28 +15,36 @@ describe('services/ipfs/IPFSService', function() {
         });
 
         it('should always start with Qm', function() {
-            should(ipfsService.isIPFSHash('RneV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT')).not.be.ok;
+            should(
+                ipfsService.isIPFSHash('RneV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT')
+            ).not.be.ok;
         });
 
         it('should always be 46 characeters long', function() {
-            should(ipfsService.isIPFSHash('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKTX')).not.be.ok;
-            should(ipfsService.isIPFSHash('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbK')).not.be.ok;
+            should(
+                ipfsService.isIPFSHash('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKTX')
+            ).not.be.ok;
+            should(
+                ipfsService.isIPFSHash('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbK')
+            ).not.be.ok;
         });
 
         it('should work with a valid hash', function() {
-            should(ipfsService.isIPFSHash('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT')).be.ok;
+            should(
+                ipfsService.isIPFSHash('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT')
+            ).be.ok;
         });
     });
 
     describe('cat()', function() {
         it('should reject on IPFS failure', function() {
-            var mockIpfs = {
+            let mockIpfs = {
                 files: {
                     cat: function(hash, callback) {
                         callback('something went wrong', null);
-                    }
-                }
-            }
+                    },
+                },
+            };
             let ipfsService = new IPFSService(mockIpfs);
 
             return ipfsService

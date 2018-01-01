@@ -4,10 +4,16 @@ const logger = require('../logs')('services/ipfs');
 
 const bl = require('bl');
 
+/**
+ * A service that collects all interactions with IPFS
+ */
 class IPFSService {
-
+    /**
+     * Create an IPFSService
+     * @param   {ipfsAPI}   ipfs    The connection to ipfs
+     */
     constructor(ipfs) {
-        this.ipfs = ipfs
+        this.ipfs = ipfs;
     }
 
     /**
@@ -50,9 +56,8 @@ class IPFSService {
             });
         });
     }
-
 }
 
 module.exports = {
-    'IPFSService': IPFSService
+    'IPFSService': IPFSService,
 };
