@@ -8,10 +8,16 @@ const logger = require('../logs')('services/db');
 class DBService {
     /**
      * Create a DBService
-     * @param   {levelDb}   db    The connection to leveldb
+     * @param   {levelDb}   db      The connection to leveldb
+     * @param   {Object}    options Contains options
+     * @todo    Ensure all options are set
      */
-    constructor(db) {
+    constructor(db, options) {
         this.db = db;
+        this.options = options || {
+            'parameterscontract': '',
+            'parameterscontractstartblock': ''
+        }
     }
 
     /**
@@ -49,6 +55,39 @@ class DBService {
             });
         });
     }
+
+    /**
+     * Returns last processed block of the parameters contract
+     * ( or the deployment block if not initialized yet...)
+     *
+     * @return     {Promise}  The last block.
+     */
+    getLastBlock() {
+        return new Promise((resolve, reject) => {
+            this.db.get('lastblock-' + this.options.parameterscontract, function(err, value) {
+                if (err) {
+                    if (err.notFound) {
+                        // handle a 'NotFoundError' here
+                        resolve(parseInt(this.options.parameterscontractstartblock));
+                    }
+                    // I/O or other error, pass it up the callback chain
+                    reject();
+                }
+                resolve(parseInt(value));
+            });
+        });
+    }
+
+    /**
+     * Sets the last block.
+     *
+     * @param      {Number}  blockNumber  The block number
+     * @return     {promise}  promise
+     */
+    setLastBlock(blockNumber) {
+        return db.put('lastblock-' + this.options.parameterscontract, blockNumber);
+    }
+
 }
 
 module.exports = {

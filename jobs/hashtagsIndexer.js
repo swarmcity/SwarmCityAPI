@@ -15,37 +15,15 @@ const ipfsc = require('../connections/ipfs').ipfs;
 const IPFSService= require('../services/ipfs').IPFSService;
 const ipfsService = new IPFSService(ipfsc);
 
-/**
- * Returns last processed block of the parameters contract
- * ( or the deployment block if not initialized yet...)
- *
- * @return     {Promise}  The last block.
- */
-function getLastBlock() {
-	return new Promise((resolve, reject) => {
-		db.get('lastblock-' + process.env.PARAMETERSCONTRACT, function(err, value) {
-			if (err) {
-				if (err.notFound) {
-					// handle a 'NotFoundError' here
-					resolve(parseInt(process.env.PARAMETERSCONTRACTSTARTBLOCK));
-				}
-				// I/O or other error, pass it up the callback chain
-				reject();
-			}
-			resolve(parseInt(value));
-		});
-	});
-}
-
-/**
- * Sets the last block.
- *
- * @param      {Number}  blockNumber  The block number
- * @return     {promise}  promise
- */
-function setLastBlock(blockNumber) {
-	return db.put('lastblock-' + process.env.PARAMETERSCONTRACT, blockNumber);
-}
+const dbc = require('../connections/db').db;
+const DBService = require('../services/db').DBService;
+const dbService = new DBService(
+    dbc,
+    {
+        'parameterscontract': process.env.PARAMETERSCONTRACT,
+        'parameterscontractstartblock': process.env.PARAMETERSCONTRACTSTARTBLOCK
+    }
+);
 
 /**
  * Gets the block height from the blockchain
@@ -86,7 +64,7 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 									logger.info('found hashtaglist : ', data);
 									db.put(process.env.PARAMETERSCONTRACT +
 										'-hashtaglist', data).then(() => {
-										setLastBlock(endBlock).then(() => {
+										this.setLastBlock(endBlock).then(() => {
 											task.interval = 100;
 											resolve(duration);
 										});
@@ -110,7 +88,7 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 						}
 					}
 				} else {
-					setLastBlock(endBlock).then(() => {
+					this.setLastBlock(endBlock).then(() => {
 						task.interval = 100;
 						resolve(duration);
 					});
@@ -146,7 +124,7 @@ module.exports = function() {
 					interval: 100,
 					func: (task) => {
 						return new Promise((resolve, reject) => {
-							getLastBlock().then((startBlock) => {
+							dbService.getLastBlock().then((startBlock) => {
 								getBlockHeight().then((endBlock) => {
 									let range = 30000;
 									if (startBlock + range < endBlock) {
@@ -202,7 +180,7 @@ module.exports = function() {
 
 		reset: function() {
 			logger.info('reset : setLastBlock to ', process.env.PARAMETERSCONTRACTSTARTBLOCK);
-			return setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
+			return this.setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
 				db.put('hashtagindexer-synced', false).then(() => {
 					return this.start();
 				});
