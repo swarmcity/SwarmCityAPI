@@ -32,7 +32,7 @@ describe('services/db/DBService', function() {
             let mockDB = {
                 get: function(key) {
                     return Promise.reject({
-                        'notFound': true
+                        'notFound': true,
                     });
                 },
             };
