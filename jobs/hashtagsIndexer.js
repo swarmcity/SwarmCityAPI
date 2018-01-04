@@ -21,7 +21,7 @@ const dbService = new DBService(
     dbc,
     {
         'parameterscontract': process.env.PARAMETERSCONTRACT,
-        'parameterscontractstartblock': process.env.PARAMETERSCONTRACTSTARTBLOCK
+        'parameterscontractstartblock': process.env.PARAMETERSCONTRACTSTARTBLOCK,
     }
 );
 
@@ -64,7 +64,7 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 									logger.info('found hashtaglist : ', data);
 									db.put(process.env.PARAMETERSCONTRACT +
 										'-hashtaglist', data).then(() => {
-										this.setLastBlock(endBlock).then(() => {
+										dbService.setLastBlock(endBlock).then(() => {
 											task.interval = 100;
 											resolve(duration);
 										});
@@ -88,7 +88,7 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 						}
 					}
 				} else {
-					this.setLastBlock(endBlock).then(() => {
+					dbService.setLastBlock(endBlock).then(() => {
 						task.interval = 100;
 						resolve(duration);
 					});
@@ -180,7 +180,7 @@ module.exports = function() {
 
 		reset: function() {
 			logger.info('reset : setLastBlock to ', process.env.PARAMETERSCONTRACTSTARTBLOCK);
-			return this.setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
+			return dbService.setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
 				db.put('hashtagindexer-synced', false).then(() => {
 					return this.start();
 				});

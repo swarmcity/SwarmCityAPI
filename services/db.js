@@ -16,8 +16,8 @@ class DBService {
         this.db = db;
         this.options = options || {
             'parameterscontract': '',
-            'parameterscontractstartblock': ''
-        }
+            'parameterscontractstartblock': '',
+        };
     }
 
     /**
@@ -68,7 +68,7 @@ class DBService {
                 if (err) {
                     if (err.notFound) {
                         // handle a 'NotFoundError' here
-                        resolve(parseInt(this.options.parameterscontractstartblock));
+                        // resolve(parseInt(this.options.parameterscontractstartblock));
                     }
                     // I/O or other error, pass it up the callback chain
                     reject();
@@ -85,9 +85,8 @@ class DBService {
      * @return     {promise}  promise
      */
     setLastBlock(blockNumber) {
-        return db.put('lastblock-' + this.options.parameterscontract, blockNumber);
+        return this.db.put('lastblock-' + this.options.parameterscontract, blockNumber);
     }
-
 }
 
 module.exports = {
