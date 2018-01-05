@@ -144,7 +144,7 @@ module.exports = function() {
 											cumulativeEthClientTime, 'ms');
 										logger.info('++++++++++++++++++++++++++++++');
 
-										db.put('hashtagindexer-synced', true).then(() => {
+										dbService.setHashtagIndexerSynced(true).then(() => {
 											logger.info('hashtagindexer is synced', endBlock);
 											jobresolve();
 											return resolve();
@@ -181,7 +181,7 @@ module.exports = function() {
 		reset: function() {
 			logger.info('reset : setLastBlock to ', process.env.PARAMETERSCONTRACTSTARTBLOCK);
 			return dbService.setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
-				db.put('hashtagindexer-synced', false).then(() => {
+				dbService.setHashtagIndexerSynced(false).then(() => {
 					return this.start();
 				});
 			});

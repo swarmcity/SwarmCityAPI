@@ -81,11 +81,21 @@ class DBService {
     /**
      * Sets the last block.
      *
-     * @param      {Number}  blockNumber  The block number
-     * @return     {promise}  promise
+     * @param      {Number}     blockNumber  The block number
+     * @return     {Promise}    promise
      */
     setLastBlock(blockNumber) {
         return this.db.put('lastblock-' + this.options.parameterscontract, blockNumber);
+    }
+
+    /**
+     * Set the hashtagindexer to synced
+     *
+     * @param       {Boolean}   synced  Is it synced or not?
+     * @return      {Promise}   promise
+     */
+    setHashtagIndexerSynced(synced) {
+		return this.db.put('hashtagindexer-synced', synced);
     }
 }
 
