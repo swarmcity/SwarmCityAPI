@@ -1,6 +1,7 @@
 'use strict';
 
 const should = require('should');
+const sinon = require('sinon');
 
 const DBService= require('../services/db').DBService;
 
@@ -49,6 +50,28 @@ describe('services/db/DBService', function() {
                     .then((err) => {
                         should(err).be.ok;
                     });
+        });
+    });
+
+    describe('setLastBlock()', function() {
+        it('should put correct information in the database', function() {
+
+            let mockDB = {
+                put: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            let promise = dbService.setLastBlock(15);
+            let key = 'lastblock-mockContract';
+            should(spy.calledWith(key, 15)).be.ok;
         });
     });
 });
