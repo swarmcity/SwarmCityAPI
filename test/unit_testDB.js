@@ -55,7 +55,6 @@ describe('services/db/DBService', function() {
 
     describe('setLastBlock()', function() {
         it('should put correct information in the database', function() {
-
             let mockDB = {
                 put: function(key) {},
             };
@@ -69,7 +68,7 @@ describe('services/db/DBService', function() {
                 }
             );
 
-            let promise = dbService.setLastBlock(15);
+            dbService.setLastBlock(15);
             let key = 'lastblock-mockContract';
             should(spy.calledWith(key, 15)).be.ok;
         });
