@@ -110,8 +110,7 @@ describe('services/db/DBService', function() {
                 }
             );
 
-            return dbService
-                    .getLastBlock()
+            dbService.getLastBlock()
                     .then(() => {
                         return Promise.reject('Expected rejection');
                     })
