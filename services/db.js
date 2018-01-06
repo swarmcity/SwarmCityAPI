@@ -96,6 +96,16 @@ class DBService {
     setHashtagIndexerSynced(synced) {
         return this.db.put('hashtagindexer-synced', synced);
     }
+
+    /**
+     * Set the hashtaglist
+     *
+     * @param       {String}    list    The hashtaglist
+     * @return      {Promise}   promise
+     */
+    setHashtagList(list) {
+        return this.db.put(this.options.parameterscontract + '-hashtaglist', list);
+    }
 }
 
 module.exports = {

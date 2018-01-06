@@ -124,5 +124,77 @@ describe('services/db/DBService', function() {
             let key = 'lastblock-mockContract';
             should(spy.calledWith(key));
         });
+
+        it('should reject on DB entry not found', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+            let spy = sinon.stub(mockDB, 'get')
+                           .returns(Promise.reject({'notFound': true}));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService.getLastBlock()
+                    .then(() => {
+                        return Promise.reject('Expected rejection');
+                    })
+                    .catch((e) => {
+                        return Promise.resolve(e);
+                    })
+                    .then((err) => {
+                        should(err).be.ok;
+                    });
+
+            let key = 'lastblock-mockContract';
+            should(spy.calledWith(key));
+        });
+
+    });
+
+    describe('setHashtagList()', function() {
+        it('should put correct information in the database', function() {
+            let mockDB = {
+                put: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService.setHashtagList([].toString());
+            let key = 'mockContract-hashtaglist';
+            should(spy.calledWith(key, '[]')).be.ok;
+        });
+    });
+
+    describe('setHashtagIndexerSynced()', function() {
+        it('should put correct information in the database', function() {
+            let mockDB = {
+                put: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService.setHashtagIndexerSynced(true);
+            let key = 'hashtagindexer-synced';
+            should(spy.calledWith(key, true)).be.ok;
+        });
     });
 });

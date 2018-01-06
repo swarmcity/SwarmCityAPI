@@ -6,7 +6,6 @@
 
 require('../environment');
 const logger = require('../logs')('hashtagIndexer');
-const db = require('../connections/db').db;
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
 const parametersContract = require('../contracts/Parameters.json');
@@ -62,8 +61,7 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 								ipfsService.cat(log.returnValues.value).then((data) => {
 									data = data.toString();
 									logger.info('found hashtaglist : ', data);
-									db.put(process.env.PARAMETERSCONTRACT +
-										'-hashtaglist', data).then(() => {
+									dbService.setHashtagList(data).then(() => {
 										dbService.setLastBlock(endBlock).then(() => {
 											task.interval = 100;
 											resolve(duration);
