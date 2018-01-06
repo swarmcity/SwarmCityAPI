@@ -64,16 +64,15 @@ class DBService {
      */
     getLastBlock() {
         return new Promise((resolve, reject) => {
-            this.db.get('lastblock-' + this.options.parameterscontract, function(err, value) {
-                if (err) {
-                    if (err.notFound) {
-                        // handle a 'NotFoundError' here
-                        // resolve(parseInt(this.options.parameterscontractstartblock));
-                    }
-                    // I/O or other error, pass it up the callback chain
-                    reject();
+            let key = 'lastblock-' + this.options.parameterscontract;
+            this.db.get(key).then((val) => {
+                resolve(parseInt(val));
+            }).catch((err) => {
+                if (err.notFound) {
+                    logger.error('no lastblock found (yet) in DB. ');
+                    return reject();
                 }
-                resolve(parseInt(value));
+                reject(new Error(err));
             });
         });
     }
@@ -95,7 +94,7 @@ class DBService {
      * @return      {Promise}   promise
      */
     setHashtagIndexerSynced(synced) {
-		return this.db.put('hashtagindexer-synced', synced);
+        return this.db.put('hashtagindexer-synced', synced);
     }
 }
 

@@ -73,4 +73,57 @@ describe('services/db/DBService', function() {
             should(spy.calledWith(key, 15)).be.ok;
         });
     });
+
+    describe('getLastBlock()', function() {
+        it('should return the last block number from the database', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+            let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve('456'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService.getLastBlock().then((value) => {
+                should(value).be.equal(456);
+            });
+
+            let key = 'lastblock-mockContract';
+            should(spy.calledWith(key));
+        });
+
+        it('should reject on DB lookup failure', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+            let spy = sinon.stub(mockDB, 'get')
+                           .returns(Promise.reject('Unknown DB Error'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            return dbService
+                    .getLastBlock()
+                    .then(() => {
+                        return Promise.reject('Expected rejection');
+                    })
+                    .catch((e) => {
+                        return Promise.resolve(e);
+                    })
+                    .then((err) => {
+                        should(err).be.ok;
+                    });
+
+            let key = 'lastblock-mockContract';
+            should(spy.calledWith(key));
+        });
+    });
 });
