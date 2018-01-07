@@ -57,6 +57,32 @@ class DBService {
     }
 
     /**
+     * saves shortcode payload in DB
+     *
+     * @param      {string}   shortcode  The shortcode
+     * @param      {Number}   validity   The validity of this data in ms
+     * @param      {Object}   payload    The payload to store
+     * @return     {Promise}  resolves when ready..
+     */
+    saveDataToShortCode(shortcode, validity, payload) {
+        return new Promise((resolve, reject) => {
+            let key = 'shortcode-' + shortcode;
+            let val = {
+                shortcode: shortcode,
+                validUntil: (new Date).getTime() + validity,
+                payload: payload,
+            };
+            logger.info('Storing shortcode data', key, val);
+            this.db.put(key, JSON.stringify(val)).then(() => {
+                resolve();
+            }).catch((err) => {
+                logger.error(err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
      * Returns last processed block of the parameters contract
      * ( or the deployment block if not initialized yet...)
      *
@@ -144,7 +170,7 @@ class DBService {
                 if (err.notFound) {
                     logger.error('key', key, 'not found (yet) in DB. ');
                     logger.info('Returning empty hashtag list');
-                    return resolve([]);
+                    resolve([]);
                 }
                 reject(new Error(err));
             });

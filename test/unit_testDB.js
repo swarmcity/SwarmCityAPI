@@ -53,6 +53,67 @@ describe('services/db/DBService', function() {
         });
     });
 
+    describe('saveDataToShortCode()', function() {
+        it('should put correct information in the database', function() {
+            let mockDB = {
+                put: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService.saveDataToShortCode(12345, 100, {});
+
+            let key = 'shortcode-12345';
+            let data = {
+                'shortCode': 12345,
+                'validUntil': (new Date).getTime() + 100,
+                'payload': {}
+            };
+            should(spy.calledWith(key, JSON.stringify(data))).be.ok;
+        });
+
+        it('should reject on error', function() {
+            let mockDB = {
+                put: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.reject('Some error'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            return dbService
+                .saveDataToShortCode(12345, 100, {})
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                }).catch((e) => {
+                    return Promise.resolve(e);
+                }).then((err) => {
+                    should(err).be.ok;
+                });
+
+            let key = 'shortcode-12345';
+            let data = {
+                'shortCode': 12345,
+                'validUntil': (new Date).getTime() + 100,
+                'payload': {}
+            };
+            should(spy.calledWith(key, JSON.stringify(data))).be.ok;
+        });
+
+    });
+
     describe('setLastBlock()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
