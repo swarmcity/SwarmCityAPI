@@ -195,7 +195,7 @@ describe('services/db/DBService', function() {
                 .getHashtagList()
                 .then((hashtaglist) => {
                     should(hashtaglist).be.Array;
-                })
+                });
             let key = 'mockContract-hashtaglist';
             should(spy.calledWith(key)).be.ok;
         });
@@ -219,7 +219,7 @@ describe('services/db/DBService', function() {
                 .then((hashtaglist) => {
                     should(hashtaglist).be.Array;
                     should(hashtaglist).have.lengthOf(0);
-                })
+                });
             let key = 'mockContract-hashtaglist';
             should(spy.calledWith(key)).be.ok;
         });
@@ -243,7 +243,7 @@ describe('services/db/DBService', function() {
                 .then((hashtaglist) => {
                     should(hashtaglist).be.Array;
                     should(hashtaglist).have.lengthOf(0);
-                })
+                });
             let key = 'mockContract-hashtaglist';
             should(spy.calledWith(key)).be.ok;
         });
