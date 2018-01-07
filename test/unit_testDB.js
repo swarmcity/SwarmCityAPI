@@ -176,6 +176,109 @@ describe('services/db/DBService', function() {
         });
     });
 
+    describe('getHashtagList()', function() {
+        it('should get the hashtaglist from the database', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve('[]'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService
+                .getHashtagList()
+                .then((hashtaglist) => {
+                    should(hashtaglist).be.Array;
+                })
+            let key = 'mockContract-hashtaglist';
+            should(spy.calledWith(key)).be.ok;
+        });
+
+        it('should return an empty list when the database contains invalid data', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService
+                .getHashtagList()
+                .then((hashtaglist) => {
+                    should(hashtaglist).be.Array;
+                    should(hashtaglist).have.lengthOf(0);
+                })
+            let key = 'mockContract-hashtaglist';
+            should(spy.calledWith(key)).be.ok;
+        });
+
+        it('should return an empty list when the database is empty', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService
+                .getHashtagList()
+                .then((hashtaglist) => {
+                    should(hashtaglist).be.Array;
+                    should(hashtaglist).have.lengthOf(0);
+                })
+            let key = 'mockContract-hashtaglist';
+            should(spy.calledWith(key)).be.ok;
+        });
+
+        it('should reject on DB lookup failure', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'get').returns(Promise.reject('Unknown error'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService
+                .getHashtagList()
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
+
+            let key = 'mockContract-hashtaglist';
+            should(spy.calledWith(key)).be.ok;
+        });
+    });
+
     describe('setHashtagIndexerSynced()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {

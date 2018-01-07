@@ -137,7 +137,7 @@ class DBService {
                 } catch (e) {
                     logger.info('Returning empty hashtag list');
                     logger.error('Cannot parse hashtag data from DB', val, e);
-                    return resolve([]);
+                    resolve([]);
                 }
             }).catch((err) => {
                 logger.error(JSON.stringify(err));
