@@ -153,7 +153,6 @@ describe('services/db/DBService', function() {
             let key = 'lastblock-mockContract';
             should(spy.calledWith(key));
         });
-
     });
 
     describe('setHashtagList()', function() {

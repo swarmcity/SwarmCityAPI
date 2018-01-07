@@ -106,6 +106,50 @@ class DBService {
     setHashtagList(list) {
         return this.db.put(this.options.parameterscontract + '-hashtaglist', list);
     }
+
+    /**
+     * Get the hashtaglist
+     *
+     * @return      {Promise}   promise
+     */
+    getHashtagList() {
+        return new Promise((resolve, reject) => {
+            let key = this.options.parameterscontract + '-hashtaglist';
+            this.db.get(key).then((val) => {
+                try {
+                    let hashtags = JSON.parse(val);
+                    // this is debug stuff
+                    hashtags.push({
+                        name: 'Random ' + Math.floor(Math.random() * 10 + 5),
+                        deals: Math.floor(Math.random() * 10 + 5),
+                        id: '1c9v87bc98v7a',
+                        commission: 0.05,
+                        maintainer: '0x369D787F3EcF4a0e57cDfCFB2Db92134e1982e09',
+                        contact: [{
+                            name: 'hashtagman2@gmail.com',
+                            link: 'mailto:hashtagman2@gmail.com',
+                        }, {
+                            name: '@hashtag2 (Twitter)',
+                            link: 'http://twitter.com/@hashtag2',
+                        }],
+                    });
+                    resolve(hashtags);
+                } catch (e) {
+                    logger.info('Returning empty hashtag list');
+                    logger.error('Cannot parse hashtag data from DB', val, e);
+                    return resolve([]);
+                }
+            }).catch((err) => {
+                logger.error(JSON.stringify(err));
+                if (err.notFound) {
+                    logger.error('key', key, 'not found (yet) in DB. ');
+                    logger.info('Returning empty hashtag list');
+                    return resolve([]);
+                }
+                reject(new Error(err));
+            });
+        });
+    }
 }
 
 module.exports = {
