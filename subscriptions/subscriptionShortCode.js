@@ -5,7 +5,6 @@
 const logger = require('../logs.js')();
 const jsonHash = require('json-hash');
 const scheduledTask = require('../scheduler/scheduledTask')();
-const db = require('../connections/db').db;
 
 const dbc = require('../connections/db').db;
 const DBService = require('../services/db').DBService;

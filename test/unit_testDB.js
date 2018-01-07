@@ -74,7 +74,7 @@ describe('services/db/DBService', function() {
             let data = {
                 'shortCode': 12345,
                 'validUntil': (new Date).getTime() + 100,
-                'payload': {}
+                'payload': {},
             };
             should(spy.calledWith(key, JSON.stringify(data))).be.ok;
         });
@@ -84,7 +84,7 @@ describe('services/db/DBService', function() {
                 put: function(key) {},
             };
 
-            let spy = sinon.stub(mockDB, 'put').returns(Promise.reject('Some error'));
+            sinon.stub(mockDB, 'put').returns(Promise.reject('Some error'));
 
             let dbService = new DBService(
                 mockDB,
@@ -102,16 +102,7 @@ describe('services/db/DBService', function() {
                 }).then((err) => {
                     should(err).be.ok;
                 });
-
-            let key = 'shortcode-12345';
-            let data = {
-                'shortCode': 12345,
-                'validUntil': (new Date).getTime() + 100,
-                'payload': {}
-            };
-            should(spy.calledWith(key, JSON.stringify(data))).be.ok;
         });
-
     });
 
     describe('setLastBlock()', function() {
