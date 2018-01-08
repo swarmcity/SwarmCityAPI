@@ -9,22 +9,26 @@ const options = {
 	path: '/api',
 };
 
-// create a server
-const server = require('../socket');
 
 describe('Swarm City API socket client > test ipfsCat', function() {
 	let client;
+    let server;
 	let socketURL;
 
-
 	before(function(done) {
-		server.listen({
-			APISOCKETPORT: 12205,
-		}).then((con) => {
-			socketURL = 'http://localhost:' + con.port;
-			logger.info('socketURL=', socketURL);
-			done();
-		});
+        if (process.env.TESTIPFS && process.env.TESTIPFS == '1') {
+            // create a server
+            server = require('../socket');
+            server.listen({
+                APISOCKETPORT: 12205,
+            }).then((con) => {
+                socketURL = 'http://localhost:' + con.port;
+                logger.info('socketURL=', socketURL);
+                done();
+            });
+        } else {
+            this.skip();
+        }
 	});
 	it('should connect', function(done) {
 		logger.info('connecting to ', socketURL);
@@ -74,11 +78,15 @@ describe('Swarm City API socket client > test ipfsCat', function() {
 		});
 	});
 	after(function(done) {
-		logger.info('closing client socket');
-		client.close();
-		server.close().then(() => {
-			logger.info('server closed...');
-			done();
-		});
+        if (process.env.TESTIPFS && process.env.TESTIPFS == '1') {
+            logger.info('closing client socket');
+            client.close();
+            server.close().then(() => {
+                logger.info('server closed...');
+                done();
+            });
+        } else {
+            done();
+        }
 	});
 });
