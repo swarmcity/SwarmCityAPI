@@ -9,22 +9,24 @@ const logger = require('../logs')('Mocha');
 const ipfsc = require('../connections/ipfs').ipfs;
 const IPFSService= require('../services/ipfs').IPFSService;
 
-if (!process.env.TESTIPFS || process.env.TESTIPFS == '0') {
-	logger.info('SSH test disabled');
-} else {
-	describe('functional test of IPFSService', function() {
-		let helloworldIPFShash = 'QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT';
+describe('functional test of IPFSService', function() {
+    before(function() {
+        if (!process.env.TESTIPFS || process.env.TESTIPFS == '0') {
+            this.skip();
+        }
+    });
 
-        let ipfsService = new IPFSService(ipfsc);
+    let helloworldIPFShash = 'QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT';
 
-		it('ipfs.cat test', function(done) {
-			ipfsService.cat(helloworldIPFShash).then((data) => {
-				logger.info('data', data);
-				should(data).equal('hello world!');
-				done();
-			}).catch((e) => {
-				done();
-			});
-		});
-	});
-}
+    let ipfsService = new IPFSService(ipfsc);
+
+    it('ipfs.cat test', function(done) {
+        ipfsService.cat(helloworldIPFShash).then((data) => {
+            logger.info('data', data);
+            should(data).equal('hello world!');
+            done();
+        }).catch((e) => {
+            done();
+        });
+    });
+});
