@@ -62,7 +62,7 @@ function createUniqueShortCode(decimals) {
 		let newShortcode = createShortCode(decimals);
 
         dbService
-            .readShortcode(newShortcode)
+            .readShortCode(newShortcode)
             .then((val) => {
                 // code already exists & not expired yet - try again.
                 return createUniqueShortCode(decimals);
