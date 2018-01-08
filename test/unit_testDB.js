@@ -57,8 +57,7 @@ describe('services/db/DBService', function() {
                 get: function(key) {},
             };
 
-            let spy = sinon.stub(mockDB, 'get')
-                           .returns(Promise.resolve(null));
+            sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
             let dbService = new DBService(mockDB);
 
             return dbService
@@ -83,7 +82,7 @@ describe('services/db/DBService', function() {
                            .returns(Promise.resolve(JSON.stringify({
                                'shortcode': 12345,
                                'validUntil': (new Date).getTime() + 1000,
-                               'payload': {}
+                               'payload': {},
                            })));
             let dbService = new DBService(mockDB);
 
@@ -106,7 +105,7 @@ describe('services/db/DBService', function() {
                            .returns(Promise.resolve(JSON.stringify({
                                'shortcode': 12345,
                                'validUntil': (new Date).getTime() - 1000,
-                               'payload': {}
+                               'payload': {},
                            })));
             let dbService = new DBService(mockDB);
 
