@@ -51,6 +51,80 @@ describe('services/db/DBService', function() {
                         should(err).be.ok;
                     });
         });
+
+        it('should reject on unreadable data', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'get')
+                           .returns(Promise.resolve(null));
+            let dbService = new DBService(mockDB);
+
+            return dbService
+                    .readShortCode('shortCodeString')
+                    .then(() => {
+                        return Promise.reject('Expected rejection');
+                    })
+                    .catch((e) => {
+                        return Promise.resolve(e);
+                    })
+                    .then((err) => {
+                        should(err).be.ok;
+                    });
+        });
+
+        it('should fetch a shortcode from the database that has not expired', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'get')
+                           .returns(Promise.resolve(JSON.stringify({
+                               'shortcode': 12345,
+                               'validUntil': (new Date).getTime() + 1000,
+                               'payload': {}
+                           })));
+            let dbService = new DBService(mockDB);
+
+            dbService
+                    .readShortCode('12345')
+                    .then((value) => {
+                        value.should.be.Object;
+                    });
+
+            let key = 'shortcode-12345';
+            should(spy.calledWith(key)).be.ok;
+        });
+
+        it('should not fetch a shortcode from the database that has expired', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'get')
+                           .returns(Promise.resolve(JSON.stringify({
+                               'shortcode': 12345,
+                               'validUntil': (new Date).getTime() - 1000,
+                               'payload': {}
+                           })));
+            let dbService = new DBService(mockDB);
+
+            dbService
+                    .readShortCode('12345')
+                    .then(() => {
+                        return Promise.reject('Expected rejection');
+                    })
+                    .catch((e) => {
+                        return Promise.resolve(e);
+                    })
+                    .then((err) => {
+                        should(err).be.ok;
+                    });
+
+            let key = 'shortcode-12345';
+            should(spy.calledWith(key)).be.ok;
+        });
     });
 
     describe('saveDataToShortCode()', function() {
