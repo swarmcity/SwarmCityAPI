@@ -5,15 +5,12 @@
 'use strict';
 
 require('../environment');
-const logger = require('../logs')('hashtagIndexer');
 const db = require('../connections/db').db;
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
 const parametersContract = require('../contracts/Parameters.json');
 
-const ipfsc = require('../connections/ipfs').ipfs;
-const IPFSService= require('../services/ipfs').IPFSService;
-const ipfsService = new IPFSService(ipfsc);
+const ipfsService = require('../services').ipfsService;
 
 /**
  * Returns last processed block of the parameters contract

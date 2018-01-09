@@ -1,9 +1,10 @@
 'use strict';
+
+const logs = require('../logs')('functions/ipfsCat');
+
 const scheduledTask = require('../scheduler/scheduledTask')();
-const logs = require('../logs')('ipfsCat');
-const ipfsc = require('../connections/ipfs').ipfs;
-const IPFSService= require('../services/ipfs').IPFSService;
-const ipfsService = new IPFSService(ipfsc);
+
+const ipfsService = require('../services').ipfsService;
 
 /**
  * returns name (verb) of this function
