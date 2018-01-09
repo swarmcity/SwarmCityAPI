@@ -5,6 +5,7 @@
 'use strict';
 
 require('../environment');
+const logger = require('../logs')('jobs/hashtagsIndexer');
 const db = require('../connections/db').db;
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
