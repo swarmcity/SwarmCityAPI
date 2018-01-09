@@ -10,9 +10,7 @@ const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
 const parametersContract = require('../contracts/Parameters.json');
 
-const ipfsc = require('../connections/ipfs').ipfs;
-const IPFSService= require('../services/ipfs').IPFSService;
-const ipfsService = new IPFSService(ipfsc);
+const ipfsService = require('../services').ipfsService;
 
 const dbc = require('../connections/db').db;
 const DBService = require('../services/db').DBService;
