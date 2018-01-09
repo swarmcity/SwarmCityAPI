@@ -6,15 +6,7 @@ const logger = require('../logs.js')('subscriptionHashtags');
 const jsonHash = require('json-hash');
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 
-const dbc = require('../connections/db').db;
-const DBService = require('../services/db').DBService;
-const dbService = new DBService(
-    dbc,
-    {
-        'parameterscontract': process.env.PARAMETERSCONTRACT,
-        'parameterscontractstartblock': process.env.PARAMETERSCONTRACTSTARTBLOCK,
-    }
-);
+const dbService = require('../services').dbService;
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe

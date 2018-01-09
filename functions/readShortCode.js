@@ -4,9 +4,7 @@ const logger = require('../logs')('readShortCode');
 
 const scheduledTask = require('../scheduler/scheduledTask')();
 
-const dbc = require('../connections/db').db;
-const DBService = require('../services/db').DBService;
-const dbService = new DBService(dbc);
+const dbService = require('../services').dbService;
 
 /**
  * returns name (verb) of this function
