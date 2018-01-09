@@ -11,16 +11,7 @@ const scheduledTask = require('../scheduler/scheduledTask')();
 const parametersContract = require('../contracts/Parameters.json');
 
 const ipfsService = require('../services').ipfsService;
-
-const dbc = require('../connections/db').db;
-const DBService = require('../services/db').DBService;
-const dbService = new DBService(
-    dbc,
-    {
-        'parameterscontract': process.env.PARAMETERSCONTRACT,
-        'parameterscontractstartblock': process.env.PARAMETERSCONTRACTSTARTBLOCK,
-    }
-);
+const dbService = require('../services').dbService;
 
 /**
  * Gets the block height from the blockchain
