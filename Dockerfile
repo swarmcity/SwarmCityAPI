@@ -8,10 +8,11 @@ RUN npm install
 COPY connections ./connections
 COPY contracts ./contracts
 COPY functions ./functions
+COPY jobs ./jobs
 COPY scheduler ./scheduler
+COPY services ./services
 COPY subscriptions ./subscriptions
 COPY tasks ./tasks
-COPY jobs ./jobs
 COPY *.js ./
 
 EXPOSE 8011
