@@ -3,7 +3,7 @@ require('dotenv').config({
 	path: '../.env',
 });
 
-const logger = require('../logs')('testLogger');
+const logger = require('../src/logs')('testLogger');
 
 describe('test of logging capabilities', function() {
 	it('should receive all related events right after socket connects', function(done) {

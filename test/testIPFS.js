@@ -5,7 +5,7 @@ require('dotenv').config({
 
 const should = require('should');
 
-const ipfsService = require('../services').ipfsService;
+const ipfsService = require('../src/services').ipfsService;
 
 describe('functional test of IPFSService', function() {
     before(function() {

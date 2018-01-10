@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')('Mocha test');
+const logger = require('../src/logs')('Mocha test');
 const io = require('socket.io-client');
 
 const options = {
@@ -9,7 +9,7 @@ const options = {
 };
 
 // create a server
-const server = require('../socket');
+const server = require('../src/socket');
 
 describe('Swarm City API socket client', function() {
 	let client;

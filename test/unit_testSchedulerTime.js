@@ -3,9 +3,9 @@ require('dotenv').config({
 	path: '../.env',
 });
 
-const logger = require('../logs')();
+const logger = require('../src/logs')();
 
-const scheduledTask = require('../scheduler/scheduledTask')();
+const scheduledTask = require('../src/scheduler/scheduledTask')();
 
 describe('Swarm City scheduler', function() {
 	it('should receive all related events right after socket connects', function(done) {

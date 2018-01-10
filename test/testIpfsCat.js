@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')('Mocha test');
+const logger = require('../src/logs')('Mocha test');
 
 const io = require('socket.io-client');
 

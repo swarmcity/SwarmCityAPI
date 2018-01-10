@@ -1,10 +1,10 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')('Mocha test');
+const logger = require('../src/logs')('Mocha test');
 
 const io = require('socket.io-client');
 
-const tokenABI = require('../contracts/miniMeToken.json');
+const tokenABI = require('../src/contracts/miniMeToken.json');
 
 const options = {
 	transports: ['websocket', 'xhr-polling'],
@@ -13,7 +13,7 @@ const options = {
 
 
 // create a server
-const server = require('../socket');
+const server = require('../src/socket');
 
 describe('Swarm City API socket client > test callContract', function() {
 	let client;

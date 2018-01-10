@@ -10,7 +10,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint .",
     "esw": "esw .",
-    "showconfig": "node showEnv.js"
+    "showconfig": "node src/showEnv.js"
   },
   "author": "",
   "license": "MIT",

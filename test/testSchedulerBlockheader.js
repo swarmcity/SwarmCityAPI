@@ -1,7 +1,7 @@
 'use strict';
-const logger = require('../logs')('testSchedulerBlockheader');
+const logger = require('../src/logs')('testSchedulerBlockheader');
 
-const blockHeaderTask = require('../scheduler/blockHeaderTask')();
+const blockHeaderTask = require('../src/scheduler/blockHeaderTask')();
 
 describe('Swarm City scheduler', function() {
 	it('should add & unroll blockHeaderTask task', function(done) {

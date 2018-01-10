@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')('testpubsubbalance');
+const logger = require('../src/logs')('testpubsubbalance');
 
 const io = require('socket.io-client');
 
@@ -11,7 +11,7 @@ const options = {
 
 
 // create a server
-const server = require('../socket');
+const server = require('../src/socket');
 
 describe('Swarm City API socket client > test pubsub on \'balance\'', function() {
 	let client;

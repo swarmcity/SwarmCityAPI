@@ -2,7 +2,7 @@
 
 const should = require('should');
 
-const IPFSService= require('../services/ipfs').IPFSService;
+const IPFSService= require('../src/services/ipfs').IPFSService;
 
 
 describe('services/ipfs/IPFSService', function() {
