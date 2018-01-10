@@ -1,7 +1,10 @@
 'use strict';
+
+const logs = require('../logs')('functions/ipfsCat');
+
 const scheduledTask = require('../scheduler/scheduledTask')();
-const logs = require('../logs')('ipfsCat');
-const ipfs = require('../globalIPFS')();
+
+const ipfsService = require('../services').ipfsService;
 
 /**
  * returns name (verb) of this function
@@ -22,7 +25,7 @@ function createTask(socket, data, callback) {
 	scheduledTask.addTask({
 		func: (task) => {
 			logs.info('ipfscat start');
-			return ipfs.cat(data.hash);
+			return ipfsService.cat(data.hash);
 		},
 		responsehandler: (res, task) => {
 			if (task.success && res) {

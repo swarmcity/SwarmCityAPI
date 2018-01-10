@@ -5,12 +5,14 @@
 'use strict';
 
 require('../environment');
-const logger = require('../logs')('hashtagIndexer');
+const logger = require('../logs')('jobs/hashtagsIndexer');
 const db = require('../connections/db').db;
-const ipfs = require('../globalIPFS')();
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
 const parametersContract = require('../contracts/Parameters.json');
+
+const ipfsService = require('../services').ipfsService;
+
 /**
  * Returns last processed block of the parameters contract
  * ( or the deployment block if not initialized yet...)
@@ -76,8 +78,8 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 					for (let i = 0; i < logs.length; i++) {
 						let log = logs[i];
 						if (log.returnValues && log.returnValues.name === 'hashtaglist') {
-							if (ipfs.isIPFSHash(log.returnValues.value)) {
-								ipfs.cat(log.returnValues.value).then((data) => {
+							if (ipfsService.isIPFSHash(log.returnValues.value)) {
+								ipfsService.cat(log.returnValues.value).then((data) => {
 									data = data.toString();
 									logger.info('found hashtaglist : ', data);
 									db.put(process.env.PARAMETERSCONTRACT +

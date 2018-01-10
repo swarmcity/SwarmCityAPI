@@ -4,9 +4,9 @@
   "description": "",
   "main": "socket.js",
   "scripts": {
-    "test": "nyc mocha --exit --timeout 180000 --grep ipfsCat --invert test/*",
-    "test-all": "nyc mocha --exit --timeout 180000 test/*",
+    "test": "nyc mocha --exit --timeout 180000 test/*",
     "test-unit": "nyc mocha --exit test/unit_*",
+    "test-func": "nyc mocha --exit --timeout 180000 --grep \"(unit)\" --invert test/*",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint .",
     "esw": "esw .",
