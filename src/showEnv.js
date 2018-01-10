@@ -2,8 +2,16 @@ require('./environment');
 const logger = require('./logs')('dumpenv');
 
 
-let vars = ['ETHWS', 'APISOCKETPORT', 'IPFSAPI', 'PARAMETERSCONTRACT',
+let vars = [
+    'ETHWS',
+    'APISOCKETPORT',
+    'IPFSAPI',
+    'IPFSAPIHOST',
+    'IPFSAPIPORT',
+    'PARAMETERSCONTRACT',
 	'PARAMETERSCONTRACTSTARTBLOCK',
+    'TESTSHH',
+    'TESTIPFS',
 ];
 
 /**
