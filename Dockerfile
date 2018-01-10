@@ -5,15 +5,7 @@ ENV HOME /root
 COPY package.json ./
 RUN npm install
 
-COPY connections ./connections
-COPY contracts ./contracts
-COPY functions ./functions
-COPY jobs ./jobs
-COPY scheduler ./scheduler
-COPY services ./services
-COPY subscriptions ./subscriptions
-COPY tasks ./tasks
-COPY *.js ./
+COPY src ./src
 
 EXPOSE 8011
-CMD [ "node", "server.js" ]
+CMD [ "node", "src/server.js" ]
