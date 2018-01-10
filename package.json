@@ -1,7 +1,7 @@
 {
-  "name": "socket-server",
-  "version": "1.0.0",
-  "description": "",
+  "name": "swarm-city-api",
+  "version": "0.1.0",
+  "description": "API server for the Swarm City project.",
   "repository": {
       "type": "git",
       "url": "github:swarmcity/SwarmCityAPI"
