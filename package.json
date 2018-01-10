@@ -2,6 +2,10 @@
   "name": "socket-server",
   "version": "1.0.0",
   "description": "",
+  "repository": {
+      "type": "git",
+      "url": "github:swarmcity/SwarmCityAPI"
+  },
   "main": "src/socket.js",
   "scripts": {
     "start": "node src/server.js",
