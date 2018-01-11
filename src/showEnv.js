@@ -23,5 +23,5 @@ function showEnv() {
 }
 
 module.exports = {
-    'showEnv': showEnv
+    'showEnv': showEnv,
 };
