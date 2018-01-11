@@ -1,4 +1,7 @@
-require('./showEnv');
+// Show the current environment
+const showEnv = require('./showEnv');
+showEnv.showEnv();
+
 let s = require('./socket');
 
 

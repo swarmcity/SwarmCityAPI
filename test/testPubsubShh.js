@@ -5,7 +5,8 @@ const logger = require('../src/logs')('Mocha test');
 const io = require('socket.io-client');
 const subscriptions = require('../src/subscriptions')();
 
-require('../src/showEnv');
+const showEnv = require('../src/showEnv');
+showEnv.showEnv();
 
 const options = {
 	transports: ['websocket', 'xhr-polling'],
