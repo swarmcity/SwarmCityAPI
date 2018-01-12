@@ -5,7 +5,16 @@
 const logger = require('../logs.js')();
 const jsonHash = require('json-hash');
 const scheduledTask = require('../scheduler/scheduledTask')();
-const db = require('../connections/db').db;
+
+const dbc = require('../connections/db').db;
+const DBService = require('../services/db').DBService;
+const dbService = new DBService(
+    dbc,
+    {
+        'parameterscontract': process.env.PARAMETERSCONTRACT,
+        'parameterscontractstartblock': process.env.PARAMETERSCONTRACTSTARTBLOCK,
+    }
+);
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
@@ -52,55 +61,18 @@ function createUniqueShortCode(decimals) {
 	return new Promise((resolve, reject) => {
 		let newShortcode = createShortCode(decimals);
 
-		let key = 'shortcode-' + newShortcode;
-		db.get(key).then((val) => {
-			// so we have data..
-			try {
-				let data = JSON.parse(val);
-				// is the code still valid ? If it has expired, reuse this code.
-				if (data.validUntil && data.validUntil < (new Date).getTime()) {
-					return resolve(newShortcode);
-				}
-			} catch (e) {
-				// can't read the data - reuse this code.
-				return resolve(newShortcode);
-			}
-			// code already exists & not expired yet - try again.
-			return createUniqueShortCode(decimals);
-		}).catch((err) => {
-			if (err.notFound) {
-				logger.error('key', key, 'not found (yet) in DB. ');
-				return resolve(newShortcode);
-			}
-			reject(new Error(err));
-		});
-	});
-}
-
-/**
- * saves shortcode payload in DB
- *
- * @param      {string}   shortcode  The shortcode
- * @param      {Number}   validity   The validity of this data in ms
- * @param      {Object}   payload    The payload to store
- * @return     {Promise}  resolves when ready..
- */
-function saveDataToShortCode(shortcode, validity, payload) {
-	return new Promise((resolve, reject) => {
-		let key = 'shortcode-' + shortcode;
-		let val = {
-			shortcode: shortcode,
-			validUntil: (new Date).getTime() + validity,
-			payload: payload,
-		};
-		logger.info('Storing key/val', key, val);
-		db.put(key, JSON.stringify(val), function(err) {
-			if (err) {
-				logger.error(err);
-				return reject(err);
-			}
-			resolve();
-		});
+        dbService
+            .readShortCode(newShortcode)
+            .then((val) => {
+                // code already exists & not expired yet - try again.
+                return createUniqueShortCode(decimals);
+            }).catch((err) => {
+				// can't read the data or
+                // it does not exist or
+                // the code is no longer valid
+                // use the new code.
+				resolve(newShortcode);
+            });
 	});
 }
 
@@ -120,7 +92,7 @@ function createSubscription(emitToSubscriber, args) {
 		func: (task) => {
 			return new Promise((resolve, reject) => {
 				createUniqueShortCode(5).then((shortcode) => {
-					saveDataToShortCode(shortcode, validity, args.payload).then(() => {
+					dbService.saveDataToShortCode(shortcode, validity, args.payload).then(() => {
 						resolve({
 							shortcode: shortcode,
 							validity: validity,
