@@ -2,7 +2,7 @@
 require('dotenv').config({
 	path: '../.env',
 });
-const web3 = require('../globalWeb3');
+const web3 = require('../src/globalWeb3');
 const should = require('should');
 
 describe('test of globalWeb3', function() {

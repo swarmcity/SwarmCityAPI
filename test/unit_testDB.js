@@ -3,7 +3,7 @@
 const should = require('should');
 const sinon = require('sinon');
 
-const DBService= require('../services/db').DBService;
+const DBService = require('../src/services/db').DBService;
 
 
 describe('services/db/DBService', function() {

@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')('testPubSubHashtags');
+const logger = require('../src/logs')('testPubSubHashtags');
 
 const io = require('socket.io-client');
 
@@ -10,7 +10,7 @@ const options = {
 };
 
 // create a server
-const server = require('../socket');
+const server = require('../src/socket');
 let subscription;
 
 describe('Swarm City API socket client > test subscribe hashtags', function() {

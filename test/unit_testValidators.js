@@ -1,7 +1,7 @@
 'use strict';
 
 const should = require('should');
-const validators = require('../validators');
+const validators = require('../src/validators');
 
 describe('Validators', function() {
     describe('isAddress()', function() {

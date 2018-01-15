@@ -1,11 +1,11 @@
 'use strict';
 const should = require('should');
-const logger = require('../logs')('Mocha test');
+const logger = require('../src/logs')('Mocha test');
 
 const io = require('socket.io-client');
-const subscriptions = require('../subscriptions')();
+const subscriptions = require('../src/subscriptions')();
 
-require('../showEnv');
+require('../src/showEnv');
 
 const options = {
 	transports: ['websocket', 'xhr-polling'],
@@ -23,7 +23,7 @@ describe('Swarm City API socket client > test pubsub on \'shhsubscribe\'', funct
     before(function(done) {
         if (process.env.TESTSHH && process.env.TESTSHH == '1') {
             // create a server
-            server = require('../socket');
+            server = require('../src/socket');
 
             server.listen({
                 APISOCKETPORT: 12205,

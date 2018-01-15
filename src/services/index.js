@@ -5,7 +5,7 @@ const IPFSService= require('./ipfs').IPFSService;
 const ipfsService = new IPFSService(ipfsc);
 
 const dbc = require('../connections/db').db;
-const DBService = require('../services/db').DBService;
+const DBService = require('./db').DBService;
 const dbService = new DBService(
     dbc,
     {
