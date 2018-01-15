@@ -1,6 +1,6 @@
 'use strict';
 const scheduledTask = require('../scheduler/scheduledTask')();
-const logs = require('../logs')();
+const logs = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
 const validate = require('../validators');
 

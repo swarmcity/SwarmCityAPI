@@ -3,7 +3,7 @@ require('dotenv').config({
 	path: '../.env',
 });
 
-const logger = require('../src/logs')();
+const logger = require('../src/logs')(module);
 
 const scheduledTask = require('../src/scheduler/scheduledTask')();
 
@@ -61,7 +61,7 @@ describe('Swarm City scheduler', function() {
  */
 function hello(task) {
 	return new Promise((resolve, reject) => {
-		logger.info('Hello', task.data);
+		logger.info('Hello %j', task.data);
 		task.data = task.data + '+';
 		resolve(task.data);
 	});
@@ -75,7 +75,7 @@ function hello(task) {
  */
 function responseHandler(res, task) {
 	return new Promise((resolve, reject) => {
-		logger.info('Hello Finished... RES=', res, 'task=', task);
+		logger.info('Hello Finished... RES=%j task=%j', res, task);
 		resolve();
 	});
 }

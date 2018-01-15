@@ -5,7 +5,7 @@ const io = require('socket.io')(server, {
     path: '/api',
     transports: ['websocket', 'xhr-polling'],
 });
-const logs = require('./logs')('socketServer');
+const logs = require('./logs')(module);
 const validate = require('./validators');
 
 const scheduledTask = require('./scheduler/scheduledTask')();
@@ -36,7 +36,7 @@ let connectedSockets = {};
 })();
 
 io.on('connection', (socket) => {
-	logs.info('socket', socket.id, 'connected');
+	logs.info('socket %s connected', socket.id);
 
 	let client = {
 		socket: socket,
@@ -46,14 +46,14 @@ io.on('connection', (socket) => {
 
 	// if user provided a pubkey , register getBalance tasks
 	if (validate.isAddress(socket.handshake.query.publicKey)) {
-		logs.info('publicKey provided:', socket.handshake.query.publicKey);
+		logs.info('publicKey provided: %s', socket.handshake.query.publicKey);
 		scheduledTask.addTask({
 			name: 'get initial balance', // a task name is optional
 			func: (task) => {
 				return getBalance.getBalance(task.data);
 			},
 			responsehandler: (res, task) => {
-				logs.info('received getBalance RES=', JSON.stringify(res, null, 4));
+				logs.info('received getBalance RES=%j', res);
 				task.data.socket.emit('balanceChanged', res);
 			},
 			data: {
@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
 			return getFx.getFx();
 		},
 		responsehandler: (res, task) => {
-			logs.info('received getFx RES=', JSON.stringify(res, null, 4));
+			logs.info('received getFx RES=%j', res);
 			task.data.socket.emit('fxChanged', res);
 		},
 		data: {
@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
 			return getGasPrice.getGasPrice();
 		},
 		responsehandler: (res, task) => {
-			logs.info('received getGasPrice RES=', JSON.stringify(res, null, 4));
+			logs.info('received getGasPrice RES=%j', res);
 			task.data.socket.emit('gasPriceChanged', res);
 		},
 		data: {
@@ -109,7 +109,7 @@ io.on('connection', (socket) => {
 	// });
 
 	socket.on('disconnect', () => {
-		logs.info('socket', socket.id, 'disconnected');
+		logs.info('socket %s disconnected', socket.id);
 		subscriptions.unsubscribeAll(socket.id);
 	});
 
@@ -143,7 +143,7 @@ function listen(customConfig) {
 	const APIHOST = customConfig.APIHOST || process.env.APIHOST || '0.0.0.0';
 
 	return new Promise((resolve, reject) => {
-		logs.info('opening WS API on', APIHOST, 'port', APISOCKETPORT);
+		logs.info('opening WS API on %s:%i', APIHOST, APISOCKETPORT);
 		if (!APISOCKETPORT || !APIHOST) {
 			reject('no APISOCKETPORT defined in environment');
 		} else {
@@ -151,7 +151,7 @@ function listen(customConfig) {
 				if (err) {
 					reject(err);
 				} else {
-					logs.info('server listening on host ', APIHOST, 'port', APISOCKETPORT);
+					logs.info('server listening on %s:%i', APIHOST, APISOCKETPORT);
 					resolve({
 						port: APISOCKETPORT,
 						host: APIHOST,

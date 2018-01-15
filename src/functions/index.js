@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('../logs')();
+const logger = require('../logs')(module);
 
 let handlers = [
 	require('./callContract'),
@@ -17,7 +17,7 @@ let handlers = [
  */
 function registerHandlers(socket) {
 	for (let i = 0, len = handlers.length; i < len; i++) {
-		logger.info('registering', handlers[i].name());
+		logger.info('Registering socket handler %s', handlers[i].name());
 		socket.on(handlers[i].name(), (data, callback) => {
 			handlers[i].createTask(socket, data, callback);
 		});

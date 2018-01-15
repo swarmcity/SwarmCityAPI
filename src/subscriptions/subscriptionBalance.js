@@ -2,7 +2,7 @@
  * Subscription manager for 'balance'
  */
 'use strict';
-const logs = require('../logs.js')();
+const logs = require('../logs.js')(module);
 const jsonHash = require('json-hash');
 const getBalance = require('../tasks/getBalance')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
@@ -39,7 +39,7 @@ function createSubscription(emitToSubscriber, args) {
 		responsehandler: (res, task) => {
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
-				logs.debug('received getBalance RES=', JSON.stringify(res, null, 4));
+				logs.debug('received getBalance RES=%j', res);
 				emitToSubscriber('balanceChanged', res);
 				task.data.lastReplyHash = replyHash;
 			} else {

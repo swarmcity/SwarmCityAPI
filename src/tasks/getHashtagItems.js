@@ -1,4 +1,4 @@
-const logs = require('../logs')();
+const logs = require('../logs')(module);
 module.exports = function(web3) {
 	return ({
 		getHashtagItems: function(hashtag) {

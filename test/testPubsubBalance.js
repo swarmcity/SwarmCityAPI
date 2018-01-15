@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../src/logs')('testpubsubbalance');
+const logger = require('../src/logs')(module);
 
 const io = require('socket.io-client');
 

@@ -2,19 +2,11 @@
  * Subscription manager for 'Nonce'
  */
 'use strict';
-const logger = require('../logs.js')();
+const logger = require('../logs.js')(module);
 const jsonHash = require('json-hash');
 const scheduledTask = require('../scheduler/scheduledTask')();
 
-const dbc = require('../connections/db').db;
-const DBService = require('../services/db').DBService;
-const dbService = new DBService(
-    dbc,
-    {
-        'parameterscontract': process.env.PARAMETERSCONTRACT,
-        'parameterscontractstartblock': process.env.PARAMETERSCONTRACTSTARTBLOCK,
-    }
-);
+const dbService = require('../services').dbService;
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
@@ -104,7 +96,7 @@ function createSubscription(emitToSubscriber, args) {
 		responsehandler: (res, task) => {
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
-				logger.debug('received RES=', JSON.stringify(res, null, 4));
+				logger.debug('received RES=%j', res);
 				emitToSubscriber('shortcodeChanged', res);
 				task.data.lastReplyHash = replyHash;
 			}

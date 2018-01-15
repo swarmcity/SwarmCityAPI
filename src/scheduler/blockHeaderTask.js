@@ -2,7 +2,7 @@
 
 // Scheduled tasks are tasks that need to run when the next ETH block arrives.
 
-const logger = require('../logs')('blockheadertask');
+const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
 const uuidv4 = require('uuid/v4');
 
@@ -47,7 +47,7 @@ function startListening() {
 		newBlockHeadersSubscription = web3.eth.subscribe('newBlockHeaders', (error, result) => {
 			if (result && result.number > blockNumber) {
 				blockNumber = result.number;
-				logger.info('newBlockHeaders event occured. Block height=', blockNumber);
+				logger.info('newBlockHeaders event occured. Block height=%i', blockNumber);
 				let task;
 				while (task = tasks.shift()) {
 					workerQueue.push(task, task.responsehandler);
@@ -68,8 +68,8 @@ function startListening() {
 function addTask(task) {
 	task.id = uuidv4();
 	tasks.push(task);
-	logger.info('******* Added blockheader task ID=', task.id);
-	logger.info('newBlockHeaders tasks count=', tasks.length);
+	logger.info('******* Added blockheader task ID=%s', task.id);
+	logger.info('newBlockHeaders tasks count=%i', tasks.length);
 	startListening();
 }
 
@@ -83,7 +83,7 @@ function removeTask(task) {
 	if (index !== -1) {
 		tasks.splice(index, 1);
 	} else {
-		logger.error('removeTask: cannot find task in task list', task.id);
+		logger.error('removeTask: cannot find task %s in task list', task.id);
 	}
 }
 
@@ -103,7 +103,7 @@ function removeTasks(taskArray) {
  * Removes all tasks.
  */
 function removeAllTasks() {
-	logger.info('removing all task from blockHeaderTask scheduler (', tasks.length, ')');
+	logger.info('removing all task from blockHeaderTask scheduler (%i)', tasks.length);
 	for (let i = 0; i < tasks.length; i++) {
 		removeTask(tasks[i]);
 	}
@@ -117,7 +117,7 @@ function removeAllTasks() {
  */
 function status() {
 	let statusId = uuidv4();
-	logger.info('---Blockheadertask status [', statusId, ']---');
+	logger.info('---Blockheadertask status [%s]---', statusId);
 	if (tasks.length === 0) {
 		logger.info('No tasks');
 	} else {
@@ -128,7 +128,7 @@ function status() {
 			logger.info(i + 1, ':', task.func.name, task.socket.id);
 		}
 	}
-	logger.info('---/Blockheadertask status [', statusId, ']---');
+	logger.info('---/Blockheadertask status [%s]---', statusId);
 	return Promise.resolve();
 }
 

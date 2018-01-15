@@ -2,7 +2,7 @@
  * Subscription manager for 'transaction history' of an account
  */
 'use strict';
-const logger = require('../logs.js')('subscriptionHashtags');
+const logger = require('../logs.js')(module);
 const jsonHash = require('json-hash');
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 // const web3 = require('../globalWeb3').web3;

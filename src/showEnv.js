@@ -1,5 +1,5 @@
 require('./environment');
-const logger = require('./logs')('showEnv');
+const logger = require('./logs')(module);
 
 let vars = [
     'ETHWS',
@@ -18,7 +18,7 @@ let vars = [
  */
 function showEnv() {
     vars.forEach((variable) => {
-		logger.info(variable, '=\'' + process.env[variable] + '\'');
+		logger.info('%s =\'%s\'', variable, process.env[variable]);
 	});
 }
 

@@ -7,7 +7,7 @@ let s = require('./socket');
 
 const scheduledTask = require('./scheduler/scheduledTask')();
 const jobs = require('./jobs')();
-const logger = require('./logs')('server');
+const logger = require('./logs')(module);
 
 logger.info('Starting up jobs..');
 

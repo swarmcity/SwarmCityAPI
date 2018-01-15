@@ -1,6 +1,6 @@
 'use strict';
 const scheduledTask = require('../scheduler/scheduledTask')();
-const logger = require('../logs')('sendShhMessage');
+const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
 const shhHelpers = require('../globalWeb3').shhHelpers;
 

@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('../logs')('services/db');
+const logger = require('../logs')(module);
 
 /**
  * A service that collects all interactions with LevelDb
@@ -27,17 +27,17 @@ class DBService {
      * @return     {Promise}  resolves with a JSON object, rejects with an Error object
      */
     readShortCode(shortcode) {
-        logger.info('readShortCode start', shortcode);
+        logger.info('readShortCode start %s', shortcode);
         return new Promise((resolve, reject) => {
             let key = 'shortcode-' + shortcode;
             this.db.get(key).then((val) => {
                 // so we have data..
                 try {
                     let data = JSON.parse(val);
-                    logger.info('We found data in DB', data);
+                    logger.info('We found data in DB %j', data);
                     // is the code still valid ? If it has not expired, return the data.
                     if (data.validUntil && data.validUntil >= (new Date).getTime()) {
-                        logger.info('data is OK ', data);
+                        logger.info('data is OK');
                         return resolve(data.payload);
                     }
                     logger.info('data has expired');
@@ -48,7 +48,7 @@ class DBService {
                 }
             }).catch((err) => {
                 if (err.notFound) {
-                    logger.error('key', key, 'not found (yet) in DB. ');
+                    logger.error('key %s not found (yet) in DB.', key);
                     return reject();
                 }
                 reject(new Error(err));
@@ -72,7 +72,7 @@ class DBService {
                 validUntil: (new Date).getTime() + validity,
                 payload: payload,
             };
-            logger.info('Storing shortcode data', key, val);
+            logger.info('Storing %j at %s', val, key);
             this.db.put(key, JSON.stringify(val)).then(() => {
                 resolve();
             }).catch((err) => {
@@ -95,7 +95,7 @@ class DBService {
                 resolve(parseInt(val));
             }).catch((err) => {
                 if (err.notFound) {
-                    logger.error('no lastblock found (yet) in DB. ');
+                    logger.error('no lastblock found (yet) in DB.');
                     return reject();
                 }
                 reject(new Error(err));
@@ -162,13 +162,13 @@ class DBService {
                     resolve(hashtags);
                 } catch (e) {
                     logger.info('Returning empty hashtag list');
-                    logger.error('Cannot parse hashtag data from DB', val, e);
+                    logger.error('Cannot parse hashtag data from DB. Data: %s. Error: %j', val, e);
                     resolve([]);
                 }
             }).catch((err) => {
                 logger.error(JSON.stringify(err));
                 if (err.notFound) {
-                    logger.error('key', key, 'not found (yet) in DB. ');
+                    logger.error('key %s not found (yet) in DB.', key);
                     logger.info('Returning empty hashtag list');
                     resolve([]);
                 }
