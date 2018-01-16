@@ -267,8 +267,6 @@ describe('services/db/DBService', function() {
 
             dbService.getLastBlock().then((value) => {
                 should(value).be.equal(1234);
-            }).catch((err) => {
-                reject(err);
             });
 
             let key = 'lastblock-mockContract';
