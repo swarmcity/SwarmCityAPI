@@ -60,7 +60,10 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 										// don't increase the block number & re-schedule for retry
 										logger.error(new Error(err));
 										task.interval = 1000;
-										logger.error('DB put failed. Try again in %i ms.', task.interval);
+										logger.error(
+                                            'DB put failed. Try again in %i ms.',
+                                            task.interval
+                                        );
 										resolve(duration);
 									});
 								}).catch((err) => {
@@ -68,7 +71,10 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 									// don't increase the block number & re-schedule for retry
 									logger.error(new Error(err));
 									task.interval = 1000;
-									logger.error('IPFS resolve failed. Try again in %i ms.', task.interval);
+									logger.error(
+                                        'IPFS resolve failed. Try again in %i ms.',
+                                        task.interval
+                                    );
 									resolve(duration);
 								});
 							}
@@ -134,7 +140,10 @@ module.exports = function() {
 										logger.info('++++++++++++++++++++++++++++++');
 
 										dbService.setHashtagIndexerSynced(true).then(() => {
-											logger.info('hashtagindexer is synced', endBlock);
+											logger.info(
+                                                'hashtagindexer is synced',
+                                                endBlock
+                                            );
 											jobresolve();
 											return resolve();
 										});
@@ -168,7 +177,10 @@ module.exports = function() {
 		},
 
 		reset: function() {
-			logger.info('Reset hashtagsIndexer. SetLastBlock to %i', process.env.PARAMETERSCONTRACTSTARTBLOCK);
+			logger.info(
+                'Reset hashtagsIndexer. SetLastBlock to %i',
+                process.env.PARAMETERSCONTRACTSTARTBLOCK
+            );
 			return dbService.setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
 				dbService.setHashtagIndexerSynced(false).then(() => {
 					return this.start();

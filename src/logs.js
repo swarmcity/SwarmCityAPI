@@ -3,21 +3,28 @@ const winston = require('winston');
 
 const scFormat = winston.format.printf((info) => {
     let level = info.level.toUpperCase();
-    let message = info.message
-    let filtered_info = Object.assign({}, info, {
+    let message = info.message;
+    let filteredInfo = Object.assign({}, info, {
         'level': undefined,
         'message': undefined,
         'splat': undefined,
         'label': undefined,
         'timestamp': undefined,
     });
-    let append = JSON.stringify(filtered_info);
+    let append = JSON.stringify(filteredInfo);
     if (append != '{}') {
         message = message + ' ' + append;
     }
     return `${info.timestamp} ${level} [${info.label}] : ${message}`;
 });
 
+/**
+ * Get a label to desribe the module we're logging for.
+ *
+ * @param {Object}  mod The module we're logging for or a description of the
+ *                      logger.
+ * @return {winston.format.label}
+ */
 function _getLabel(mod) {
     if (mod == undefined) {
         mod = module;

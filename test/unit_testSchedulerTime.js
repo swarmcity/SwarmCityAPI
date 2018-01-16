@@ -5,6 +5,8 @@ require('dotenv').config({
 
 const logger = require('../src/logs')(module);
 
+const should = require('should');
+
 const scheduledTask = require('../src/scheduler/scheduledTask')();
 
 describe('Swarm City scheduler', function() {
@@ -83,7 +85,7 @@ describe('Swarm City scheduler', function() {
 
         setTimeout(() => {
             should(scheduledTask.tasks.length).be.equal(0);
-		    done();
+            done();
         }, 1 * 300);
 	});
 });

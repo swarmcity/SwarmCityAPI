@@ -134,7 +134,12 @@ function status() {
 	} else {
 		for (let i = 0; i < tasks.length; i++) {
 			let task = tasks[i];
-			logger.info('%i: %s [socket %s]', i + 1, task.name || task.func.name, task.socket ? task.socket.id : 'none');
+			logger.info(
+                '%i: %s [socket %s]',
+                i + 1,
+                task.name || task.func.name,
+                task.socket ? task.socket.id : 'none'
+            );
 		}
 		logger.info('next run:', nextRun);
 	}
