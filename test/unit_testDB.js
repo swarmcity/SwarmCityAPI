@@ -250,7 +250,7 @@ describe('services/db/DBService', function() {
             should(spy.calledWith(key));
         });
 
-        it('should reject on DB entry not found', function() {
+        it('should return the startvalue on entry not found', function() {
             let mockDB = {
                 get: function(key) {},
             };
@@ -261,19 +261,15 @@ describe('services/db/DBService', function() {
                 mockDB,
                 {
                     'parameterscontract': 'mockContract',
+                    'parameterscontractstartblock': '1234'
                 }
             );
 
-            dbService.getLastBlock()
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+            dbService.getLastBlock().then((value) => {
+                should(value).be.equal(1234);
+            }).catch((err) => {
+                reject(err);
+            });
 
             let key = 'lastblock-mockContract';
             should(spy.calledWith(key));

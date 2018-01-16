@@ -95,8 +95,11 @@ class DBService {
                 resolve(parseInt(val));
             }).catch((err) => {
                 if (err.notFound) {
-                    logger.error('no lastblock found (yet) in DB. ');
-                    return reject();
+                    logger.info(
+                        'no lastblock in DB. Falling back to the startblock ',
+                        this.options.parameterscontractstartblock
+                    );
+                    resolve(parseInt(this.options.parameterscontractstartblock));
                 }
                 reject(new Error(err));
             });
