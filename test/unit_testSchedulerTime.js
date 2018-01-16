@@ -8,7 +8,7 @@ const logger = require('../src/logs')(module);
 const scheduledTask = require('../src/scheduler/scheduledTask')();
 
 describe('Swarm City scheduler', function() {
-	it('should receive all related events right after socket connects', function(done) {
+	it('should be possible to add tasks to the scheduler', function(done) {
 		scheduledTask.addTask({
 			nextRun: (new Date).getTime() + 100,
 			func: hello,
@@ -16,10 +16,8 @@ describe('Swarm City scheduler', function() {
 			data: 'a',
 		});
 
-		logger.info('there are ', scheduledTask.tasks.length,
-			'tasks in the scheduledTask queue');
-		logger.info('scheduler will wake up at ', scheduledTask.nextRun);
-
+        should(scheduledTask.tasks.length).be.equal(1);
+		logger.debug('scheduler will wake up at ', scheduledTask.nextRun);
 
 		scheduledTask.addTask({
 			nextRun: (new Date).getTime() + 200,
@@ -28,10 +26,8 @@ describe('Swarm City scheduler', function() {
 			data: 'b',
 		});
 
-		logger.info('there are ', scheduledTask.tasks.length,
-			'tasks in the scheduledTask queue');
-		logger.info('scheduler will wake up at ', scheduledTask.nextRun);
-
+        should(scheduledTask.tasks.length).be.equal(2);
+		logger.debug('scheduler will wake up at ', scheduledTask.nextRun);
 
 		scheduledTask.addTask({
 			nextRun: (new Date).getTime() + 300,
@@ -40,17 +36,55 @@ describe('Swarm City scheduler', function() {
 			data: 'c',
 		});
 
+        should(scheduledTask.tasks.length).be.equal(3);
+		logger.debug('scheduler will wake up at ', scheduledTask.nextRun);
+
 		done();
 	});
+
+    it('should be able to provide status', function(done) {
+        scheduledTask.status();
+        done();
+    });
+
 	it('should wait a few moments', function(done) {
 		setTimeout(() => {
 			done();
-		}, 1 * 1000);
+		}, 0.5 * 1000);
 	});
 
 	it('should cancel all tasks', function(done) {
-		scheduledTask.removeTasks(scheduledTask.tasks);
+		scheduledTask.removeAllTasks();
+        should(scheduledTask.tasks.length).be.equal(0);
 		done();
+	});
+
+    it('should be able to provide status when there are no more tasks', function(done) {
+        scheduledTask.status();
+        done();
+    });
+
+	it('should cancel tasks I provide', function(done) {
+		scheduledTask.addTask({
+			nextRun: (new Date).getTime() + 100,
+			func: hello,
+			responsehandler: responseHandler,
+			data: 'z',
+		});
+		scheduledTask.addTask({
+			nextRun: (new Date).getTime() + 200,
+			func: hello,
+			responsehandler: responseHandler,
+			data: 'y',
+		});
+        should(scheduledTask.tasks.length).be.equal(2);
+
+		scheduledTask.removeTasks(scheduledTask.tasks);
+
+        setTimeout(() => {
+            should(scheduledTask.tasks.length).be.equal(0);
+		    done();
+        }, 1 * 300);
 	});
 });
 
@@ -61,7 +95,7 @@ describe('Swarm City scheduler', function() {
  */
 function hello(task) {
 	return new Promise((resolve, reject) => {
-		logger.info('Hello %j', task.data);
+		logger.debug('Hello %j', task.data);
 		task.data = task.data + '+';
 		resolve(task.data);
 	});
@@ -75,7 +109,7 @@ function hello(task) {
  */
 function responseHandler(res, task) {
 	return new Promise((resolve, reject) => {
-		logger.info('Hello Finished... RES=%j task=%j', res, task);
+		logger.debug('Hello Finished... RES=%j task=%j', res, task);
 		resolve();
 	});
 }
