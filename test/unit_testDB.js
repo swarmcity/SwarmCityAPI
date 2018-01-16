@@ -261,7 +261,7 @@ describe('services/db/DBService', function() {
                 mockDB,
                 {
                     'parameterscontract': 'mockContract',
-                    'parameterscontractstartblock': '1234'
+                    'parameterscontractstartblock': '1234',
                 }
             );
 
