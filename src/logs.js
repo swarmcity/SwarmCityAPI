@@ -11,7 +11,7 @@ const scFormat = winston.format.printf((info) => {
         'label': undefined,
         'timestamp': undefined,
     });
-    let append = JSON.stringify(filteredInfo);
+    let append = JSON.stringify(filteredInfo, null, 4);
     if (append != '{}') {
         message = message + ' ' + append;
     }
@@ -26,10 +26,14 @@ const scFormat = winston.format.printf((info) => {
  * @return {winston.format.label}
  */
 function _getLabel(mod) {
+    let label = mod;
     if (mod == undefined) {
         mod = module;
     }
-    let label = mod.id || mod;
+    if (mod.id) {
+        label = mod.id.replace('.js','');
+        label = label.replace(/^.*\/src\//,'');
+    }
     return winston.format.label({'label': label});
 }
 
