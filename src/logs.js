@@ -31,8 +31,8 @@ function _getLabel(mod) {
         mod = module;
     }
     if (mod.id) {
-        label = mod.id.replace('.js','');
-        label = label.replace(/^.*\/src\//,'');
+        label = mod.id.replace('.js', '');
+        label = label.replace(/^.*\/src\//, '');
     }
     return winston.format.label({'label': label});
 }
