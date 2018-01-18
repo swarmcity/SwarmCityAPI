@@ -22,9 +22,7 @@ describe('Swarm City API socket client > test subscribe nonce', function() {
 			APISOCKETPORT: 12205,
 		}).then((con) => {
 			socketURL = 'http://localhost:' + con.port;
-			logger.info('socketURL=', socketURL);
-
-			logger.info('connecting to ', socketURL);
+			logger.info('connecting to %s', socketURL);
 			client = io.connect(socketURL, options);
 
 			done();

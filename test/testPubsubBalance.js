@@ -26,13 +26,12 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 		}).then((con) => {
 			socketURL = 'http://localhost:' +
 				con.port;
-			logger.info('socketURL=', socketURL);
 			done();
 		});
 	});
 
 	it('should subscribe / receive a subscription ID', function(done) {
-		logger.info('connecting to ', socketURL);
+		logger.info('connecting to %s', socketURL);
 		client = io.connect(socketURL, options);
 
 		let promises = [];
