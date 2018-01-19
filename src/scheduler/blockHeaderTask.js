@@ -41,6 +41,8 @@ function stopListening() {
 
 /**
  * Starts listening to web3 newBlockHeaders events.
+ *
+ * If we are already listening, we just keep on doing that.
  */
 function startListening() {
 	if (!newBlockHeadersSubscription) {
