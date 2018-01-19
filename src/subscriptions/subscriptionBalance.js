@@ -2,8 +2,12 @@
  * Subscription manager for 'balance'
  */
 'use strict';
+
 const logs = require('../logs.js')(module);
+
+const validate = require('../validators');
 const jsonHash = require('json-hash');
+
 const getBalance = require('../tasks/getBalance')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 
@@ -28,6 +32,11 @@ function cancelSubscription(task) {
  */
 function createSubscription(emitToSubscriber, args) {
 	logs.info('subscribe to balance please....');
+	// check arguments
+	if (!args || !args.address || !validate.isAddress(args.address)) {
+		return Promise.reject('Cannot subscribe to a balance with a valid address.');
+	}
+
 	// create task
 	let _task = {
 		func: (task) => {
