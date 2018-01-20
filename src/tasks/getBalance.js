@@ -13,7 +13,6 @@ module.exports = function() {
 		 */
 		getBalance: function(data) {
 			return new Promise((resolve, reject) => {
-
 				if (!data || !data.address) {
 					return reject(new Error('No data/address supplied'));
 				}
@@ -50,7 +49,7 @@ module.exports = function() {
 							tokenSymbol: 'ETH',
 						};
 					}));
-				resolve(Promise.all(promisesList).then((res) => {
+                resolve(Promise.all(promisesList).then((res) => {
 					return res.reduce((accumulator, currentValue) => {
 						let symbol = currentValue.tokenSymbol;
 						delete currentValue.tokenSymbol;
