@@ -77,7 +77,7 @@ describe('Swarm City API socket client > test subscribe nonce', function() {
 	it('should unsubscribe', (done) => {
 		let promises = [];
 		subscriptions.forEach((subscription) => {
-			logger.info('unsubscribe from', subscription);
+			logger.info('unsubscribe from %s', subscription);
 			promises.push(new Promise((resolve, reject) => {
 				client.emit('unsubscribe', {
 					subscriptionId: subscription,
