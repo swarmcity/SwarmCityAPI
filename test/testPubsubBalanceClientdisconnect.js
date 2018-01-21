@@ -28,13 +28,12 @@ describe('Swarm City API socket client > test client disconnect', function() {
 		}).then((con) => {
 			socketURL = 'http://localhost:' +
 				con.port + '?publicKey=0x7018d8f698bfa076e1bdc916e2c64caddc750944';
-			logger.info('socketURL=', socketURL);
 			done();
 		});
 	});
 
 	it('should subscribe / receive a subscription ID', function(done) {
-		logger.info('connecting to ', socketURL);
+		logger.info('connecting to %s', socketURL);
 		client = io.connect(socketURL, options);
 
 		let promises = [];
