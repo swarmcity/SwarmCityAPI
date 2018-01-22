@@ -80,16 +80,19 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 		});
 	});
 
-	// it('should wait a while for a block', (done) => {
-	// 	// listen to updates....
-	// 	client.on('balanceChanged', (data) => {
-	// 		logger.info('balanceChanged');
-	// 		logger.info('received balance update...', data);
-	// 	});
+	it('should wait a while for a block', (done) => {
+		// listen to updates....
+        // but these won't come anyway
+		client.on('balanceChanged', (data) => {
+		    logger.info('balanceChanged');
+		    logger.info('received balance update...', data);
+        });
 
-	// setTimeout(() => {
-	// 	done();
-	// }, 1 * 1000);
+        setTimeout(() => {
+            done();
+        }, 25 * 1000);
+	});
+
 
 
 	it('should unsubscribe / receive a confirmation', (done) => {

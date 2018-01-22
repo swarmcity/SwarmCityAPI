@@ -37,9 +37,10 @@ function createSubscription(emitToSubscriber, args) {
 			}));
 		},
 		responsehandler: (res, task) => {
+			logs.debug('received getBalance RES=%j', res);
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
-				logs.debug('received getBalance RES=%j', res);
+				logs.info('getBalance => data has changed.');
 				emitToSubscriber('balanceChanged', res);
 				task.data.lastReplyHash = replyHash;
 			} else {

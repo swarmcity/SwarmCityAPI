@@ -47,15 +47,16 @@ function startListening() {
 		newBlockHeadersSubscription = web3.eth.subscribe('newBlockHeaders', (error, result) => {
 			if (result && result.number > blockNumber) {
 				blockNumber = result.number;
-				logger.info('newBlockHeaders event occured. Block height=%i', blockNumber);
+				logger.info('newBlockHeaders event occured. Block number=%i', blockNumber);
 				let task;
 				while (task = tasks.shift()) {
+                    logger.debug('Adding new task %s to queue', task.id)
 					workerQueue.push(task, task.responsehandler);
 				}
 				checkListenerState();
 			}
 		});
-		logger.info('start listening to newBlockHeaders via Web3 WS');
+		logger.debug('start listening to newBlockHeaders via Web3 WS');
 	}
 }
 
