@@ -30,7 +30,7 @@ let q = queue((task, callback) => {
 			task.success = false;
 			task.error = err ? err.message : '';
 			logger.error(
-                'Task "%s" with ID "%s" success. Duration %i ms. Error: %j',
+                'Task "%s" with ID "%s" error. Duration %i ms. Error: %j',
                 task.name,
                 task.id,
                 task.endDate - task.startDate,
