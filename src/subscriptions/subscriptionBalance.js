@@ -34,7 +34,7 @@ function createSubscription(emitToSubscriber, args) {
 	logs.info('subscribe to balance please....');
 	// check arguments
 	if (!args || !args.address || !validate.isAddress(args.address)) {
-		return Promise.reject('Cannot subscribe to a balance with a valid address.');
+		return Promise.reject('Cannot subscribe to a balance without a valid address.');
 	}
 
 	// create task
