@@ -51,7 +51,7 @@ function createSubscription(emitToSubscriber, args) {
 		responsehandler: (res, task) => {
 			let responseHash = jsonHash.digest(res);
 			if (task.data.lastResponse !== responseHash) {
-				logger.debug('received modified response RES=', JSON.stringify(res, null, 4));
+				logger.debug('received modified response RES=%j', res);
 				emitToSubscriber('txhistoryChanged', res);
 				task.data.lastResponse = responseHash;
 			} else {
