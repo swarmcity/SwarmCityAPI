@@ -42,11 +42,11 @@ function createSubscription(emitToSubscriber, args) {
 		func: (task) => {
 			return Promise.resolve(getBalance.getBalance(task.data).then((res) => {
                 if (!task.data.lastReplyHash) {
-			        let replyHash = jsonHash.digest(res);
-				    task.data.lastReplyHash = replyHash;
-			        logs.debug('no lastReplyhash, setting it to %s', replyHash);
+                    let replyHash = jsonHash.digest(res);
+                    task.data.lastReplyHash = replyHash;
+                    logs.debug('no lastReplyhash, setting it to %s', replyHash);
                 }
-				return (res);
+                return (res);
 			}));
 		},
 		responsehandler: (res, task) => {

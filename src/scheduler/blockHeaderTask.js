@@ -52,7 +52,7 @@ function startListening() {
 				logger.info('newBlockHeaders event occured. Block number=%i', blockNumber);
 				let task;
 				while (task = tasks.shift()) {
-                    logger.debug('Adding new task %s to queue', task.id)
+                    logger.debug('Adding new task %s to queue', task.id);
 					workerQueue.push(task, task.responsehandler);
 				}
 				checkListenerState();
