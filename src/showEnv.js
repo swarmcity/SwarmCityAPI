@@ -1,6 +1,5 @@
 require('./environment');
-const logger = require('./logs')('dumpenv');
-
+const logger = require('./logs')('showEnv');
 
 let vars = [
     'ETHWS',
@@ -17,10 +16,12 @@ let vars = [
 /**
  * Print out selected ENV vars to the log
  */
-function showenv() {
-	for (let i = 0; i < vars.length; i++) {
-		logger.info(vars[i], '=\'' + process.env[vars[i]] + '\'');
-	}
+function showEnv() {
+    vars.forEach((variable) => {
+		logger.info(variable, '=\'' + process.env[variable] + '\'');
+	});
 }
 
-showenv();
+module.exports = {
+    'showEnv': showEnv,
+};

@@ -6,20 +6,20 @@
 
 ## Usage
 
-You can override the default ENV variables defined in `.env` by changing this file - or defining them as environment vars.
+You can override the default ENV variables defined in `.env` by changing this file - or defining them as environment vars. You can check your current configuration with
 
-Then run
+`npm run show-config`
+
+Once you are satisfied with the configuration, run
 
 `npm install`
 
 `npm start`
 
-
 ## Unit tests
 
-`npm test`
+`npm run test`
 
 ## Linting 
 
 `npm run lint`
-

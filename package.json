@@ -7,6 +7,9 @@
       "url": "github:swarmcity/SwarmCityAPI"
   },
   "main": "src/socket.js",
+  "bin": {
+    "show-config": "./bin/show-config"
+  },
   "scripts": {
     "start": "node src/server.js",
     "test": "nyc mocha --exit --timeout 180000 test/*",
@@ -15,7 +18,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint .",
     "esw": "esw .",
-    "showconfig": "node src/showEnv.js"
+    "show-config": "node bin/show-config.js"
   },
   "author": "",
   "license": "MIT",
