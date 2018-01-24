@@ -1,5 +1,5 @@
 'use strict';
-const logger = require('../src/logs')('testSchedulerBlockheader');
+const logger = require('../src/logs')(module);
 
 const blockHeaderTask = require('../src/scheduler/blockHeaderTask')();
 
@@ -9,14 +9,14 @@ describe('Swarm City scheduler', function() {
 			name: 'print blockheader',
 			func: (task) => {
 				return new Promise((resolve, reject) => {
-					logger.info('Hello', task.data);
+					logger.info('Hello %j', task.data);
 					task.data = task.data + '+';
 					resolve(task.data);
 				});
 			},
 			responsehandler: (res, task) => {
 				return new Promise((resolve, reject) => {
-					logger.info('Hello Finished... RES=', res, 'task=', task);
+					logger.info('Hello Finished... RES=%j task=%j', res, task);
 					resolve();
 					done();
 				});

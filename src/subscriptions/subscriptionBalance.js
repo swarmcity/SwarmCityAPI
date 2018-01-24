@@ -2,8 +2,12 @@
  * Subscription manager for 'balance'
  */
 'use strict';
-const logs = require('../logs.js')();
+
+const logs = require('../logs.js')(module);
+
+const validate = require('../validators');
 const jsonHash = require('json-hash');
+
 const getBalance = require('../tasks/getBalance')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 
@@ -27,19 +31,29 @@ function cancelSubscription(task) {
  * @return     {Promise}  	resolves with the subscription object
  */
 function createSubscription(emitToSubscriber, args) {
-	logs.info('subscribe to balance please....');
+	// check arguments
+	if (!args || !args.address || !validate.isAddress(args.address)) {
+		return Promise.reject('Cannot subscribe to a balance without a valid address.');
+	}
+	logs.info('Subscribing to balance for %s', args.address);
+
 	// create task
 	let _task = {
 		func: (task) => {
 			return Promise.resolve(getBalance.getBalance(task.data).then((res) => {
-				task.data.lastReplyHash = jsonHash.digest(res);
-				return (res);
+                if (!task.data.lastReplyHash) {
+                    let replyHash = jsonHash.digest(res);
+                    task.data.lastReplyHash = replyHash;
+                    logs.debug('no lastReplyhash, setting it to %s', replyHash);
+                }
+                return (res);
 			}));
 		},
 		responsehandler: (res, task) => {
+			logs.debug('received getBalance RES=%j', res);
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
-				logs.debug('received getBalance RES=', JSON.stringify(res, null, 4));
+				logs.info('getBalance => data has changed. New value: %j', res);
 				emitToSubscriber('balanceChanged', res);
 				task.data.lastReplyHash = replyHash;
 			} else {

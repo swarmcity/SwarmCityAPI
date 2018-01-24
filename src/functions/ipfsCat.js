@@ -1,6 +1,6 @@
 'use strict';
 
-const logs = require('../logs')('functions/ipfsCat');
+const logs = require('../logs')(module);
 
 const scheduledTask = require('../scheduler/scheduledTask')();
 

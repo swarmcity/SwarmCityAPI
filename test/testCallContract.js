@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../src/logs')('Mocha test');
+const logger = require('../src/logs')(module);
 
 const io = require('socket.io-client');
 
@@ -24,13 +24,12 @@ describe('Swarm City API socket client > test callContract', function() {
 			APISOCKETPORT: 12205,
 		}).then((con) => {
 			socketURL = 'http://localhost:' + con.port;
-			logger.info('socketURL=', socketURL);
 			done();
 		});
 	});
 
 	it('should connect and call callContract', function(done) {
-		logger.info('connecting to ', socketURL);
+		logger.info('connecting to %s', socketURL);
 		client = io.connect(socketURL, options);
 
 		let promises = [];
@@ -41,7 +40,7 @@ describe('Swarm City API socket client > test callContract', function() {
 				method: 'creationBlock',
 				arguments: null,
 			}, (reply) => {
-				logger.info('callContract returned', reply);
+				logger.info('callContract returned %j', reply);
 				should(reply).have.property('response', 200);
 				should(reply).have.property('data');
 				resolve();
@@ -55,7 +54,7 @@ describe('Swarm City API socket client > test callContract', function() {
 				method: 'balanceOf',
 				arguments: ['0x7018d8f698bfa076e1bdc916e2c64caddc750944'],
 			}, (reply) => {
-				logger.info('callContract returned', reply);
+				logger.info('callContract returned %j', reply);
 				should(reply).have.property('response', 200);
 				should(reply).have.property('data');
 				resolve();
@@ -69,7 +68,7 @@ describe('Swarm City API socket client > test callContract', function() {
 				method: 'balanceOf',
 				arguments: ['0x0'],
 			}, (reply) => {
-				logger.info('callContract returned', reply);
+				logger.info('callContract returned %j', reply);
 				should(reply).have.property('response', 200);
 				should(reply).have.property('data');
 				resolve();

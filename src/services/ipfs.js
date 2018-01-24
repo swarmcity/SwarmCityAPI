@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('../logs')('services/ipfs');
+const logger = require('../logs')(module);
 
 const bl = require('bl');
 
@@ -37,7 +37,7 @@ class IPFSService {
      * @return     {Promise}  resolves with a Buffer object, rejects with an Error object
      */
     cat(hash) {
-        logger.info('CAT hash', hash);
+        logger.info('CAT hash: %s', hash);
         if (!this.isIPFSHash(hash)) {
             return Promise.reject(new Error(hash + ' is not a valid IPFS hash'));
         }

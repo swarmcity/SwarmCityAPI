@@ -2,7 +2,7 @@
  * Subscription manager for 'balance'
  */
 'use strict';
-const logs = require('../logs.js')();
+const logs = require('../logs.js')(module);
 const jsonHash = require('json-hash');
 const getHashtagItems = require('../tasks/getHashtagItems')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();

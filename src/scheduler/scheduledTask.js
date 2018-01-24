@@ -4,7 +4,7 @@
 'use strict';
 const uuidv4 = require('uuid/v4');
 const workerQueue = require('./workerQueue')();
-const logger = require('../logs')('scheduledTask');
+const logger = require('../logs')(module);
 
 let tasks = [];
 let nextTaskTimer;
@@ -39,8 +39,8 @@ function _updateSchedule() {
 				_updateSchedule();
 			}, due);
 			nextRun = tasks[0].nextRun;
-			logger.info('scheduler to sleep for ', due, 'ms');
-			logger.info('next task is \'', tasks[0].name, '\'');
+			logger.info('scheduler to sleep for %i ms', due);
+			logger.info('next task is \'%s\'', tasks[0].name);
 		} else {
 			_updateSchedule();
 		}
@@ -62,15 +62,18 @@ function addTask(task) {
 	task.name = task.name || task.func.name || '(anonymous function)';
 	if (!task.responsehandler && task.interval && task.interval > 0) {
 		task.responsehandler = (res, task) => {
-			logger.info('Schedule task again in ', task.interval, 'ms');
+			logger.info('Schedule task again in %i ms', task.interval);
 			task.nextRun = (new Date).getTime() + task.interval;
 			return addTask(task);
 		};
 	}
 	tasks.push(task);
-	logger.info('Added scheduled task "' +
-		task.name + '" with ID=', task.id, 'next run=',
-		task.nextRun ? task.nextRun : 'now');
+	logger.info(
+        'Added scheduled task "%s" with ID="%s" next run=',
+        task.name,
+        task.id,
+        task.nextRun ? task.nextRun : 'now'
+    );
 	_updateSchedule();
 	return Promise.resolve();
 }
@@ -89,7 +92,7 @@ function removeTask(task) {
 		tasks.splice(index, 1);
 		_updateSchedule();
 	} else {
-		logger.error('removeTask: cannot find task in task list', task.id);
+		logger.error('removeTask: cannot find task "%s" in task list', task.id);
 	}
 	if (tasks.length === 0) {
 		logger.info('the scheduledTask scheduler is empty');
@@ -112,7 +115,7 @@ function removeTasks(taskArray) {
  * Removes all tasks.
  */
 function removeAllTasks() {
-	logger.info('removing all task from scheduledTask scheduler (', tasks.length, ')');
+	logger.info('removing all task from scheduledTask scheduler (%s)', tasks.length);
 	for (let i = 0; i < tasks.length; i++) {
 		removeTask(tasks[i]);
 	}
@@ -125,17 +128,22 @@ function removeAllTasks() {
  */
 function status() {
 	let statusId = uuidv4();
-	logger.info('---Scheduledtask status [', statusId, ']---');
+	logger.info('---Scheduledtask status [\'%s\']---', statusId);
 	if (tasks.length === 0) {
 		logger.info('No tasks');
 	} else {
 		for (let i = 0; i < tasks.length; i++) {
 			let task = tasks[i];
-			logger.info(i + 1, ':', task.name || task.func.name, task.socket ? task.socket.id : '');
+			logger.info(
+                '%i: %s [socket %s]',
+                i + 1,
+                task.name || task.func.name,
+                task.socket ? task.socket.id : 'none'
+            );
 		}
 		logger.info('next run:', nextRun);
 	}
-	logger.info('---/Scheduledtask status [', statusId, ']---');
+	logger.info('---/Scheduledtask status [\'%s\']---', statusId);
 	return Promise.resolve();
 }
 

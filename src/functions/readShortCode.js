@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('../logs')('readShortCode');
+const logger = require('../logs')(module);
 
 const scheduledTask = require('../scheduler/scheduledTask')();
 

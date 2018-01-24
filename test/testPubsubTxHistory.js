@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../src/logs')('testpubsubTxHistory');
+const logger = require('../src/logs')(module);
 
 const io = require('socket.io-client');
 
@@ -23,15 +23,13 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 		server.listen({
 			APISOCKETPORT: 12205,
 		}).then((con) => {
-			socketURL = 'http://localhost:' +
-				con.port;
-			logger.info('socketURL=', socketURL);
+			socketURL = 'http://localhost:' + con.port;
 			done();
 		});
 	});
 
 	it('should subscribe / receive a subscription ID', function(done) {
-		logger.info('connecting to ', socketURL);
+		logger.info('connecting to %s', socketURL);
 		client = io.connect(socketURL, options);
 
 		let promises = [];
@@ -48,7 +46,7 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 
 					subscriptions.push(data.subscriptionId);
 
-					logger.info('subscribe>>>txhistory', data);
+					logger.info('subscribe>>>txhistory %j', data);
 					resolve();
 				});
 			}));
@@ -77,13 +75,13 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 	it('should unsubscribe / receive a confirmation', (done) => {
 		let promises = [];
 		subscriptions.forEach((subscription) => {
-			logger.info('unsubscribe from', subscription);
+			logger.info('unsubscribe from %s', subscription);
 			promises.push(new Promise((resolve, reject) => {
 				client.emit('unsubscribe', {
 					subscriptionId: subscription,
 				}, (data) => {
 					should(data).have.property('response', 200);
-					logger.info('unsubscribe>>>', data);
+					logger.info('unsubscribe>>>%j', data);
 					resolve();
 				});
 			}));

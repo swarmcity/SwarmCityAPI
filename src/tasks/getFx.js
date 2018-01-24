@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('../logs')('getFx');
+const logger = require('../logs')(module);
 
 module.exports = function() {
 	const request = require('request');

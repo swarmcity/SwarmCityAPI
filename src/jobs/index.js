@@ -1,6 +1,6 @@
 'use strict';
 
-const logger = require('../logs')('jobs');
+const logger = require('../logs')(module);
 
 let jobPromises = [
 	require('./hashtagsIndexer')().start(),

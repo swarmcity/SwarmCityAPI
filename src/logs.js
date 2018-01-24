@@ -1,50 +1,52 @@
 'use strict';
 const winston = require('winston');
 
-module.exports = function(prefix) {
-	const logger = winston.createLogger({
-		format: winston.format.combine(
-			winston.format.splat(), {
-				transform: function(info, opts) {
-					if (!info) return;
-					info.message =
-						info.message.reduce(function(res, cur) {
-							if (typeof cur === 'object') {
-								let append;
-								if (cur instanceof Error) {
-									append = JSON.stringify(cur, Object.getOwnPropertyNames(cur));
-								} else {
-									append = JSON.stringify(cur);
-								}
-								return res + ' ' + append;
-							}
-							return res + ' ' + cur;
-						}, '');
-					return info;
-				},
-			},
-			winston.format.timestamp(),
-			winston.format.printf((info) => {
-				return `${info.timestamp} ${info.level}: ${prefix} - ${info.message}`;
-			})
-		),
-		transports: [new winston.transports.Console({
-			level: process.env.LOG_LEVEL || 'info',
-		})],
-	});
+const scFormat = winston.format.printf((info) => {
+    let level = info.level.toUpperCase();
+    let message = info.message;
+    let filteredInfo = Object.assign({}, info, {
+        'level': undefined,
+        'message': undefined,
+        'splat': undefined,
+        'label': undefined,
+        'timestamp': undefined,
+    });
+    let append = JSON.stringify(filteredInfo, null, 4);
+    if (append != '{}') {
+        message = message + ' ' + append;
+    }
+    return `${info.timestamp} ${level} [${info.label}] : ${message}`;
+});
 
-	return {
-		info: function(...args) {
-			logger.info.apply(logger, [args, {}]);
-		},
-		error: function(...args) {
-			logger.error.apply(logger, [args, {}]);
-		},
-		warn: function(...args) {
-			logger.warn.apply(logger, [args, {}]);
-		},
-		debug: function(...args) {
-			logger.debug.apply(logger, [args, {}]);
-		},
-	};
+/**
+ * Get a label to desribe the module we're logging for.
+ *
+ * @param {Object}  mod The module we're logging for or a description of the
+ *                      logger.
+ * @return {winston.format.label}
+ */
+function _getLabel(mod) {
+    let label = mod;
+    if (mod == undefined) {
+        mod = module;
+    }
+    if (mod.id) {
+        label = mod.id.replace('.js', '');
+        label = label.replace(/^.*\/src\//, '');
+    }
+    return winston.format.label({'label': label});
+}
+
+module.exports = function(mod) {
+	const logger = winston.createLogger({
+        level: process.env.LOG_LEVEL || 'info',
+		format: winston.format.combine(
+			winston.format.splat(),
+			winston.format.timestamp(),
+            _getLabel(mod),
+            scFormat
+		),
+		transports: [new winston.transports.Console()],
+	});
+    return logger;
 };

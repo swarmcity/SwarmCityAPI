@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const logger = require('../logs')('WS subscriptions');
+const logger = require('../logs')(module);
 const uuidv4 = require('uuid/v4');
 
 
@@ -36,13 +36,13 @@ let subscriptions = {};
  * @return     {Promise}  Promise resolving to true or false = success of removal
  */
 function _removeSubscription(subscriptionId) {
-	logger.info('_removeSubscription ID', subscriptionId);
+	logger.debug('_removeSubscription ID %s', subscriptionId);
 	if (subscriptions[subscriptionId]) {
 		let _subscription = subscriptions[subscriptionId].subscription;
 		_subscription.cancelSubscription(_subscription.task).then(() => {
 			delete subscriptions[subscriptionId];
 		}).catch((err) => {
-			logger.error('Error canceling subscription', err);
+			logger.error('Error canceling subscriptioni: %j', err);
 		});
 		return Promise.resolve(true);
 	} else {
@@ -57,7 +57,7 @@ function _removeSubscription(subscriptionId) {
  */
 function status() {
 	let statusId = uuidv4();
-	logger.info('---subscriptions status [', statusId, ']---');
+	logger.info('---subscriptions status [%s]---', statusId);
 	if (subscriptions === {}) {
 		logger.info('No subscriptions');
 	} else {
@@ -65,13 +65,17 @@ function status() {
 		let count = 1;
 		for (let subscription in subscriptions) {
 			if (Object.prototype.hasOwnProperty.call(subscriptions, subscription)) {
-				logger.info(count++, ':', subscription,
-					'-> channel', subscriptions[subscription].channel,
-					'socket', subscriptions[subscription].socket.id);
+				logger.info(
+                    '%i: %s -> channel %s (socket %s)',
+                    count++,
+                    subscription,
+					subscriptions[subscription].channel,
+					subscriptions[subscription].socket.id
+                );
 			}
 		}
 	}
-	logger.info('---/subscriptions status [', statusId, ']---');
+	logger.info('---/subscriptions status [%s]---', statusId);
 	return Promise.resolve();
 }
 
@@ -85,8 +89,10 @@ function status() {
  */
 function subscribe(socket, data, callback) {
 	let subscriptionId = uuidv4();
-	logger.info('socket', socket.id, 'subscribes to ', data.channel,
-		'subscriptionId=', subscriptionId);
+	logger.info(
+        'socket %s subscribes to channel %s with subscriptionId=%s',
+        socket.id, data.channel, subscriptionId
+    );
 	/**
 	 * dispatches response back to socket
 	 * and adds subscriptionID
@@ -119,7 +125,7 @@ function subscribe(socket, data, callback) {
 				return callback(reply);
 			})
 			.catch((e) => {
-				logger.error('subscribe failed', e);
+				logger.error('subscribe failed: %j', e);
 				let reply = {
 					response: 500,
 					message: e.message,
@@ -131,7 +137,7 @@ function subscribe(socket, data, callback) {
 			response: 400,
 			message: 'No such channel',
 		};
-		logger.info('No such channel', data.channel);
+		logger.info('No such channel %s', data.channel);
 		return callback(reply);
 	}
 }
@@ -144,7 +150,7 @@ function subscribe(socket, data, callback) {
  * @param      {Function}  callback  The callback for sending data back over the socket
  */
 function unsubscribe(socket, data, callback) {
-	logger.info('unsubscribe from ID', data.subscriptionId);
+	logger.info('unsubscribe from ID %s', data.subscriptionId);
 
 	_removeSubscription(data.subscriptionId).then((success) => {
 		let responseCode = success ? 200 : 401;
@@ -164,7 +170,7 @@ function unsubscribe(socket, data, callback) {
  * @param      {String}  socketId  The socket identifier
  */
 function unsubscribeAll(socketId) {
-	logger.info('socket', socketId, 'unsubscribeAll called');
+	logger.info('socket %s: unsubscribeAll called', socketId);
 	for (let subscription in subscriptions) {
 		if (Object.prototype.hasOwnProperty.call(subscriptions, subscription)) {
 			if (subscriptions[subscription].socket.id === socketId) {

@@ -2,11 +2,11 @@
 require('../environment');
 
 const ipfsAPI = require('ipfs-api');
-const logger = require('../logs')();
+const logger = require('../logs')(module);
 
 let ipfs;
 if (process.env.IPFSAPIHOST && process.env.IPFSAPIPORT) {
-	logger.info('connecting via IPFSAPIHOST/IPFSAPIPORT',
+	logger.info('connecting via IPFSAPIHOST/IPFSAPIPORT on %s:%s',
 		process.env.IPFSAPIHOST,
 		process.env.IPFSAPIPORT);
 	ipfs = ipfsAPI({
@@ -15,7 +15,7 @@ if (process.env.IPFSAPIHOST && process.env.IPFSAPIPORT) {
 		protocol: 'http',
 	});
 } else {
-	logger.info('connecting via multiaddr IPFSAPI', process.env.IPFSAPI);
+	logger.info('connecting via multiaddr IPFSAPI %s', process.env.IPFSAPI);
 	ipfs = ipfsAPI(process.env.IPFSAPI);
 }
 

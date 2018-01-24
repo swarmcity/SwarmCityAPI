@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../src/logs')('testpubsubbalance');
+const logger = require('../src/logs')(module);
 
 const io = require('socket.io-client');
 
@@ -26,13 +26,12 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 		}).then((con) => {
 			socketURL = 'http://localhost:' +
 				con.port;
-			logger.info('socketURL=', socketURL);
 			done();
 		});
 	});
 
 	it('should subscribe / receive a subscription ID', function(done) {
-		logger.info('connecting to ', socketURL);
+		logger.info('connecting to %s', socketURL);
 		client = io.connect(socketURL, options);
 
 		let promises = [];
@@ -81,22 +80,23 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 		});
 	});
 
-	// it('should wait a while for a block', (done) => {
-	// 	// listen to updates....
-	// 	client.on('balanceChanged', (data) => {
-	// 		logger.info('balanceChanged');
-	// 		logger.info('received balance update...', data);
-	// 	});
+	it('should wait a while for a block', (done) => {
+		// listen to updates....
+        // but these won't come anyway
+		client.on('balanceChanged', (data) => {
+            logger.info('balanceChanged');
+            logger.info('received balance update...', data);
+        });
 
-	// setTimeout(() => {
-	// 	done();
-	// }, 1 * 1000);
-
+        setTimeout(() => {
+            done();
+        }, 25 * 1000);
+	});
 
 	it('should unsubscribe / receive a confirmation', (done) => {
 		let promises = [];
 		subscriptions.forEach((subscription) => {
-			logger.info('unsubscribe from', subscription);
+			logger.info('unsubscribe from %s', subscription);
 			promises.push(new Promise((resolve, reject) => {
 				client.emit('unsubscribe', {
 					subscriptionId: subscription,

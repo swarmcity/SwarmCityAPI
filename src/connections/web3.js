@@ -3,12 +3,12 @@
 // wraps web3 in a singleton object for re-use across the API
 require('../environment');
 
-const logger = require('../logs')();
+const logger = require('../logs')(module);
 const Web3 = require('web3');
 const web3WebsocketProvider = new Web3.providers.WebsocketProvider(process.env.ETHWS);
 
 web3WebsocketProvider.on('error', (e) => {
-	logger.error('WEB3 ERROR', e.message);
+	logger.error('WEB3 ERROR: %s', e.message);
 });
 web3WebsocketProvider.on('end', () => {
 	logger.info('WEB3 WS DISCONNECTED');

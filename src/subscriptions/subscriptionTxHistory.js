@@ -2,7 +2,7 @@
  * Subscription manager for 'transaction history' of an account
  */
 'use strict';
-const logger = require('../logs.js')('subscriptionHashtags');
+const logger = require('../logs.js')(module);
 const jsonHash = require('json-hash');
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 // const web3 = require('../globalWeb3').web3;
@@ -51,7 +51,7 @@ function createSubscription(emitToSubscriber, args) {
 		responsehandler: (res, task) => {
 			let responseHash = jsonHash.digest(res);
 			if (task.data.lastResponse !== responseHash) {
-				logger.debug('received modified response RES=', JSON.stringify(res, null, 4));
+				logger.debug('received modified response RES=%j', res);
 				emitToSubscriber('txhistoryChanged', res);
 				task.data.lastResponse = responseHash;
 			} else {

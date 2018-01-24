@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../src/logs')('testPubSubshortcode');
+const logger = require('../src/logs')(module);
 
 const io = require('socket.io-client');
 
@@ -23,9 +23,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 			APISOCKETPORT: 12205,
 		}).then((con) => {
 			socketURL = 'http://localhost:' + con.port;
-			logger.info('socketURL=', socketURL);
-
-			logger.info('connecting to ', socketURL);
+			logger.info('connecting to %s', socketURL);
 			client = io.connect(socketURL, options);
 
 			done();
@@ -45,7 +43,6 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 					},
 				},
 			}, (reply) => {
-				logger.info('call returned reply', reply);
 				should(reply).have.property('response', 200);
 				should(reply).have.property('subscriptionId');
 				should(reply).have.property('data').with.a.property('shortcode');
@@ -58,7 +55,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		Promise.all(promises).then(() => {
 			done();
 		}).catch((err) => {
-			logger.info(err);
+			logger.error(err);
 			done();
 		});
 	});
@@ -69,7 +66,6 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 			client.emit('readShortCode', {
 				shortcode: shortcode,
 			}, (reply) => {
-				logger.info('call returned reply', reply);
 				should(reply).have.property('response', 200);
 				should(reply).have.property('data')
 					.with.a.property('payload')
@@ -93,7 +89,6 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 			client.emit('readShortCode', {
 				shortcode: 666,
 			}, (reply) => {
-				logger.info('call returned reply', reply);
 				should(reply).have.property('response', 400);
 				should(reply).not.have.property('data');
 				resolve();
@@ -112,7 +107,6 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.on('shortcodeChanged', (reply) => {
-				logger.info('call returned reply', reply);
 				should(reply).have.property('response', 200);
 				should(reply).have.property('subscriptionId', subscription);
 				should(reply).have.property('data');
@@ -137,13 +131,11 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 	it('should unsubscribe', (done) => {
 		let promises = [];
 
-		logger.info('unsubscribe from', subscription);
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('unsubscribe', {
 				subscriptionId: subscription,
 			}, (reply) => {
 				should(reply).have.property('response', 200);
-				logger.info('unsubscribe>>>', reply);
 				resolve();
 			});
 		}));

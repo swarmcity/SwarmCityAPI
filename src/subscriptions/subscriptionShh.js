@@ -2,7 +2,7 @@
  * Subscription manager for 'sshsubscription'
  */
 'use strict';
-const logger = require('../logs.js')('subscriptionshh');
+const logger = require('../logs.js')(module);
 const web3 = require('../globalWeb3').web3;
 const shhHelpers = require('../globalWeb3').shhHelpers;
 

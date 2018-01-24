@@ -1,6 +1,6 @@
 'use strict';
 const should = require('should');
-const logger = require('../src/logs')('Mocha test');
+const logger = require('../src/logs')(module);
 const io = require('socket.io-client');
 
 const options = {
@@ -19,15 +19,13 @@ describe('Swarm City API socket client', function() {
 		server.listen({
 			APISOCKETPORT: 12205,
 		}).then((con) => {
-			socketURL = 'http://localhost:' +
-				con.port;
-			logger.info('socketURL=', socketURL);
+			socketURL = 'http://localhost:' + con.port;
 			done();
 		});
 	});
 
 	it('should receive all related events right after socket connects', function(done) {
-		logger.info('connecting to ', socketURL);
+		logger.info('connecting to %s', socketURL);
 		client = io.connect(socketURL, options);
 
 		let promises = [];
@@ -39,7 +37,7 @@ describe('Swarm City API socket client', function() {
 		// }));
 		promises.push(new Promise((resolve, reject) => {
 			client.on('fxChanged', (reply) => {
-				logger.info('fxChanged', reply);
+				logger.info('fxChanged: %j', reply);
 				should(reply).have.property('priceBtc');
 				should(reply).have.property('priceEur');
 				should(reply).have.property('priceUsd');
@@ -48,7 +46,7 @@ describe('Swarm City API socket client', function() {
 		}));
 		promises.push(new Promise((resolve, reject) => {
 			client.on('gasPriceChanged', (data) => {
-				logger.info('gasPriceChanged', data);
+				logger.info('gasPriceChangedi: %j', data);
 				resolve();
 			});
 		}));
