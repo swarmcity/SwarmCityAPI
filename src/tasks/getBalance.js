@@ -2,6 +2,8 @@
 
 const web3 = require('../globalWeb3').web3;
 
+const validate = require('../validators');
+
 module.exports = function() {
 	return ({
 		/**
@@ -11,6 +13,14 @@ module.exports = function() {
 		 */
 		getBalance: function(data) {
 			return new Promise((resolve, reject) => {
+				if (!data || !data.address) {
+					return reject(new Error('No data/address supplied'));
+				}
+
+				if (!validate.isAddress(data.address)) {
+					return reject(new Error('No valid address supplied'));
+				}
+
 				let promisesList = [];
 				const minimeContract = require('../contracts/miniMeToken.json');
 				const tokens = ['SWT', 'ARC'];
@@ -39,7 +49,7 @@ module.exports = function() {
 							tokenSymbol: 'ETH',
 						};
 					}));
-				resolve(Promise.all(promisesList).then((res) => {
+                resolve(Promise.all(promisesList).then((res) => {
 					return res.reduce((accumulator, currentValue) => {
 						let symbol = currentValue.tokenSymbol;
 						delete currentValue.tokenSymbol;

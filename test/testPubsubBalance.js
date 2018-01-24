@@ -84,16 +84,14 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 		// listen to updates....
         // but these won't come anyway
 		client.on('balanceChanged', (data) => {
-		    logger.info('balanceChanged');
-		    logger.info('received balance update...', data);
+            logger.info('balanceChanged');
+            logger.info('received balance update...', data);
         });
 
         setTimeout(() => {
             done();
         }, 25 * 1000);
 	});
-
-
 
 	it('should unsubscribe / receive a confirmation', (done) => {
 		let promises = [];
