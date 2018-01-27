@@ -2,6 +2,7 @@
 const scheduledTask = require('../scheduler/scheduledTask')();
 const logs = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
+const ethereumjsutil = require('ethereumjs-util');
 
 /**
  * returns name (verb) of this function
@@ -23,9 +24,19 @@ function createTask(socket, data, callback) {
 		func: (task) => {
 			logs.info('sendRawTx start');
 			return new Promise((resolve, reject) => {
-				web3.eth.sendSignedTransaction(data.tx)
-					.on('receipt', resolve)
-					.on('error', reject);
+                if (!data.tx) {
+                    reject(new Error('No tx present. Can\'t send.'));
+                }
+                let tx = ethereumjsutil.addHexPrefix(data.tx);
+                logs.debug('Sending signed transaction: %s', tx);
+				web3.eth.sendSignedTransaction(tx)
+                    .on('error', (err) => {
+                        logs.error(err);
+                        reject(err);
+                    }).then((receipt) => {
+                        logs.debug('Received receipt %j', receipt);
+                        resolve(receipt);
+                    });
 			});
 		},
 		responsehandler: (res, task) => {
