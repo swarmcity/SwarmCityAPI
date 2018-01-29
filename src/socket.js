@@ -22,7 +22,7 @@ const getBalance = require('./tasks/getBalance')();
 const subscriptions = require('./subscriptions')();
 
 // functions handler
-const functions = require('./functions')();
+const functions = require('./functions');
 
 
 let connectedSockets = {};

@@ -7,8 +7,14 @@ let handlers = [
 	require('./sendShhMessage'),
 	require('./sendRawTx'),
 	require('./readShortCode'),
-	require('./ipfsCat'),
 ];
+
+const scheduledTask = require('../scheduler/scheduledTask')();
+
+const ipfsService = require('../services').ipfsService;
+const IpfsCatFunction = require('./ipfsCat').IpfsCatFunction;
+
+handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
 
 /**
  * register the array of socket handlers
@@ -19,7 +25,7 @@ function registerHandlers(socket) {
 	for (let i = 0, len = handlers.length; i < len; i++) {
 		logger.info('Registering socket handler %s', handlers[i].name());
 		socket.on(handlers[i].name(), (data, callback) => {
-            if(handlers[i].execute) {
+            if(typeof handlers[i].execute === 'function') {
 			    handlers[i].execute(socket, data, callback);
             } else {
 			    handlers[i].createTask(socket, data, callback);
@@ -28,8 +34,6 @@ function registerHandlers(socket) {
 	}
 }
 
-module.exports = () => {
-	return {
-		registerHandlers: registerHandlers,
-	};
+module.exports = {
+	registerHandlers: registerHandlers,
 };
