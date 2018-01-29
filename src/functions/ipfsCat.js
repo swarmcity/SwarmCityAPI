@@ -14,6 +14,35 @@ function name() {
 	return 'ipfscat';
 }
 
+function parameters() {
+    return {
+        'hash': 'IPFS hash of the file you want to see.,
+    }
+}
+
+function execute(socket, data, callback) {
+    let errors = validateData(data);
+    if (errors.length) {
+        let reply = {
+            response: 400,
+            data: data,
+            errors: errors,
+        };
+        return callback(reply);
+    }
+    createTask(socket, data, callback);
+}
+
+function validateData(data) {
+    let errors = [];
+    parameters().forEach((p) => {
+        if (!(p.name in data)) {
+            errors.push(util.format('Parameter %s is missing.', p.name));
+        }
+    });
+    return errors;
+}
+
 /**
  * create and execute the task
  *
@@ -61,5 +90,7 @@ function createTask(socket, data, callback) {
 
 module.exports = {
 	name: name,
+    parameters: parameters,
+    execute: execute,
 	createTask: createTask,
 };
