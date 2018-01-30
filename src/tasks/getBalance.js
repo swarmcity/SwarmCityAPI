@@ -26,7 +26,6 @@ module.exports = function() {
 				let promisesList = [];
 				const minimeContract = require('../contracts/miniMeToken.json');
 				const tokens = ['SWT', 'ARC'];
-				//const tokenIndex = require('../contracts/index.json');
 
 				tokens.forEach((token) => {
 					let tokenContract = new web3.eth.Contract(

@@ -11,7 +11,7 @@ const contractConfig = contracts[NETWORK];
 
 process.env.PARAMETERSCONTRACT = contractConfig['parameterscontract']['address'];
 process.env.PARAMETERSCONTRACTSTARTBLOCK = contractConfig['parameterscontract']['startblock'];
-['ARC','SWT'].forEach((token) => {
+['ARC', 'SWT'].forEach((token) => {
     process.env[token] = contractConfig['tokens'][token];
     process.env[token+'BALANCE'] = contractConfig['balances'][token] || '';
-})
+});
