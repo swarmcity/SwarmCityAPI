@@ -40,7 +40,7 @@ describe('Swarm City API socket client > test pubsub on \'balance\'', function()
 				client.emit('subscribe', {
 					channel: 'balance',
 					args: {
-						address: '0x7018d8f698bfa076e1bdc916e2c64caddc750944',
+						address: process.env['SWTBALANCE'],
 					},
 				}, (reply) => {
 					should(reply).have.property('response', 200);

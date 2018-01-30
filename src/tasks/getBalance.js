@@ -4,6 +4,8 @@ const web3 = require('../globalWeb3').web3;
 
 const validate = require('../validators');
 
+const logger = require('../logs')(module);
+
 module.exports = function() {
 	return ({
 		/**
@@ -24,21 +26,27 @@ module.exports = function() {
 				let promisesList = [];
 				const minimeContract = require('../contracts/miniMeToken.json');
 				const tokens = ['SWT', 'ARC'];
-				const tokenIndex = require('../contracts/index.json');
+				//const tokenIndex = require('../contracts/index.json');
+
 				tokens.forEach((token) => {
 					let tokenContract = new web3.eth.Contract(
 						minimeContract.abi,
-						tokenIndex[token]
+                        process.env[token]
 					);
 					promisesList.push(tokenContract.methods.balanceOf(data.address).call()
 						.then((res) => {
 							return {
 								balance: res,
 								tokenSymbol: token,
-								contractAddress: tokenIndex[token],
+								contractAddress: process.env[token],
 							};
 						})
 						.catch((e) => {
+                            logger.error(
+                                'Unable to get balance for %s. Error: %j',
+                                data.address,
+                                e
+                            );
 							reject(Error(e));
 						}));
 				});

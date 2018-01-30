@@ -35,7 +35,7 @@ describe('Swarm City API socket client > test callContract', function() {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('callContract', {
-				address: '0xb9e7f8568e08d5659f5d29c4997173d84cdf2607',
+				address: process.env.SWT,
 				abi: tokenABI.abi,
 				method: 'creationBlock',
 				arguments: null,
@@ -49,10 +49,10 @@ describe('Swarm City API socket client > test callContract', function() {
 
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('callContract', {
-				address: '0xb9e7f8568e08d5659f5d29c4997173d84cdf2607',
+				address: process.env.SWT,
 				abi: tokenABI.abi,
 				method: 'balanceOf',
-				arguments: ['0x7018d8f698bfa076e1bdc916e2c64caddc750944'],
+				arguments: [process.env['SWTBALANCE']],
 			}, (reply) => {
 				logger.info('callContract returned %j', reply);
 				should(reply).have.property('response', 200);
@@ -63,7 +63,7 @@ describe('Swarm City API socket client > test callContract', function() {
 
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('callContract', {
-				address: '0xb9e7f8568e08d5659f5d29c4997173d84cdf2607',
+				address: process.env.SWT,
 				abi: tokenABI.abi,
 				method: 'balanceOf',
 				arguments: ['0x0'],
