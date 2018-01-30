@@ -27,7 +27,7 @@ describe('Swarm City API socket client > test client disconnect', function() {
 			APISOCKETPORT: 12205,
 		}).then((con) => {
 			socketURL = 'http://localhost:' +
-				con.port + '?publicKey=0x7018d8f698bfa076e1bdc916e2c64caddc750944';
+				con.port + '?publicKey=' + process.env['SWTBALANCE'];
 			done();
 		});
 	});
@@ -42,7 +42,7 @@ describe('Swarm City API socket client > test client disconnect', function() {
 				client.emit('subscribe', {
 					channel: 'balance',
 					args: {
-						address: '0x7018d8f698bfa076e1bdc916e2c64caddc750944',
+						address: process.env['SWTBALANCE'],
 					},
 				}, (data) => {
 					should(data).have.property('response', 200);
