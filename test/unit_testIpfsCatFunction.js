@@ -3,6 +3,7 @@
 const logger = require('../src/logs')(module);
 
 const should = require('should');
+const sinon = require('sinon');
 
 const IpfsCatFunction = require('../src/functions/ipfsCat').IpfsCatFunction;
 
@@ -17,5 +18,19 @@ describe('IpfsCatFunction', function() {
         let fut = new IpfsCatFunction();
         let errors = fut.validateData({});
         should(errors.length).be.greaterThan(0);
+    });
+
+    it('should create a task and add it to the queue', function() {
+        let scheduledTask = {'addTask': function() {}}
+        let spy = sinon.stub(scheduledTask, 'addTask');
+        let cb = sinon.spy();
+        let fut = new IpfsCatFunction(scheduledTask);
+        fut.execute(
+            {},
+            {'hash': 'QmXxr6WpiGhDD83P5DdjyEXAxbxmNZg6CZ3Gsh3ARuAvc2'},
+            cb
+        );
+        should(spy.calledOnce).be.ok;
+        should(cb.called).not.be.ok;
     });
 });

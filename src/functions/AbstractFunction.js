@@ -32,6 +32,7 @@ class AbstractFunction {
             let reply = {
                 response: 400,
                 data: data,
+                error: 'Bad Request. Some of the parameters you passed are invalid.',
                 errors: errors,
             };
             return callback(reply);
