@@ -3,6 +3,8 @@
 const web3 = require('../globalWeb3').web3;
 const validate = require('../validators');
 
+const logger = require('../logs')(module);
+
 module.exports = function() {
 	return ({
 		/**
@@ -19,10 +21,11 @@ module.exports = function() {
 					return reject(new Error('No valid address supplied'));
 				}
 
-				web3.eth.getTransactionCount(data.address).then((nonce) => {
+				web3.eth.getTransactionCount(data.address).then((currentCount) => {
+                    logger.debug('currentTransactionCount: %d', currentCount);
 					resolve({
 						address: data.address,
-						nonce: nonce,
+						nonce: currentCount,
 					});
 				}).catch(reject);
 			});
