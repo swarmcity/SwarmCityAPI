@@ -3,12 +3,17 @@ const logger = require('./logs')(module);
 
 let vars = [
     'ETHWS',
+    'NETWORK',
     'APISOCKETPORT',
     'IPFSAPI',
     'IPFSAPIHOST',
     'IPFSAPIPORT',
     'PARAMETERSCONTRACT',
 	'PARAMETERSCONTRACTSTARTBLOCK',
+    'SWT',
+    'SWTBALANCE',
+    'ARC',
+    'ARCBALANCE',
     'TESTSHH',
     'TESTIPFS',
 ];
