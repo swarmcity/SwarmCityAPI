@@ -30,6 +30,9 @@ function createTask(socket, data, callback) {
                 let tx = ethereumjsutil.addHexPrefix(data.tx);
                 logs.debug('Sending signed transaction: %s', tx);
 				web3.eth.sendSignedTransaction(tx)
+                    .once('transactionHash', (hash) => {
+                        logs.debug('transactionHash %s', hash);
+                    })
                     .on('error', (err) => {
                         logs.error(err);
                         reject(err);
