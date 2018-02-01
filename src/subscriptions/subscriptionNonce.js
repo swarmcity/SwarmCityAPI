@@ -40,7 +40,7 @@ function createSubscription(emitToSubscriber, args) {
 			return Promise.resolve(getNonce.getNonce(task.data).then((res) => {
                 if (!task.data.lastReplyHash) {
                     let replyHash = jsonHash.digest(res);
-				    task.data.lastReplyHash = replyHash;
+                    task.data.lastReplyHash = replyHash;
                     logs.debug('no lastReplyHash, setting it to %s', replyHash);
                 }
 				return (res);
