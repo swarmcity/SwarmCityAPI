@@ -17,6 +17,54 @@ class IpfsCatFunction extends AbstractFunction {
     }
 
     /**
+     * returns the function output to the client
+     *
+     * @param   {Function}  callback    The callback for output
+     */
+    responseHandler(callback) {
+        return (res, task) => {
+            if (task.success && res) {
+                // format the output if requested
+                // else return the Buffer
+                switch (data.format || 'buffer') {
+                    case 'base64':
+                    case 'ascii':
+                    case 'hex':
+                    case 'utf8':
+                        res = res.toString(data.format);
+                        break;
+                }
+                let reply = {
+                    response: 200,
+                    data: res,
+                };
+                return callback(reply);
+            } else {
+                let reply = {
+                    response: 500,
+                    data: res,
+                    error: task.error,
+                };
+                return callback(reply);
+            }
+        }
+    }
+
+    /**
+     * Get the  function runner
+     *
+     * @param   {Object}    data    Data needed to actually run the task
+     * @return  {Function}  The actual function that will be called when the
+     *                      task is run
+     */
+    func(data) {
+        return (task) => {
+            logs.info('ipfscat start');
+            return this.ipfsService.cat(data.hash);
+        }
+    }
+
+    /**
      * create and execute the task
      *
      * @param      {Object}    socket    The socket
@@ -25,36 +73,8 @@ class IpfsCatFunction extends AbstractFunction {
      */
     createTask(socket, data, callback) {
         this.scheduledTask.addTask({
-            func: (task) => {
-                logs.info('ipfscat start');
-                return this.ipfsService.cat(data.hash);
-            },
-            responsehandler: (res, task) => {
-                if (task.success && res) {
-                    // format the output if requested
-                    // else return the Buffer
-                    switch (data.format || 'buffer') {
-                        case 'base64':
-                        case 'ascii':
-                        case 'hex':
-                        case 'utf8':
-                            res = res.toString(data.format);
-                            break;
-                    }
-                    let reply = {
-                        response: 200,
-                        data: res,
-                    };
-                    return callback(reply);
-                } else {
-                    let reply = {
-                        response: 500,
-                        data: res,
-                        error: task.error,
-                    };
-                    return callback(reply);
-                }
-            },
+            func: this.func(data),
+            responsehandler: this.responseHandler(callback),
             data: {
                 socket: socket,
             },
