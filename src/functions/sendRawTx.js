@@ -33,9 +33,16 @@ function createTask(socket, data, callback) {
                     .once('transactionHash', (hash) => {
                         logs.debug('transactionHash %s', hash);
                     })
+                    .on('receipt', (receipt) => {
+                        logs.debug('receipt %j', receipt);
+                    })
+                    .on('confirmation', (confNumber, receipt) => {
+                        logs.debug('confirmation: %d', confNumber);
+                        logs.debug('receipt %j', receipt);
+                    })
                     .on('error', (err) => {
                         logs.error(err);
-                        reject(err);
+                        reject(new Error('Transaction error: %s', err));
                     }).then((receipt) => {
                         logs.debug('Received receipt %j', receipt);
                         resolve(receipt);
