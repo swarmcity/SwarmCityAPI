@@ -84,6 +84,4 @@ class IpfsCatFunction extends AbstractFunction {
 }
 
 
-module.exports = {
-	IpfsCatFunction: IpfsCatFunction,
-};
+module.exports = IpfsCatFunction;

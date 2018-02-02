@@ -5,7 +5,7 @@ const logger = require('../src/logs')(module);
 const should = require('should');
 const sinon = require('sinon');
 
-const IpfsCatFunction = require('../src/functions/ipfsCat').IpfsCatFunction;
+const IpfsCatFunction = require('../src/functions/IpfsCatFunction');
 
 describe('IpfsCatFunction', function() {
     it('should have a name and parameters', function() {

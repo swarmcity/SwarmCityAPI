@@ -12,7 +12,7 @@ let handlers = [
 const scheduledTask = require('../scheduler/scheduledTask')();
 
 const ipfsService = require('../services').ipfsService;
-const IpfsCatFunction = require('./ipfsCat').IpfsCatFunction;
+const IpfsCatFunction = require('./IpfsCatFunction');
 
 handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
 
