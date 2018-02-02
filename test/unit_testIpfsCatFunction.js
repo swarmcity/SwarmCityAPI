@@ -30,9 +30,7 @@ describe('IpfsCatFunction', function() {
             {'hash': 'QmXxr6WpiGhDD83P5DdjyEXAxbxmNZg6CZ3Gsh3ARuAvc2'},
             cb
         );
-        logger.info(spy.calledOnce);
         should(spy.calledOnce).be.ok();
-        logger.info(cb.called);
         should(cb.called).not.be.ok();
     });
 

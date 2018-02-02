@@ -73,6 +73,7 @@ class IpfsCatFunction extends AbstractFunction {
      */
     createTask(socket, data, callback) {
         this.scheduledTask.addTask({
+            name: this.name(),
             func: this.func(data),
             responsehandler: this.responseHandler(callback),
             data: {
