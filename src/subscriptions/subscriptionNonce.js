@@ -2,7 +2,7 @@
  * Subscription manager for 'Nonce'
  */
 'use strict';
-const logs = require('../logs.js')();
+const logs = require('../logs.js')(module);
 const jsonHash = require('json-hash');
 const getNonce = require('../tasks/getNonce')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
@@ -30,23 +30,29 @@ function cancelSubscription(task) {
 function createSubscription(emitToSubscriber, args) {
 	// check arguments
 	if (!args || !args.address || !validate.isAddress(args.address)) {
-		return Promise.reject('no valid address provided');
+		return Promise.reject('Cannot subscribe to a nonce without a valid address.');
 	}
+	logs.info('Subscribing to nonce for %s', args.address);
 
 	// create task
 	let _task = {
 		func: (task) => {
 			return Promise.resolve(getNonce.getNonce(task.data).then((res) => {
-				task.data.lastReplyHash = jsonHash.digest(res);
+                if (!task.data.lastReplyHash) {
+                    let replyHash = jsonHash.digest(res);
+                    task.data.lastReplyHash = replyHash;
+                    logs.debug('no lastReplyHash, setting it to %s', replyHash);
+                }
 				return (res);
 			}));
 		},
 		responsehandler: (res, task) => {
+			logs.debug('received getNonce RES=%j', res);
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
-				logs.debug('received getNonce RES=', JSON.stringify(res, null, 4));
 				emitToSubscriber('nonceChanged', res);
 				task.data.lastReplyHash = replyHash;
+				logs.info('getNonce => data has changed. New value: %j', res);
 			} else {
 				logs.info('getNonce => data hasn\'t changed.');
 			}
