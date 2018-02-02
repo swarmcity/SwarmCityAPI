@@ -4,7 +4,15 @@ const logs = require('../logs')(module);
 
 const AbstractFunction = require('./AbstractFunction');
 
+/**
+ * Function that gets a file from IPFS
+ */
 class IpfsCatFunction extends AbstractFunction {
+    /**
+     * @param   {Object}    scheduledTask       Taskscheduler
+     * @param   {Object}    ipfsService         Service object that connects to
+     *                                          IPFS
+     */
     constructor(scheduledTask, ipfsService) {
         super(
             'ipfscat', [{
@@ -19,9 +27,14 @@ class IpfsCatFunction extends AbstractFunction {
     /**
      * returns the function output to the client
      *
+     * @param   {Object}    data        The data that was passed to the
+     *                                  function.
      * @param   {Function}  callback    The callback for output
+     * @return  {Funcion}   Anonymous function that takes a result and a task,
+     *                      generates a response object and hands that to the
+     *                      passed callback.
      */
-    responseHandler(callback) {
+    responseHandler(data, callback) {
         return (res, task) => {
             if (task.success && res) {
                 // format the output if requested
@@ -47,7 +60,7 @@ class IpfsCatFunction extends AbstractFunction {
                 };
                 return callback(reply);
             }
-        }
+        };
     }
 
     /**
@@ -61,7 +74,7 @@ class IpfsCatFunction extends AbstractFunction {
         return (task) => {
             logs.info('ipfscat start');
             return this.ipfsService.cat(data.hash);
-        }
+        };
     }
 
     /**
@@ -75,7 +88,7 @@ class IpfsCatFunction extends AbstractFunction {
         this.scheduledTask.addTask({
             name: this.name(),
             func: this.func(data),
-            responsehandler: this.responseHandler(callback),
+            responsehandler: this.responseHandler(data, callback),
             data: {
                 socket: socket,
             },

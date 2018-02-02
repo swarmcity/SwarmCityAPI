@@ -1,7 +1,5 @@
 'use strict';
 
-const logger = require('../src/logs')(module);
-
 const should = require('should');
 const sinon = require('sinon');
 
@@ -60,6 +58,7 @@ describe('AbstractFunction', function() {
         }]);
         let data = {'parameter1': 'one', 'parameter2': 'two'};
         let errors = fut.validateData(data);
+        should(errors.length).be.greaterThan(0);
         let spy = sinon.spy();
         fut.execute({}, data, spy);
         should(spy.calledOnce).be.ok;
@@ -77,12 +76,12 @@ describe('AbstractFunction', function() {
         }]);
         let data = {'parameter1': 'one', 'parametertwo': 'two'};
         let errors = fut.validateData(data);
+        should(errors.length).be.equal(0);
         let spy = sinon.spy();
         try {
             fut.execute({}, data, spy);
         } catch (err) {
-            should(err).be.ok;
+            should(err).be.ok();
         }
     });
-
 });

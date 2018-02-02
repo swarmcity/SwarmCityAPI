@@ -1,7 +1,5 @@
 'use strict';
 
-const logger = require('../src/logs')(module);
-
 const should = require('should');
 const sinon = require('sinon');
 
@@ -21,7 +19,7 @@ describe('IpfsCatFunction', function() {
     });
 
     it('should create a task and add it to the queue', function() {
-        let scheduledTask = {'addTask': function() {}}
+        let scheduledTask = {'addTask': function() {}};
         let spy = sinon.stub(scheduledTask, 'addTask');
         let cb = sinon.spy();
         let fut = new IpfsCatFunction(scheduledTask);
@@ -37,16 +35,21 @@ describe('IpfsCatFunction', function() {
     it('should be able to handle unsuccesful tasks', function() {
         let fut = new IpfsCatFunction();
         let cbSpy = sinon.spy();
-        let rh = fut.responseHandler(cbSpy);
-        rh({}, {'succes': false, 'error': 'Sorry. No can do.'});
+        let data = {};
+        let rh = fut.responseHandler(data, cbSpy);
+        rh(data, {'succes': false, 'error': 'Sorry. No can do.'});
         should(cbSpy.calledOnce).be.ok();
         should(cbSpy.calledWith(
-            {'response': 500,'data':{},'error': 'Sorry. No can do.'}
+            {
+                'response': 500,
+                'data': data,
+                'error': 'Sorry. No can do.',
+            }
         )).be.ok();
     });
 
     it('should call ipfsService to get a file', function() {
-        let scheduledTask = {'addTask': () => {}}
+        let scheduledTask = {'addTask': () => {}};
         let schedulerSpy = sinon.stub(scheduledTask, 'addTask');
         let ipfsService = {'cat': () => {}};
         let spy = sinon.stub(ipfsService, 'cat').returns(
