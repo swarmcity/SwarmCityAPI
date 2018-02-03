@@ -35,7 +35,9 @@ function createTask(socket, data, callback) {
                         resolve({'transactionHash': hash});
                     })
                     .on('error', (err, receipt) => {
-                        if (err.message && err.message.startsWith('Failed to check for transaction receipt')) {
+                        if (err.message &&
+                            err.message.startsWith('Failed to check for transaction receipt')
+                           ) {
                             logs.debug('Another complaint about the receipt ignored.');
                         } else {
                             logs.error(err);
