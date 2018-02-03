@@ -9,6 +9,18 @@ const util = require('util');
  *
  * A function is an action that can be executed once by the client that will be
  * handled by a queue.
+ *
+ * For the client, three possible response codes exist. These can be checked in
+ * the response attribute of the reply:
+ *  - 200: The function was succesfully executed.
+ *  - 400: The function request was invalid because parameters were missing or
+ *          invalid. Check the errors for more info. This means that the server
+ *          acknowledges it could execute the function if more information was
+ *          presented. Please retry with the requested information.
+ *  - 500: Something went wrong during the execution of the function. This
+ *          generally means something is wrong with the API or the
+ *          infrastructure it's communicating with. Retrying will generally not
+ *          work, unless it's a temporary infrastructure problem.
  */
 class AbstractFunction {
     /**
