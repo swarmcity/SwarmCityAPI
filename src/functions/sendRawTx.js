@@ -32,18 +32,11 @@ function createTask(socket, data, callback) {
 				web3.eth.sendSignedTransaction(tx)
                     .on('transactionHash', (hash) => {
                         logs.debug('transactionHash %s', hash);
-                    })
-                    .on('confirmation', (confNumber, receipt) => {
-                        logs.debug('confirmation: %d', confNumber);
-                        logs.debug('receipt %j', receipt);
+                        resolve(hash);
                     })
                     .on('error', (err) => {
                         logs.error(err);
                         reject(new Error('Transaction error: %s', err));
-                    })
-                    .then((receipt) => {
-                        logs.debug('receipt %j', receipt);
-                        resolve(receipt);
                     });
 			});
 		},
