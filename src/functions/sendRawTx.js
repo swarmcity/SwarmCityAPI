@@ -9,7 +9,7 @@ const ethereumjsutil = require('ethereumjs-util');
  * @return     {null}   none
  */
 function name() {
-	return 'sendRawTx';
+    return 'sendRawTx';
 }
 
 /**
@@ -20,16 +20,16 @@ function name() {
  * @param      {Function}  callback  The callback
  */
 function createTask(socket, data, callback) {
-	scheduledTask.addTask({
-		func: (task) => {
-			logs.info('sendRawTx start');
-			return new Promise((resolve, reject) => {
+    scheduledTask.addTask({
+        func: (task) => {
+            logs.info('sendRawTx start');
+            return new Promise((resolve, reject) => {
                 if (!data.tx) {
                     reject(new Error('No tx present. Can\'t send.'));
                 }
                 let tx = ethereumjsutil.addHexPrefix(data.tx);
                 logs.debug('Sending signed transaction: %s', tx);
-				web3.eth.sendSignedTransaction(tx)
+                web3.eth.sendSignedTransaction(tx)
                     .once('transactionHash', (hash) => {
                         logs.debug('transactionHash %s', hash);
                         resolve({'transactionHash': hash});
@@ -47,8 +47,8 @@ function createTask(socket, data, callback) {
                             reject(new Error('Transaction error: ' + err));
                         }
                     });
-			});
-		},
+            });
+        },
 		responsehandler: (res, task) => {
 			if (task.success) {
 				let reply = {
