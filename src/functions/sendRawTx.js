@@ -32,20 +32,18 @@ function createTask(socket, data, callback) {
 				web3.eth.sendSignedTransaction(tx)
                     .once('transactionHash', (hash) => {
                         logs.debug('transactionHash %s', hash);
-                    })
-                    .once('receipt', (receipt) => {
-                        logs.debug('receipt %j', receipt);
-                    })
-                    .on('confirmation', (confNumber, receipt) => {
-                        logs.debug('Transaction Confirmation %d', confNumber);
+                        resolve({'transactionHash': hash});
                     })
                     .on('error', (err, receipt) => {
-                        logs.error(err);
-                        reject(new Error('Transaction error: ' + err));
-                    })
-                    .then((receipt) => {
-                        logs.debug('receipt %j', receipt);
-                        resolve(receipt);
+                        if (err.message && err.message.startsWith('Failed to check for transaction receipt')) {
+                            logs.debug('Another complaint about the receipt ignored.');
+                        } else {
+                            logs.error(err);
+                            if (receipt) {
+                                logs.error('We might be out of Gas: %j', receipt);
+                            }
+                            reject(new Error('Transaction error: ' + err));
+                        }
                     });
 			});
 		},
