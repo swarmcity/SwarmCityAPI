@@ -30,13 +30,22 @@ function createTask(socket, data, callback) {
                 let tx = ethereumjsutil.addHexPrefix(data.tx);
                 logs.debug('Sending signed transaction: %s', tx);
 				web3.eth.sendSignedTransaction(tx)
-                    .on('transactionHash', (hash) => {
+                    .once('transactionHash', (hash) => {
                         logs.debug('transactionHash %s', hash);
-                        resolve(hash);
                     })
-                    .on('error', (err) => {
+                    .once('receipt', (receipt) => {
+                        logs.debug('receipt %j', receipt);
+                    })
+                    .on('confirmation', (confNumber, receipt) => {
+                        logs.debug('Transaction Confirmation %d', confNumber);
+                    })
+                    .on('error', (err, receipt) => {
                         logs.error(err);
-                        reject(new Error('Transaction error: %s', err));
+                        reject(new Error('Transaction error: ' + err));
+                    })
+                    .then((receipt) => {
+                        logs.debug('receipt %j', receipt);
+                        resolve(receipt);
                     });
 			});
 		},
