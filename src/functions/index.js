@@ -4,7 +4,6 @@ const logger = require('../logs')(module);
 
 let handlers = [
 	require('./callContract'),
-	require('./sendShhMessage'),
 	require('./sendRawTx'),
 	require('./readShortCode'),
 ];
