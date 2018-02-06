@@ -15,7 +15,7 @@ const hashtagItems = require('./subscriptionHashtagItems')();
 const nonce = require('./subscriptionNonce')();
 const shortcode = require('./subscriptionShortCode')();
 const txhistory = require('./subscriptionTxHistory')();
-const txReceipt = require('./subscriptionTxReceipt')();
+const txReceipt = require('./subscriptionTxReceipt');
 
 // initialize available subscriptionchannels
 let channels = {};
