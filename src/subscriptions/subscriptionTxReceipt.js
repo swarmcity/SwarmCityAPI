@@ -51,7 +51,7 @@ function getReceipt(transactionHash) {
                 let statemap = {
                     '0x0': 'Fail',
                     '0x1': 'Success',
-                }
+                };
                 res.status = statemap[receipt.status] || 'Unknown';
             }
             resolve(res);

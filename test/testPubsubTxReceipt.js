@@ -40,7 +40,7 @@ describe('Swarm City API socket client > test pubsub on \'txReceipt\'', function
 				client.emit('subscribe', {
 					channel: 'txReceipt',
 					args: {
-						transactionHash: '0xd0de9990016fbcb329d87c3f50344f3cb041edcee1968ca9965bb2e419e4e5c6',
+						transactionHash: '0xd0de9990016fbcb329d87c3f50344f3cb041edcee1968ca9965bb2e419e4e5c6', // eslint-disable-line max-len
 					},
 				}, (reply) => {
 					should(reply).have.property('response', 200);
@@ -64,7 +64,7 @@ describe('Swarm City API socket client > test pubsub on \'txReceipt\'', function
 				client.emit('subscribe', {
 					channel: 'txReceipt',
 					args: {
-						transactionHash: '0x96eb16467e45bcc37c5286712c25434f248e8e09dfca323808f75dc388fd970c',
+						transactionHash: '0x96eb16467e45bcc37c5286712c25434f248e8e09dfca323808f75dc388fd970c', // eslint-disable-line max-len
 					},
 				}, (reply) => {
 					should(reply).have.property('response', 200);
