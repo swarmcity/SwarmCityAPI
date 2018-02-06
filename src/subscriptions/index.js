@@ -15,6 +15,7 @@ const hashtagItems = require('./subscriptionHashtagItems')();
 const nonce = require('./subscriptionNonce')();
 const shortcode = require('./subscriptionShortCode')();
 const txhistory = require('./subscriptionTxHistory')();
+const txReceipt = require('./subscriptionTxReceipt')();
 
 // initialize available subscriptionchannels
 let channels = {};
@@ -25,6 +26,7 @@ channels[hashtagItems.name] = hashtagItems;
 channels[nonce.name] = nonce;
 channels[shortcode.name] = shortcode;
 channels[txhistory.name] = txhistory;
+channels[txReceipt.name] = txReceipt;
 
 // all subscriptions are kept here
 let subscriptions = {};
