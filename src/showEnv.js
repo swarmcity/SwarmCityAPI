@@ -14,7 +14,6 @@ let vars = [
     'SWTBALANCE',
     'ARC',
     'ARCBALANCE',
-    'TESTSHH',
     'TESTIPFS',
 ];
 
