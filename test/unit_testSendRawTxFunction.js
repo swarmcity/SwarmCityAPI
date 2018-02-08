@@ -63,5 +63,4 @@ describe('SendRawTxFunction', function() {
             });
         should(schedulerSpy.called).not.be.ok();
     });
-
 });

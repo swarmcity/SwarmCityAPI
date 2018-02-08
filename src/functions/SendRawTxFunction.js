@@ -6,7 +6,6 @@ const logs = require('../logs')(module);
 
 const AbstractFunction = require('./AbstractFunction');
 
-const scheduledTask = require('../scheduler/scheduledTask')();
 const ethereumjsutil = require('ethereumjs-util');
 
 /**
@@ -73,7 +72,7 @@ class SendRawTxFunction extends AbstractFunction {
                 }
                 let tx = ethereumjsutil.addHexPrefix(data.tx);
                 logs.debug('Sending signed transaction: %s', tx);
-                web3.eth.sendSignedTransaction(tx)
+                this.web3.eth.sendSignedTransaction(tx)
                     .once('transactionHash', (hash) => {
                         logs.debug('transactionHash %s', hash);
                         resolve({'transactionHash': hash});
