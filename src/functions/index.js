@@ -4,7 +4,6 @@ const logger = require('../logs')(module);
 
 let handlers = [
 	require('./callContract'),
-	require('./sendRawTx'),
 	require('./readShortCode'),
 ];
 
@@ -12,8 +11,11 @@ const scheduledTask = require('../scheduler/scheduledTask')();
 
 const ipfsService = require('../services').ipfsService;
 const IpfsCatFunction = require('./IpfsCatFunction');
+const web3 = require('../globalWeb3').web3;
+const SendRawTxFunction = require('/SendRawTxFunction');
 
 handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
+handlers.push(new SendRawTxFunction(scheduledTask, web3));
 
 /**
  * register the array of socket handlers
