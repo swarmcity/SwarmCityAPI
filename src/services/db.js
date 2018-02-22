@@ -179,6 +179,82 @@ class DBService {
             });
         });
     }
+
+    /**
+     * Save a user's transaction history.
+     *
+     * @param   {String}    pubkey  User's pubkey
+     * @param   {Object}    transactionHistory  User's transaction history
+     * @return  {Promise}   promise
+     */
+    setTransactionHistory(pubkey, transactionHistory) {
+        let key = pubkey + '-transactionHistory';
+        let val = {
+            pubkey: pubkey,
+            lastUpdate: (new Date).getTime(),
+            lastRead: (new Date).getTime(),
+            transactionHistory: transactionHistory,
+        };
+        logger.info('Storing %j at %s', val, key);
+        return this.db.put(key, JSON.stringify(val));
+    }
+
+    /**
+     * Get an empty txHistory.
+     *
+     * @param   {String}    pubkey  User's pubkey
+     * @return  {Object}    Default txHistory
+     */
+    _getEmptyTxHistory(pubkey) {
+        return {
+            pubkey: pubkey,
+            lastUpdate: (new Date).getTime(),
+            lastRead: (new Date).getTime(),
+            transactionHistory: [],
+        };
+    }
+
+    /**
+     * Get a user's transactionHistory and some metadata.
+     *
+     * @param   {String}    pubkey  User's pubkey
+     * @return  {Promise}   A promise that resolves to an object containing a
+     *                      user's transactionHistory and some metadata, such as 
+     *                      the time it was last updated. Or rejects when an
+     *                      error occurs.
+     */
+    getTransactionHistory(pubkey) {
+        logger.debug('Getting history for %s', pubkey);
+        return new Promise((resolve, reject) => {
+            let key = pubkey + '-transactionHistory';
+            this.db.get(key).then((val) => {
+                logger.debug('Going to parse %s', val);
+                try {
+                    let history = JSON.parse(val) || this._getEmptyTxHistory(pubkey);
+                    //This is a weird workaround, without it the error below
+                    //does not get triggered for null values.
+                    //history.pubkey = pubkey;
+                    //TODO update database with lastRead value
+                    resolve(history);
+                } catch (e) {
+                    logger.error(
+                        'Cannot parse transactionHistory data from DB for %s. Data: %s. Error: %j',
+                        pubkey,
+                        val,
+                        e
+                    );
+                    resolve(this._getEmptyTxHistory(pubkey));
+                }
+            }).catch((error) => {
+                logger.error(JSON.stringify(error));
+                if (error.notFound) {
+                    logger.error('key %s not found (yet) in DB.', key);
+                    resolve(this._getEmptyTxHistory(pubkey));
+                }
+                reject(new Error(error));
+            });
+        });
+    }
 }
 
 module.exports = {
