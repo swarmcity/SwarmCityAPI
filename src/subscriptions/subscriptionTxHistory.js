@@ -3,9 +3,97 @@
  */
 'use strict';
 const logger = require('../logs.js')(module);
+const validate = require('../validators');
 const jsonHash = require('json-hash');
+const scheduledTask = require('../scheduler/scheduledTask')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
-// const web3 = require('../globalWeb3').web3;
+const web3 = require('../globalWeb3').web3;
+
+const dbService = require('../services').dbService;
+
+const swtContract = require('../contracts/miniMeToken.json');
+const swtContractInstance = new web3.eth.Contract(
+    swtContract.abi,
+    process.env.SWT
+);
+
+/**
+ * @param   {Object}    log     Log of a token transfer as returned by the
+ *                              contract.
+ * @param   {String}    direction   in or out
+ * @param   {Number}    blockHeight Height of the current block
+ * @return  {Object}    Promise that resolves to a SWT log.
+ */
+async function createTransferLog(log, direction, blockHeight) {
+    let block;
+
+    block = await web3.eth.getBlock(log.blockNumber);
+
+    return {
+        'blockNumber': log.blockNumber,
+        'dateTime': block.timestamp,
+        'direction': direction,
+        'amount': log.returnValues._amount / 10 ** 18,
+        'symbol': 'SWT',
+        'from': log.returnValues._from,
+        'to': log.returnValues._to,
+        'confirmed': blockHeight - log.blockNumber >= 12,
+    };
+}
+
+/**
+ * @param   {String}    address     Address being queried for the logs
+ * @param   {String}    direction   in or out
+ * @param   {Number}    startBlock  Startblock of the SWT contract
+ * @param   {Number}    blockNumber Height of the current block
+ * @return  {Array}     Array of objects that will resolve to SWT transfer logs.
+ */
+async function createLogsForDirection(address, direction, startBlock, blockNumber) {
+    let logs;
+
+    let filterParam = (direction == 'in' ) ? '_to' : '_from';
+
+    logs = swtContractInstance.getPastEvents('Transfer', {
+        'fromBlock': web3.utils.toHex(startBlock),
+        'toBlock': blockNumber,
+        'filter': {[filterParam]: address},
+    });
+
+    let mapped = logs.map((log) => {
+        return createTransferLog(log, direction, blockNumber);
+    });
+    return mapped;
+}
+
+/**
+ * Get all logs up to the current block for a certain address.
+ *
+ * @param   {String}    address     Address we want the logs for
+ * @param   {Number}    endBlock    Block up to which we fetch logs
+ * @return  {Array}     Array of objects that will resolve to SWT transfer logs.
+ */
+async function getPastTransactionHistory(address, endBlock) {
+    let startBlock = process.env.SWTSTARTBLOCK;
+    let blockNumber = endBlock;
+
+    logger.info(
+        'Creating txHistory for %s from block %d to %d',
+        address,
+        startBlock,
+        blockNumber
+    );
+
+    let transferLogs = [];
+
+    transferLogs = transferLogs.concat(
+        await createLogsForDirection(address, 'out', startBlock, blockNumber)
+    );
+    transferLogs = transferLogs.concat(
+        await createLogsForDirection(address, 'in', startBlock, blockNumber)
+    );
+
+    return transferLogs;
+}
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
@@ -14,7 +102,7 @@ const blockHeaderTask = require('../scheduler/blockHeaderTask')();
  * @return     {Promise}  result of removing the task (no return value)
  */
 function cancelSubscription(task) {
-	return Promise.resolve();
+    return dbService.deleteTransactionHistory(task.data.address);
 }
 
 /**
@@ -25,43 +113,62 @@ function cancelSubscription(task) {
  * @return     {Promise}  	resolves with the subscription object
  */
 function createSubscription(emitToSubscriber, args) {
-	// create task
-	let _task = {
-		func: (task) => {
-			return new Promise((resolve, reject) => {
-				resolve([{
-					timeDate: 234234234,
-					direction: 'in',
-					amount: 666 + task.data.count,
-					symbol: 'SWT',
-					from: '0x0',
-					to: '0x0',
-					confirmations: 1,
-				}, {
-					timeDate: 234234234,
-					direction: 'out',
-					amount: 69,
-					symbol: 'SWT',
-					from: '0x0',
-					to: '0x0',
-					confirmations: 60 + task.data.count,
-				}]);
-			});
+	// check arguments
+	if (!args || !args.address || !validate.isAddress(args.address)) {
+		return Promise.reject('Cannot subscribe to a transactionHistory without a valid address.');
+	}
+	logger.info('Subscribing to transactionHistory for %s', args.address);
+
+    // run a task that gets the past tx history for this pubkey
+    let _getPastTxHistoryTask = {
+        name: 'getPastTxHistoryTask',
+        func: async (task) => {
+            let endBlock = await web3.eth.getBlockNumber();
+            getPastTransactionHistory(task.data.address, endBlock).then((txLog) => {
+                Promise.all(txLog).then((values) => {
+                    let txHistory = [];
+
+                    values.forEach((log) => {
+                        txHistory.push(log);
+                    });
+
+                    return dbService.setTransactionHistory(task.data.address, endBlock, txHistory);
+                });
+            });
+        },
+        data: {
+            address: args.address,
+        },
+    };
+    scheduledTask.addTask(_getPastTxHistoryTask);
+
+    // create task
+    let _task = {
+        func: (task) => {
+            return Promise.resolve(
+                dbService.getTransactionHistory(task.data.address).then((res) => {
+                    if (!task.data.lastReplyHash) {
+                        let replyHash = jsonHash.digest(res);
+                        task.data.lastReplyHash = replyHash;
+                        logger.debug('no lastReplyhash, setting it to %s', replyHash);
+                    }
+                    return (res);
+                })
+            );
 		},
 		responsehandler: (res, task) => {
 			let responseHash = jsonHash.digest(res);
 			if (task.data.lastResponse !== responseHash) {
 				logger.debug('received modified response RES=%j', res);
-				emitToSubscriber('txhistoryChanged', res);
-				task.data.lastResponse = responseHash;
+				emitToSubscriber('txHistoryChanged', res);
+				task.data.lastReplyhash = responseHash;
 			} else {
 				logger.info('Data hasn\'t changed.');
 			}
-			task.data.count++;
 			return blockHeaderTask.addTask(task);
 		},
 		data: {
-			count: 1,
+			address: args.address,
 		},
 	};
 	blockHeaderTask.addTask(_task);
@@ -77,7 +184,7 @@ function createSubscription(emitToSubscriber, args) {
 
 module.exports = function() {
 	return ({
-		name: 'txhistory',
+		name: 'txHistory',
 		createSubscription: createSubscription,
 	});
 };

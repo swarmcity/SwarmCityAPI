@@ -181,18 +181,32 @@ class DBService {
     }
 
     /**
+     * Delete a user's transaction history
+     *
+     * @param   {String}    pubkey      User's pubkey
+     * @return  {Promise}   Promise
+     */
+    deleteTransactionHistory(pubkey) {
+        let key = pubkey + '-transactionHistory';
+        return this.db.del(key);
+    }
+
+    /**
      * Save a user's transaction history.
      *
-     * @param   {String}    pubkey  User's pubkey
+     * @param   {String}    pubkey      User's pubkey
+     * @param   {Number}    endBlock    Last block that was included in this
+     *                                  history.
      * @param   {Object}    transactionHistory  User's transaction history
      * @return  {Promise}   promise
      */
-    setTransactionHistory(pubkey, transactionHistory) {
+    setTransactionHistory(pubkey, endBlock, transactionHistory) {
         let key = pubkey + '-transactionHistory';
         let val = {
             pubkey: pubkey,
             lastUpdate: (new Date).getTime(),
             lastRead: (new Date).getTime(),
+            endBlock: endBlock,
             transactionHistory: transactionHistory,
         };
         logger.info('Storing %j at %s', val, key);
@@ -210,6 +224,7 @@ class DBService {
             pubkey: pubkey,
             lastUpdate: (new Date).getTime(),
             lastRead: (new Date).getTime(),
+            endBlock: process.env.SWTSTARTBLOCK,
             transactionHistory: [],
         };
     }
@@ -219,7 +234,7 @@ class DBService {
      *
      * @param   {String}    pubkey  User's pubkey
      * @return  {Promise}   A promise that resolves to an object containing a
-     *                      user's transactionHistory and some metadata, such as 
+     *                      user's transactionHistory and some metadata, such as
      *                      the time it was last updated. Or rejects when an
      *                      error occurs.
      */
@@ -231,10 +246,10 @@ class DBService {
                 logger.debug('Going to parse %s', val);
                 try {
                     let history = JSON.parse(val) || this._getEmptyTxHistory(pubkey);
-                    //This is a weird workaround, without it the error below
-                    //does not get triggered for null values.
-                    //history.pubkey = pubkey;
-                    //TODO update database with lastRead value
+                    // This is a weird workaround, without it the error below
+                    // does not get triggered for null values.
+                    // history.pubkey = pubkey;
+                    // TODO update database with lastRead value
                     resolve(history);
                 } catch (e) {
                     logger.error(

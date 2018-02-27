@@ -421,7 +421,6 @@ describe('services/db/DBService', function() {
 
 
     describe('getTransactionHistory()', function() {
-
         it('should return an empty list when the database contains invalid data', function() {
             let mockDB = {
                 get: function(key) {},
@@ -446,6 +445,7 @@ describe('services/db/DBService', function() {
                     should(history.pubkey).be.equal(pubkey);
                     should(history).have.ownProperty('lastUpdate');
                     should(history).have.ownProperty('lastRead');
+                    should(history).have.ownProperty('endBlock');
                     should(history).have.ownProperty('transactionHistory');
                     should(history.transactionHistory).be.Array;
                 });
@@ -477,6 +477,7 @@ describe('services/db/DBService', function() {
                     should(history.pubkey).be.equal(pubkey);
                     should(history).have.ownProperty('lastUpdate');
                     should(history).have.ownProperty('lastRead');
+                    should(history).have.ownProperty('endBlock');
                     should(history).have.ownProperty('transactionHistory');
                     should(history.transactionHistory).be.Array;
                 });
@@ -508,6 +509,7 @@ describe('services/db/DBService', function() {
                     should(history.pubkey).be.equal(pubkey);
                     should(history).have.ownProperty('lastUpdate');
                     should(history).have.ownProperty('lastRead');
+                    should(history).have.ownProperty('endBlock');
                     should(history).have.ownProperty('transactionHistory');
                     should(history.transactionHistory).be.Array;
                 });
@@ -583,7 +585,7 @@ describe('services/db/DBService', function() {
                 confirmations: 60,
             }];
 
-            dbService.setTransactionHistory(pubkey, history);
+            dbService.setTransactionHistory(pubkey, 9876, history);
             let key = pubkey + '-transactionHistory';
             should(spy.calledWith(key)).be.ok();
         });

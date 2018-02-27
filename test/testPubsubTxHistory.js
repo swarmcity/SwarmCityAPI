@@ -36,9 +36,9 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 		for (let i = 0; i < 1; i++) {
 			promises.push(new Promise((resolve, reject) => {
 				client.emit('subscribe', {
-					channel: 'txhistory',
+					channel: 'txHistory',
 					args: {
-						address: '0x7018d8f698bfa076e1bdc916e2c64caddc750944',
+						address: process.env.SWTBALANCE,
 					},
 				}, (data) => {
 					should(data).have.property('response', 200);
@@ -52,24 +52,25 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 			}));
 		}
 
-		Promise.all(promises).then(() => {
-			done();
-		}).catch((err) => {
-			logger.info(err);
-			done();
-		});
-	});
+        Promise.all(promises).then(() => {
+            done();
+        }).catch((err) => {
+            logger.info(err);
+            done();
+        });
+    });
 
-	// it('should wait a while for a block', (done) => {
-	// 	// listen to updates....
-	// 	client.on('txhistoryChanged', (data) => {
-	// 		logger.info('txhistoryChanged');
-	// 		logger.info('received txhistory update...', data);
-	// 	});
+    it('should wait a while for a block', (done) => {
+        // listen to updates....
+        client.on('txHistoryChanged', (data) => {
+            logger.info('txHistoryChanged');
+            logger.info('received txhistory update...', data);
+        });
 
-	// setTimeout(() => {
-	// 	done();
-	// }, 1 * 1000);
+        setTimeout(() => {
+            done();
+        }, 15 * 1000);
+    });
 
 
 	it('should unsubscribe / receive a confirmation', (done) => {
