@@ -30,6 +30,7 @@ async function createTransferLog(log, direction, blockHeight) {
     block = await web3.eth.getBlock(log.blockNumber);
 
     return {
+        'transactionHash': log.transactionHash,
         'blockNumber': log.blockNumber,
         'dateTime': block.timestamp,
         'direction': direction,
@@ -115,7 +116,9 @@ function cancelSubscription(task) {
 function createSubscription(emitToSubscriber, args) {
 	// check arguments
 	if (!args || !args.publicKey || !validate.isAddress(args.publicKey)) {
-		return Promise.reject('Cannot subscribe to a transactionHistory without a valid publicKey.');
+		return Promise.reject(
+            'Cannot subscribe to a transactionHistory without a valid publicKey.'
+        );
 	}
 	logger.info('Subscribing to transactionHistory for %s', args.publicKey);
 
@@ -132,7 +135,11 @@ function createSubscription(emitToSubscriber, args) {
                         txHistory.push(log);
                     });
 
-                    return dbService.setTransactionHistory(task.data.publicKey, endBlock, txHistory);
+                    return dbService.setTransactionHistory(
+                        task.data.publicKey,
+                        endBlock,
+                        txHistory
+                    );
                 });
             });
         },
