@@ -43,25 +43,27 @@ async function createTransferLog(log, direction, blockHeight) {
 }
 
 /**
+ * Create incoming or outgoing logs in a block range
+ *
  * @param   {String}    publicKey   publicKey being queried for the logs
  * @param   {String}    direction   in or out
- * @param   {Number}    startBlock  Startblock of the SWT contract
- * @param   {Number}    blockNumber Height of the current block
+ * @param   {Number}    startBlock  Start querying from here
+ * @param   {Number}    endBlock    Stop querying here
  * @return  {Array}     Array of objects that will resolve to SWT transfer logs.
  */
-async function createLogsForDirection(publicKey, direction, startBlock, blockNumber) {
+async function createLogsForDirection(publicKey, direction, startBlock, endBlock) {
     let logs;
 
     let filterParam = (direction == 'in' ) ? '_to' : '_from';
 
     logs = swtContractInstance.getPastEvents('Transfer', {
         'fromBlock': web3.utils.toHex(startBlock),
-        'toBlock': blockNumber,
+        'toBlock': web3.utils.toHex(endBlock),
         'filter': {[filterParam]: publicKey},
     });
 
     let mapped = logs.map((log) => {
-        return createTransferLog(log, direction, blockNumber);
+        return createTransferLog(log, direction, endBlock);
     });
     return mapped;
 }
@@ -70,27 +72,25 @@ async function createLogsForDirection(publicKey, direction, startBlock, blockNum
  * Get all logs up to the current block for a certain publicKey.
  *
  * @param   {String}    publicKey   publicKey we want the logs for
+ * @param   {Number}    startBlock  Block starting from which to fetch logs
  * @param   {Number}    endBlock    Block up to which we fetch logs
  * @return  {Array}     Array of objects that will resolve to SWT transfer logs.
  */
-async function getPastTransactionHistory(publicKey, endBlock) {
-    let startBlock = process.env.SWTSTARTBLOCK;
-    let blockNumber = endBlock;
-
+async function getTransactionHistory(publicKey, startBlock, endBlock) {
     logger.info(
         'Creating txHistory for %s from block %d to %d',
         publicKey,
         startBlock,
-        blockNumber
+        endBlock
     );
 
     let transferLogs = [];
 
     transferLogs = transferLogs.concat(
-        await createLogsForDirection(publicKey, 'out', startBlock, blockNumber)
+        await createLogsForDirection(publicKey, 'out', startBlock, endBlock)
     );
     transferLogs = transferLogs.concat(
-        await createLogsForDirection(publicKey, 'in', startBlock, blockNumber)
+        await createLogsForDirection(publicKey, 'in', startBlock, endBlock)
     );
 
     return transferLogs;
@@ -126,11 +126,11 @@ function createSubscription(emitToSubscriber, args) {
     let _getPastTxHistoryTask = {
         name: 'getPastTxHistoryTask',
         func: async (task) => {
+            let startBlock = process.env.SWTSTARTBLOCK;
             let endBlock = await web3.eth.getBlockNumber();
-            getPastTransactionHistory(task.data.publicKey, endBlock).then((txLog) => {
+            getTransactionHistory(task.data.publicKey, startBlock, endBlock).then((txLog) => {
+                let txHistory = [];
                 Promise.all(txLog).then((values) => {
-                    let txHistory = [];
-
                     values.forEach((log) => {
                         txHistory.push(log);
                     });
@@ -151,21 +151,45 @@ function createSubscription(emitToSubscriber, args) {
 
     // create task
     let _task = {
-        func: (task) => {
-            return Promise.resolve(
-                dbService.getTransactionHistory(task.data.publicKey).then((res) => {
-                    if (!task.data.lastReplyHash) {
-                        let replyHash = jsonHash.digest(res);
-                        task.data.lastReplyHash = replyHash;
-                        logger.debug('no lastReplyhash, setting it to %s', replyHash);
-                    }
-                    return (res);
-                })
-            );
+        func: async (task) => {
+            let result = {};
+            result = await dbService.getTransactionHistory(task.data.publicKey);
+
+            if (!task.data.lastReplyHash) {
+                let replyHash = jsonHash.digest(result.transactionHistory);
+                task.data.lastReplyHash = replyHash;
+                logger.debug('no lastReplyhash, setting it to %s', replyHash);
+            }
+
+            let startBlock = result.endBlock + 1;
+            let endBlock = await web3.eth.getBlockNumber();
+            if (startBlock < endBlock) {
+                // Let's see if anything happened in this blockrange
+                let txLog = [];
+                txLog = await getTransactionHistory(task.data.publicKey, startBlock, endBlock);
+
+                let transactionHistory = result.transactionHistory;
+
+                await Promise.all(txLog);
+
+                if (txLog.length > 0) {
+                    // Our user did something, update the database
+                    txLog.forEach((log) => {
+                        transactionHistory.push(log);
+                    });
+                    await dbService.setTransactionHistory(
+                        task.data.publicKey,
+                        endBlock,
+                        transactionHistory
+                    );
+                    result = await dbService.getTransactionHistory(task.data.publicKey);
+                }
+            }
+            return result.transactionHistory;
 		},
 		responsehandler: (res, task) => {
 			let responseHash = jsonHash.digest(res);
-			if (task.data.lastResponse !== responseHash) {
+			if (task.data.lastReplyHash !== responseHash) {
 				logger.debug('received modified response RES=%j', res);
 				emitToSubscriber('txHistoryChanged', res);
 				task.data.lastReplyhash = responseHash;

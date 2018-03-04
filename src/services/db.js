@@ -224,7 +224,7 @@ class DBService {
             pubkey: pubkey,
             lastUpdate: (new Date).getTime(),
             lastRead: (new Date).getTime(),
-            endBlock: process.env.SWTSTARTBLOCK,
+            endBlock: process.env.SWTSTARTBLOCK - 1,
             transactionHistory: [],
         };
     }
