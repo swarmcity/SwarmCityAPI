@@ -233,7 +233,7 @@ function createSubscription(emitToSubscriber, args) {
 			if (task.data.lastReplyHash !== replyHash) {
 				logger.debug('received modified response RES=%j', res);
 				emitToSubscriber('txHistoryChanged', res);
-				task.data.lastReplyhash = replyHash;
+				task.data.lastReplyHash = replyHash;
 			} else {
 				logger.info('Data hasn\'t changed.');
 			}
