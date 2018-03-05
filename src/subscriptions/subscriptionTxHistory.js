@@ -97,6 +97,41 @@ async function getTransactionHistory(publicKey, startBlock, endBlock) {
 }
 
 /**
+ * Check every log and try to confirm it if not already confirmed.
+ *
+ * @param   {Array}     transactionHistory  Log of all transactions undertaken
+ *                                          by a user.
+ * @param   {Number}    currentBlock        Number of the current block
+ * @return  {Array}     All transactions with the confirmed value updated.
+ */
+function updateConfirmations(transactionHistory, currentBlock) {
+    return transactionHistory.map((log) => {
+        if (!log.confirmed) {
+            log.confirmed = currentBlock - log.blockNumber >= 12;
+        }
+        return log;
+    });
+}
+
+/**
+ * Sort the log chronologically.
+ * @param   {Array}     transactionHistory  Log of all transactions undertaken
+ *                                          by a user.
+ * @return  {Array}     All transactions sorted chronologically.
+ */
+function sortLog(transactionHistory) {
+    return transactionHistory.sort((a, b) => {
+        let comp = 0;
+        if (a.dateTime > b.dateTime) {
+            comp = -1;
+        } else if (a.dateTime < b.dateTime) {
+            comp = 1;
+        }
+        return comp;
+    });
+}
+
+/**
  * clean up a task from the scheduler when socket wants to unsubscribe
  *
  * @param      {Object}   task    The task
@@ -128,20 +163,24 @@ function createSubscription(emitToSubscriber, args) {
         func: async (task) => {
             let startBlock = process.env.SWTSTARTBLOCK;
             let endBlock = await web3.eth.getBlockNumber();
-            getTransactionHistory(task.data.publicKey, startBlock, endBlock).then((txLog) => {
-                let txHistory = [];
-                Promise.all(txLog).then((values) => {
-                    values.forEach((log) => {
-                        txHistory.push(log);
-                    });
 
-                    return dbService.setTransactionHistory(
-                        task.data.publicKey,
-                        endBlock,
-                        txHistory
-                    );
-                });
+            let txLog = [];
+            txLog = await getTransactionHistory(task.data.publicKey, startBlock, endBlock);
+
+            let txHistory = [];
+            await Promise.all(txLog);
+
+            txLog.forEach((log) => {
+                txHistory.push(log);
             });
+
+            txHistory = sortLog(txHistory);
+
+            return dbService.setTransactionHistory(
+                task.data.publicKey,
+                endBlock,
+                txHistory
+            );
         },
         data: {
             publicKey: args.publicKey,
@@ -177,6 +216,7 @@ function createSubscription(emitToSubscriber, args) {
                     txLog.forEach((log) => {
                         transactionHistory.push(log);
                     });
+                    transactionHistory = sortLog(transactionHistory);
                     await dbService.setTransactionHistory(
                         task.data.publicKey,
                         endBlock,
@@ -185,14 +225,15 @@ function createSubscription(emitToSubscriber, args) {
                     result = await dbService.getTransactionHistory(task.data.publicKey);
                 }
             }
+            result.transactionHistory = updateConfirmations(result.transactionHistory, endBlock);
             return result.transactionHistory;
 		},
 		responsehandler: (res, task) => {
-			let responseHash = jsonHash.digest(res);
-			if (task.data.lastReplyHash !== responseHash) {
+			let replyHash = jsonHash.digest(res);
+			if (task.data.lastReplyHash !== replyHash) {
 				logger.debug('received modified response RES=%j', res);
 				emitToSubscriber('txHistoryChanged', res);
-				task.data.lastReplyhash = responseHash;
+				task.data.lastReplyhash = replyHash;
 			} else {
 				logger.info('Data hasn\'t changed.');
 			}
