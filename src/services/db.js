@@ -244,13 +244,9 @@ class DBService {
             let key = pubkey + '-transactionHistory';
             this.db.get(key).then((val) => {
                 logger.debug('Going to parse %s', val);
+                let history;
                 try {
-                    let history = JSON.parse(val) || this._getEmptyTxHistory(pubkey);
-                    // This is a weird workaround, without it the error below
-                    // does not get triggered for null values.
-                    // history.pubkey = pubkey;
-                    // TODO update database with lastRead value
-                    resolve(history);
+                    history = JSON.parse(val) || this._getEmptyTxHistory(pubkey);
                 } catch (e) {
                     logger.error(
                         'Cannot parse transactionHistory data from DB for %s. Data: %s. Error: %j',
@@ -258,8 +254,17 @@ class DBService {
                         val,
                         e
                     );
-                    resolve(this._getEmptyTxHistory(pubkey));
+                    history = this._getEmptyTxHistory(pubkey);
                 }
+                history.lastRead = (new Date).getTime();
+                this.db.put(key, JSON.stringify(history)).then(() => {
+                    logger.debug(history);
+                    resolve(history);
+                }).catch((err) => {
+                    logger.error('Could not update lastRead value because: %s', err);
+                    logger.debug(history);
+                    resolve(history);
+                });
             }).catch((error) => {
                 logger.error(JSON.stringify(error));
                 if (error.notFound) {

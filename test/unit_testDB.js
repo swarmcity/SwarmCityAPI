@@ -424,9 +424,11 @@ describe('services/db/DBService', function() {
         it('should return an empty list when the database contains invalid data', function() {
             let mockDB = {
                 get: function(key) {},
+                put: function(key, value) {}
             };
 
-            let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve('{]'));
+            let spy_get = sinon.stub(mockDB, 'get').returns(Promise.resolve('{]'));
+            let spy_put = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
                 mockDB,
@@ -450,15 +452,18 @@ describe('services/db/DBService', function() {
                     should(history.transactionHistory).be.Array;
                 });
             let key = pubkey + '-transactionHistory';
-            should(spy.calledWith(key)).be.ok();
+            should(spy_get.calledWith(key)).be.ok();
+            should(spy_put.calledOnce);
         });
 
         it('should return an empty list when the database contains null', function() {
             let mockDB = {
                 get: function(key) {},
+                put: function(key, value) {}
             };
 
-            let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
+            let spy_get = sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
+            let spy_put = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
                 mockDB,
@@ -482,15 +487,18 @@ describe('services/db/DBService', function() {
                     should(history.transactionHistory).be.Array;
                 });
             let key = pubkey + '-transactionHistory';
-            should(spy.calledWith(key)).be.ok();
+            should(spy_get.calledWith(key)).be.ok();
+            should(spy_put.calledOnce);
         });
 
         it('should return an empty list when there is nothing in the database', function() {
             let mockDB = {
                 get: function(key) {},
+                put: function(key, value) {}
             };
 
-            let spy = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
+            let spy_get = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
+            let spy_put = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
                 mockDB,
@@ -514,7 +522,52 @@ describe('services/db/DBService', function() {
                     should(history.transactionHistory).be.Array;
                 });
             let key = pubkey + '-transactionHistory';
-            should(spy.calledWith(key)).be.ok();
+            should(spy_get.calledWith(key)).be.ok();
+            should(spy_put.calledOnce);
+        });
+
+        it('should return data when there is something in the database', function() {
+            let mockDB = {
+                get: function(key) {},
+                put: function(key, value) {}
+            };
+
+            let pubkey = '0x123456789';
+
+            let history_before_read = {
+                pubkey: pubkey,
+                lastUpdate: (new Date).getTime(),
+                lastRead: (new Date).getTime(),
+                endBlock: 123456,
+                transactionHistory: [],
+            };
+
+            let spy_get = sinon.stub(mockDB, 'get').returns(Promise.resolve(JSON.stringify(history_before_read)));
+            let spy_put = sinon.stub(mockDB, 'put').returns(Promise.resolve());
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService
+                .getTransactionHistory(pubkey)
+                .then((history) => {
+                    should(history).be.Object;
+                    should(history).have.ownProperty('pubkey');
+                    should(history.pubkey).be.equal(pubkey);
+                    should(history).have.ownProperty('lastUpdate');
+                    should(history).have.ownProperty('lastRead');
+                    should(history.lastRead).be.greaterThan(history_before_read.lastRead);
+                    should(history).have.ownProperty('endBlock');
+                    should(history).have.ownProperty('transactionHistory');
+                    should(history.transactionHistory).be.Array;
+                });
+            let key = pubkey + '-transactionHistory';
+            should(spy_get.calledWith(key)).be.ok();
+            should(spy_put.calledOnce);
         });
 
         it('should reject on DB lookup failure', function() {
