@@ -424,11 +424,11 @@ describe('services/db/DBService', function() {
         it('should return an empty list when the database contains invalid data', function() {
             let mockDB = {
                 get: function(key) {},
-                put: function(key, value) {}
+                put: function(key, value) {},
             };
 
-            let spy_get = sinon.stub(mockDB, 'get').returns(Promise.resolve('{]'));
-            let spy_put = sinon.stub(mockDB, 'put').returns(Promise.resolve());
+            let spyGet = sinon.stub(mockDB, 'get').returns(Promise.resolve('{]'));
+            let spyPut = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
                 mockDB,
@@ -452,18 +452,18 @@ describe('services/db/DBService', function() {
                     should(history.transactionHistory).be.Array;
                 });
             let key = pubkey + '-transactionHistory';
-            should(spy_get.calledWith(key)).be.ok();
-            should(spy_put.calledOnce);
+            should(spyGet.calledWith(key)).be.ok();
+            should(spyPut.calledOnce);
         });
 
         it('should return an empty list when the database contains null', function() {
             let mockDB = {
                 get: function(key) {},
-                put: function(key, value) {}
+                put: function(key, value) {},
             };
 
-            let spy_get = sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
-            let spy_put = sinon.stub(mockDB, 'put').returns(Promise.resolve());
+            let spyGet = sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
+            let spyPut = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
                 mockDB,
@@ -487,18 +487,18 @@ describe('services/db/DBService', function() {
                     should(history.transactionHistory).be.Array;
                 });
             let key = pubkey + '-transactionHistory';
-            should(spy_get.calledWith(key)).be.ok();
-            should(spy_put.calledOnce);
+            should(spyGet.calledWith(key)).be.ok();
+            should(spyPut.calledOnce);
         });
 
         it('should return an empty list when there is nothing in the database', function() {
             let mockDB = {
                 get: function(key) {},
-                put: function(key, value) {}
+                put: function(key, value) {},
             };
 
-            let spy_get = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
-            let spy_put = sinon.stub(mockDB, 'put').returns(Promise.resolve());
+            let spyGet = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
+            let spyPut = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
                 mockDB,
@@ -522,19 +522,19 @@ describe('services/db/DBService', function() {
                     should(history.transactionHistory).be.Array;
                 });
             let key = pubkey + '-transactionHistory';
-            should(spy_get.calledWith(key)).be.ok();
-            should(spy_put.calledOnce);
+            should(spyGet.calledWith(key)).be.ok();
+            should(spyPut.calledOnce);
         });
 
         it('should return data when there is something in the database', function() {
             let mockDB = {
                 get: function(key) {},
-                put: function(key, value) {}
+                put: function(key, value) {},
             };
 
             let pubkey = '0x123456789';
 
-            let history_before_read = {
+            let historyBeforeRead = {
                 pubkey: pubkey,
                 lastUpdate: (new Date).getTime(),
                 lastRead: (new Date).getTime(),
@@ -542,8 +542,10 @@ describe('services/db/DBService', function() {
                 transactionHistory: [],
             };
 
-            let spy_get = sinon.stub(mockDB, 'get').returns(Promise.resolve(JSON.stringify(history_before_read)));
-            let spy_put = sinon.stub(mockDB, 'put').returns(Promise.resolve());
+            let spyGet = sinon.stub(mockDB, 'get').returns(
+                Promise.resolve(JSON.stringify(historyBeforeRead))
+            );
+            let spyPut = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
                 mockDB,
@@ -560,14 +562,14 @@ describe('services/db/DBService', function() {
                     should(history.pubkey).be.equal(pubkey);
                     should(history).have.ownProperty('lastUpdate');
                     should(history).have.ownProperty('lastRead');
-                    should(history.lastRead).be.greaterThan(history_before_read.lastRead);
+                    should(history.lastRead).be.greaterThan(historyBeforeRead.lastRead);
                     should(history).have.ownProperty('endBlock');
                     should(history).have.ownProperty('transactionHistory');
                     should(history.transactionHistory).be.Array;
                 });
             let key = pubkey + '-transactionHistory';
-            should(spy_get.calledWith(key)).be.ok();
-            should(spy_put.calledOnce);
+            should(spyGet.calledWith(key)).be.ok();
+            should(spyPut.calledOnce);
         });
 
         it('should reject on DB lookup failure', function() {
