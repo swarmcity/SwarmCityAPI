@@ -27,7 +27,17 @@ const swtContractInstance = new web3.eth.Contract(
 async function createTransferLog(log, direction, blockHeight) {
     let block;
 
-    block = await web3.eth.getBlock(log.blockNumber);
+    try {
+        block = await web3.eth.getBlock(log.blockNumber);
+    } catch (e) {
+        logger.error(
+            'Unable to fetch block to determine time of block. Error: %s',
+            e
+        );
+        block = {
+            'dateTime': (new Date).getTime(),
+        };
+    }
 
     return {
         'transactionHash': log.transactionHash,
