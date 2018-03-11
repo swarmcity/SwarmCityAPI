@@ -172,7 +172,7 @@ function createSubscription(emitToSubscriber, args) {
         name: 'getPastTxHistoryTask',
         func: async (task) => {
             let startBlock = process.env.SWTSTARTBLOCK;
-            let endBlock = await web3.eth.getBlockNumber();
+            let endBlock = blockHeaderTask.getBlockNumber(task);
 
             let txLog = [];
             txLog = await getTransactionHistory(task.data.publicKey, startBlock, endBlock);
