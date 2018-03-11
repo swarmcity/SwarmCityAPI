@@ -28,7 +28,7 @@ describe('getBlockNumber', function() {
             data: {},
         };
         let blockNumber = blockHeaderTask.getBlockNumber(task);
-        should(blockNumber).be.equal(0);
+        should(blockNumber).be.a.Number;
     });
 
 	it('should return the blockNumber from the module if no data', function() {
@@ -37,11 +37,11 @@ describe('getBlockNumber', function() {
             responsehandler: () => {},
         };
         let blockNumber = blockHeaderTask.getBlockNumber(task);
-        should(blockNumber).be.equal(0);
+        should(blockNumber).be.a.Number;
     });
 
 	it('should return the blockNumber from the module if no task', function() {
         let blockNumber = blockHeaderTask.getBlockNumber();
-        should(blockNumber).be.equal(0);
+        should(blockNumber).be.a.Number;
     });
 });
