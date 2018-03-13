@@ -13,6 +13,20 @@ let tasks = [];
 let blockNumber = 0;
 
 /**
+ * Gets the blockNumber for a blockHeaderTask
+ *
+ * @param   {Object}    task    A task that's being run as blockHeaderTask
+ * @return  {Number}   blockNumber
+ */
+function getBlockNumber(task) {
+    if (task && task.data && task.data.blockNumber) {
+        return task.data.blockNumber;
+    } else {
+        return blockNumber;
+    }
+}
+
+/**
  * checks if the tasks queue is empty or not - and switch the WEB3 listener
  * accordinly on or off
  */
@@ -53,6 +67,7 @@ function startListening() {
 				let task;
 				while (task = tasks.shift()) {
                     logger.debug('Adding new task %s to queue', task.id);
+                    task.data.blockNumber = blockNumber;
 					workerQueue.push(task, task.responsehandler);
 				}
 				checkListenerState();
@@ -137,6 +152,7 @@ function status() {
 
 module.exports = function() {
 	return ({
+        getBlockNumber: getBlockNumber,
 		addTask: addTask,
 		removeTask: removeTask,
 		removeTasks: removeTasks,

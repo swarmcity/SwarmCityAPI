@@ -23,15 +23,6 @@ function cancelSubscription(task) {
 }
 
 /**
- * Gets the block height from the blockchain
- *
- * @return     {Promise}  The block height.
- */
-function getBlockHeight() {
-	return web3.eth.getBlockNumber();
-}
-
-/**
  * @param   {String}    transactionHash
  * @return  {Promise}   A promise that resolves a modified receipt or rejects
  *                      with an error.
@@ -88,14 +79,12 @@ function createSubscription(emitToSubscriber, args) {
         name: 'txReceipt',
         func: (task) => {
             return new Promise((resolve, reject) => {
-                let promises = [getReceipt(task.data.transactionHash), getBlockHeight()];
-                Promise.all(promises).then((values) => {
-                    let res = values[0];
-                    let blockHeight = values[1];
+                let currentBlock = blockHeaderTask.getBlockNumber(task);
+                getReceipt(task.data.transactionHash).then((res) => {
                     if (!res.receipt.blockNumber) {
                         res.confirmations = 0;
                     } else {
-                        res.confirmations = blockHeight - res.receipt.blockNumber;
+                        res.confirmations = currentBlock - res.receipt.blockNumber;
                     }
                     if (!task.data.lastReplyHash) {
                         let replyHash = jsonHash.digest(res);

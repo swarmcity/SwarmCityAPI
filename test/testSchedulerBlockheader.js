@@ -10,7 +10,7 @@ describe('Swarm City scheduler', function() {
 			func: (task) => {
 				return new Promise((resolve, reject) => {
 					logger.info('Hello %j', task.data);
-					task.data = task.data + '+';
+					task.data.toPrint = (task.data.toPrint || '') + '+';
 					resolve(task.data);
 				});
 			},
@@ -21,7 +21,9 @@ describe('Swarm City scheduler', function() {
 					done();
 				});
 			},
-			data: 'a',
+			data: {
+                toPrint: 'a',
+            },
 		});
 	});
 });
