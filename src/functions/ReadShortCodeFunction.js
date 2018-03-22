@@ -4,25 +4,23 @@ const logs = require('../logs')(module);
 
 const AbstractFunction = require('./AbstractFunction');
 
-const ethereumjsutil = require('ethereumjs-util');
-
 /**
- * Function that sends a raw transaction to the blockchain.
+ * Function that reads a shortcode from the database.
  */
-class SendRawTxFunction extends AbstractFunction {
+class ReadShortCodeFunction extends AbstractFunction {
     /**
      * @param   {Object}    scheduledTask       Taskscheduler
-     * @param   {Object}    web3                Web3 connection
+     * @param   {Object}    dbService           Database service
      */
-    constructor(scheduledTask, web3) {
+    constructor(scheduledTask, dbService) {
         super(
-            'sendRawTx', [{
-                'name': 'tx',
-                'description': 'Raw transaction you want to send.',
+            'readShortCode', [{
+                'name': 'shortCode',
+                'description': 'ShortCode you want to read.',
             }]
         );
         this.scheduledTask = scheduledTask;
-        this.web3 = web3;
+        this.dbService = dbService;
     }
 
     /**
@@ -40,7 +38,9 @@ class SendRawTxFunction extends AbstractFunction {
             if (task.success && res) {
                 let reply = {
                     response: 200,
-                    data: res,
+                    data: {
+                        'payload': res.payload
+                    },
                 };
                 return callback(reply);
             } else {
@@ -63,32 +63,7 @@ class SendRawTxFunction extends AbstractFunction {
      */
     func(data) {
         return (task) => {
-            logs.info('sendRawTx start');
-            return new Promise((resolve, reject) => {
-                if (!data.tx) {
-                    reject(new Error('No tx present. Can\'t send.'));
-                }
-                let tx = ethereumjsutil.addHexPrefix(data.tx);
-                logs.debug('Sending signed transaction: %s', tx);
-                this.web3.eth.sendSignedTransaction(tx)
-                    .once('transactionHash', (hash) => {
-                        logs.debug('transactionHash %s', hash);
-                        resolve({'transactionHash': hash});
-                    })
-                    .on('error', (err, receipt) => {
-                        if (err.message &&
-                            err.message.startsWith('Failed to check for transaction receipt')
-                           ) {
-                            logs.debug('Another complaint about the receipt ignored.');
-                        } else {
-                            logs.error(err);
-                            if (receipt) {
-                                logs.error('We might be out of Gas: %j', receipt);
-                            }
-                            reject(new Error('Transaction error: ' + err));
-                        }
-                    });
-            });
+            return this.dbService.readShortCode(data.shortCode);
         };
     }
 
@@ -111,4 +86,4 @@ class SendRawTxFunction extends AbstractFunction {
     }
 }
 
-module.exports = SendRawTxFunction;
+module.exports = ReadShortCodeFunction;
