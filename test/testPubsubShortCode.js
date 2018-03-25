@@ -41,11 +41,11 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
                         validity: 30 * 1000,
 					},
 				},
-			}, (reply) => {
-				should(reply).have.property('response', 200);
-				should(reply).have.property('subscriptionId');
-				should(reply).have.property('data')
-				    .with.a.property('validity');
+            }, (reply) => {
+                should(reply).have.property('response', 200);
+                should(reply).have.property('subscriptionId');
+                should(reply).have.property('data')
+                    .with.a.property('validity');
                 should(reply.data.validity).be.equal(120 * 1000);
                 client.emit('unsubscribe', {
                     subscriptionId: reply.subscriptionId,
@@ -53,8 +53,8 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
                     should(reply).have.property('response', 200);
                     resolve();
                 });
-			});
-		}));
+            });
+        }));
 
 		Promise.all(promises).then(() => {
 			done();
@@ -76,16 +76,16 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 					},
 				},
 			}, (reply) => {
-				should(reply).have.property('response', 200);
-				should(reply).have.property('subscriptionId');
-				should(reply).have.property('data')
+                should(reply).have.property('response', 200);
+                should(reply).have.property('subscriptionId');
+                should(reply).have.property('data')
                     .with.a.property('shortcode');
-				should(reply).have.property('data')
-				    .with.a.property('validity');
+                should(reply).have.property('data')
+                    .with.a.property('validity');
                 should(reply.data.validity).be.equal(120 * 1000);
-				shortcode = reply.data.shortcode;
-				subscription = reply.subscriptionId;
-				resolve();
+                shortcode = reply.data.shortcode;
+                subscription = reply.subscriptionId;
+                resolve();
 			});
 		}));
 
