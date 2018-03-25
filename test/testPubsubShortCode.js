@@ -30,6 +30,40 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		});
 	});
 
+	it('should not be able to set the validity of a shortcode', function(done) {
+		let promises = [];
+		promises.push(new Promise((resolve, reject) => {
+			client.emit('subscribe', {
+				channel: 'shortcode',
+				args: {
+					payload: {
+						hello: 'world',
+                        validity: 30 * 1000,
+					},
+				},
+			}, (reply) => {
+				should(reply).have.property('response', 200);
+				should(reply).have.property('subscriptionId');
+				should(reply).have.property('data')
+				    .with.a.property('validity');
+                should(reply.data.validity).be.equal(120 * 1000);
+                client.emit('unsubscribe', {
+                    subscriptionId: reply.subscriptionId,
+                }, (reply) => {
+                    should(reply).have.property('response', 200);
+                    resolve();
+                });
+			});
+		}));
+
+		Promise.all(promises).then(() => {
+			done();
+		}).catch((err) => {
+			logger.error(err);
+			done();
+		});
+	});
+
 
 	it('should subscribe to shortcode', function(done) {
 		let promises = [];
@@ -37,7 +71,6 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 			client.emit('subscribe', {
 				channel: 'shortcode',
 				args: {
-					validity: 1000,
 					payload: {
 						hello: 'world',
 					},
@@ -45,7 +78,11 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 			}, (reply) => {
 				should(reply).have.property('response', 200);
 				should(reply).have.property('subscriptionId');
-				should(reply).have.property('data').with.a.property('shortcode');
+				should(reply).have.property('data')
+                    .with.a.property('shortcode');
+				should(reply).have.property('data')
+				    .with.a.property('validity');
+                should(reply.data.validity).be.equal(120 * 1000);
 				shortcode = reply.data.shortcode;
 				subscription = reply.subscriptionId;
 				resolve();
