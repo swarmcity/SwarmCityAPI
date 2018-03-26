@@ -33,7 +33,9 @@ function createTask(socket, data, callback) {
 				let reply = {
 					response: 200,
 					data: {
-						payload: res,
+						publicKey: res.publicKey,
+                        username: res.username,
+                        avatar: res.avatar,
 					},
 				};
 				return callback(reply);

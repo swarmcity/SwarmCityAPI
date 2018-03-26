@@ -3,6 +3,7 @@
  */
 'use strict';
 const logger = require('../logs.js')(module);
+const validate = require('../validators');
 const jsonHash = require('json-hash');
 const scheduledTask = require('../scheduler/scheduledTask')();
 
@@ -78,13 +79,36 @@ function createUniqueShortCode(decimals) {
 function createSubscription(emitToSubscriber, args) {
 	let validity = stdValidity;
 
+    let payload = {};
+
+	if (!args || !args.publicKey || !validate.isAddress(args.publicKey)) {
+		return Promise.reject(
+            'Cannot create a ShortCode without a valid publicKey.'
+        );
+	}
+    payload.publicKey = args.publicKey;
+	if (!args || !args.username) {
+		return Promise.reject(
+            'Cannot create a ShortCode without a valid username.'
+        );
+	}
+    payload.username = args.username;
+	if (!args || !args.avatar) {
+		return Promise.reject(
+            'Cannot create a ShortCode without a valid avatar.'
+        );
+    }
+    payload.avatar = args.avatar;
+
+	logger.info('Creating a ShortCode for %s', args.publicKey);
+
 	// create task
 	let _task = {
 		name: 'createShortCode',
 		func: (task) => {
 			return new Promise((resolve, reject) => {
 				createUniqueShortCode(5).then((shortcode) => {
-					dbService.saveDataToShortCode(shortcode, validity, args.payload).then(() => {
+					dbService.saveDataToShortCode(shortcode, validity, payload).then(() => {
 						resolve({
 							shortcode: shortcode,
 							validity: validity,
