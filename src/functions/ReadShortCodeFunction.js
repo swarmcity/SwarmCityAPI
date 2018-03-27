@@ -1,7 +1,5 @@
 'use strict';
 
-const logs = require('../logs')(module);
-
 const AbstractFunction = require('./AbstractFunction');
 
 /**
@@ -38,16 +36,17 @@ class ReadShortCodeFunction extends AbstractFunction {
             if (task.success && res) {
                 let reply = {
                     response: 200,
-                    data: {
-                        'payload': res.payload
-                    },
+					data: {
+						publicKey: res.publicKey,
+                        username: res.username,
+                        avatar: res.avatar,
+					},
                 };
                 return callback(reply);
             } else {
                 let reply = {
-                    response: 500,
-                    data: res,
-                    error: task.error,
+                    response: 400,
+                    error: 'Shortcode ' + data.shortCode + ' not found.',
                 };
                 return callback(reply);
             }

@@ -35,15 +35,14 @@ describe('ReadShortCodeFunction', function() {
     it('should be able to handle unsuccesful tasks', function() {
         let fut = new ReadShortCodeFunction();
         let cbSpy = sinon.spy();
-        let data = {};
+        let data = {'shortCode': 665};
         let rh = fut.responseHandler(data, cbSpy);
         rh(data, {'success': false, 'error': 'Sorry. No can do.'});
         should(cbSpy.calledOnce).be.ok();
         should(cbSpy.calledWith(
             {
-                'response': 500,
-                'data': data,
-                'error': 'Sorry. No can do.',
+                'response': 400,
+                'error': 'Shortcode 665 not found.',
             }
         )).be.ok();
     });
@@ -54,9 +53,9 @@ describe('ReadShortCodeFunction', function() {
         let data = {'shortCode': '12345'};
         let rh = fut.responseHandler(data, cbSpy);
         let taskResult = {
-            'shortCode': 12345,
-            'validUntil': (new Date).getTime() + 100,
-            'payload': {},
+            'publicKey': process.env.SWTBALANCE,
+            'username': 'me',
+            'avatar': 'BASE64',
         };
         rh(taskResult, {'success': true});
         should(cbSpy.calledOnce).be.ok();
@@ -64,7 +63,9 @@ describe('ReadShortCodeFunction', function() {
             {
                 'response': 200,
                 'data': {
-                    'payload': taskResult.payload,
+                    'publicKey': taskResult.publicKey,
+                    'username': taskResult.username,
+                    'avatar': taskResult.avatar,
                 },
             }
         )).be.ok();
@@ -76,9 +77,9 @@ describe('ReadShortCodeFunction', function() {
         let dbService = {'readShortCode': () => {}};
         let dbServiceSpy = sinon.stub(dbService, 'readShortCode').returns(
             Promise.resolve({
-                'shortCode': 12345,
-                'validUntil': (new Date).getTime() + 100,
-                'payload': {},
+                'publicKey': process.env.SWTBALANCE,
+                'username': 'me',
+                'avatar': 'BASE64',
             })
         );
         let fut = new ReadShortCodeFunction(scheduledTask, dbService);
@@ -89,5 +90,4 @@ describe('ReadShortCodeFunction', function() {
         should(dbServiceSpy.calledOnce).be.ok();
         should(dbServiceSpy.calledWith('12345')).be.ok();
     });
-
 });

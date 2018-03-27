@@ -110,7 +110,7 @@ function createSubscription(emitToSubscriber, args) {
 				createUniqueShortCode(5).then((shortcode) => {
 					dbService.saveDataToShortCode(shortcode, validity, payload).then(() => {
 						resolve({
-							shortcode: shortcode,
+							shortCode: shortcode,
 							validity: validity,
 						});
 					}).catch(reject);
