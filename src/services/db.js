@@ -49,9 +49,9 @@ class DBService {
             }).catch((err) => {
                 if (err.notFound) {
                     logger.error('key %s not found (yet) in DB.', key);
-                    return reject();
+                    return reject(err);
                 }
-                reject(new Error(err));
+                reject(err);
             });
         });
     }

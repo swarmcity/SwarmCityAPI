@@ -1,7 +1,5 @@
 'use strict';
 
-'use strict';
-
 const logs = require('../logs')(module);
 
 const AbstractFunction = require('./AbstractFunction');
