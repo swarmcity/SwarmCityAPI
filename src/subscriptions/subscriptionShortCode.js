@@ -41,7 +41,7 @@ function createShortCode(decimals) {
 	return randomstring;
 }
 
-const stdValidity = 30 * 1000;
+const stdValidity = 120 * 1000;
 
 /**
  * Creates an unique short code.
@@ -76,7 +76,7 @@ function createUniqueShortCode(decimals) {
  * @return     {Promise}  	resolves with the subscription object
  */
 function createSubscription(emitToSubscriber, args) {
-	let validity = args.validity || stdValidity;
+	let validity = stdValidity;
 
 	// create task
 	let _task = {
