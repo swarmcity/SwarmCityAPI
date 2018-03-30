@@ -1,7 +1,5 @@
 'use strict';
 
-const logger = require('../logs.js')(module);
-
 const AbstractFunction = require('./AbstractFunction');
 
 /**
@@ -64,7 +62,6 @@ class ReadShortCodeFunction extends AbstractFunction {
      */
     func(data) {
         return (task) => {
-            logger.debug('Reading shortcode %s.', data.shortCode);
             return this.dbService.readShortCode(data.shortCode);
         };
     }
@@ -77,7 +74,6 @@ class ReadShortCodeFunction extends AbstractFunction {
      * @param      {Function}  callback  The callback
      */
     createTask(socket, data, callback) {
-        logger.debug('Creating read shortcode task for %s.', data.shortCode);
         this.scheduledTask.addTask({
             name: this.name(),
             func: this.func(data),
