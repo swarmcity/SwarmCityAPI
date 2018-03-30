@@ -15,10 +15,24 @@ const dbService = require('../services').dbService;
  * @param      {Object}   task    The task
  * @return     {Promise}  result of removing the task (no return value)
  */
-function cancelSubscription(task) {
-	return Promise.resolve(
-		scheduledTask.removeTask(task)
-	);
+async function cancelSubscription(task) {
+    logger.info('cancelSubscripton to shortCode called.');
+
+    if (task.data && task.data.shortCode) {
+        let shortCode = task.data.shortCode;
+        let _removeShortCodeTask = {
+            name: 'removeShortCode',
+            func: (task) => {
+                logger.debug('Delete ShortCode %s from the db.', shortCode);
+                return dbService.deleteShortCode(shortCode);
+            },
+            data: {}
+        }
+        await scheduledTask.addTask(_removeShortCodeTask);
+        logger.debug('Scheduled removing of shortcode %s.', shortCode);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -50,23 +64,15 @@ const stdValidity = 120 * 1000;
  * @param      {Number}   decimals  decimals of the shortcode
  * @return     {Promise}  resolves with new value.
  */
-function createUniqueShortCode(decimals) {
-	return new Promise((resolve, reject) => {
-		let newShortcode = createShortCode(decimals);
+async function createUniqueShortCode(decimals) {
+	let newShortCode = createShortCode(decimals);
 
-        dbService
-            .readShortCode(newShortcode)
-            .then((val) => {
-                // code already exists & not expired yet - try again.
-                return createUniqueShortCode(decimals);
-            }).catch((err) => {
-				// can't read the data or
-                // it does not exist or
-                // the code is no longer valid
-                // use the new code.
-				resolve(newShortcode);
-            });
-	});
+    try {
+        let shortCode = await dbService.readShortCode(newShortCode);
+        return createUniqueShortCode(decimals);
+    } catch(error) {
+        return newShortCode;
+    }
 }
 
 /**
@@ -76,25 +82,25 @@ function createUniqueShortCode(decimals) {
  * @param      {Object}  	args    The parameters sent with the subscription
  * @return     {Promise}  	resolves with the subscription object
  */
-function createSubscription(emitToSubscriber, args) {
+async function createSubscription(emitToSubscriber, args) {
 	let validity = stdValidity;
 
     let payload = {};
 
 	if (!args || !args.publicKey || !validate.isAddress(args.publicKey)) {
-		return Promise.reject(
+		throw new Error(
             'Cannot create a ShortCode without a valid publicKey.'
         );
 	}
     payload.publicKey = args.publicKey;
 	if (!args || !args.username) {
-		return Promise.reject(
+		throw new Error(
             'Cannot create a ShortCode without a valid username.'
         );
 	}
     payload.username = args.username;
 	if (!args || !args.avatar) {
-		return Promise.reject(
+		throw new Error(
             'Cannot create a ShortCode without a valid avatar.'
         );
     }
@@ -102,44 +108,26 @@ function createSubscription(emitToSubscriber, args) {
 
 	logger.info('Creating a ShortCode for %s', args.publicKey);
 
-	// create task
-	let _task = {
-		name: 'createShortCode',
-		func: (task) => {
-			return new Promise((resolve, reject) => {
-				createUniqueShortCode(5).then((shortcode) => {
-					dbService.saveDataToShortCode(shortcode, validity, payload).then(() => {
-						resolve({
-							shortCode: shortcode,
-							validity: validity,
-						});
-					}).catch(reject);
-				}).catch(reject);
-			});
-		},
-		responsehandler: (res, task) => {
-			let replyHash = jsonHash.digest(res);
-			if (task.data.lastReplyHash !== replyHash) {
-				logger.debug('received RES=%j', res);
-				emitToSubscriber('shortcodeChanged', res);
-				task.data.lastReplyHash = replyHash;
-			}
-			// re-schedule myself
-			task.nextRun = (new Date).getTime() + validity;
-			scheduledTask.addTask(task);
-		},
-		data: {},
-	};
+    let shortCode = await createUniqueShortCode(5);
 
-	scheduledTask.addTask(_task);
-	// run it a first time return subscription
-	return _task.func(_task).then((reply) => {
-		return Promise.resolve({
-			task: _task,
-			initialResponse: reply,
-			cancelSubscription: cancelSubscription,
-		});
-	});
+    await dbService.saveDataToShortCode(shortCode, validity, payload);
+
+    return {
+        task: {
+            name: 'createShortCode',
+            func: (task) => {},
+            responsehandler: (res, task) => {},
+            data: {
+                'publicKey': args.publicKey,
+                'shortCode': shortCode,
+            },
+        },
+        initialResponse: {
+            'shortCode': shortCode,
+            'validity': validity
+        },
+        cancelSubscription: cancelSubscription,
+    };
 }
 
 module.exports = function() {
