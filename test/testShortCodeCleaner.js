@@ -7,7 +7,7 @@ const shortCodeCleaner = require('../src/jobs/shortCodeCleaner');
 
 const dbService = require('../src/services').dbService;
 
-const scheduledTask = require('../src/scheduler/scheduledTask')();
+//const scheduledTask = require('../src/scheduler/scheduledTask')();
 
 const testData = [
     {

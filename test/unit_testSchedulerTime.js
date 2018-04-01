@@ -95,7 +95,7 @@ describe('Swarm City scheduler', function() {
 			func: hello,
 			interval: 100,
 			data: 'a',
-        }
+        };
 
 		scheduledTask.addTask(task);
 
@@ -113,7 +113,7 @@ describe('Swarm City scheduler', function() {
 			func: hello,
 			interval: 100,
 			data: 'a',
-        }
+        };
 
 		scheduledTask.addTask(task);
 
@@ -121,7 +121,7 @@ describe('Swarm City scheduler', function() {
 		logger.debug('scheduler will wake up at ', scheduledTask.nextRun);
 
         setTimeout(() => {
-		    scheduledTask.removeTask(task);
+            scheduledTask.removeTask(task);
             should(scheduledTask.tasks.length).be.equal(0);
             done();
         }, 2.5 * 100);
