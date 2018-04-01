@@ -90,7 +90,19 @@ class DBService {
      */
     deleteShortCode(shortCode) {
         let key = 'shortcode-' + shortCode;
+        logger.debug('Deleting %s', key);
         return this.db.del(key);
+    }
+
+    /*
+     * get all shortcodes from the database
+     *
+     * @return      {stream.Readable}   A readable stream of the shortcodes
+     */
+    getShortCodes() {
+        return this.db.createReadStream({
+            gte: 'shortcode-'
+        });
     }
 
     /**
