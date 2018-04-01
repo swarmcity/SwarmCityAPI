@@ -28,7 +28,7 @@ let task = {
                             } else {
                                 return Promise.resolve('ShortCode not expired yet.');
                             }
-                        } catch(err) {
+                        } catch (err) {
                             return reject(new Error('Unable to parse shortCode %j', data));
                         }
                     }));
@@ -47,21 +47,32 @@ let task = {
                         resolve();
                     });
                 });
-
         });
     },
 };
 
+/**
+ * Start this job
+ * @return      {Promise}
+ */
 function start() {
     logger.info('Starting the shortCodeCleaner.');
     return scheduledTask.addTask(task);
 }
 
+/**
+ * Start this job
+ * @return      {Promise}
+ */
 function stop() {
     logger.info('Stopping the shortCodeCleader.');
     return scheduledTask.removeTask(task);
 }
 
+/**
+ * Reset this job
+ * @return      {Promise}
+ */
 function reset() {
     logger.info('Resetting the shortCodeCleader.');
     return new Promise((resolve, reject) => {

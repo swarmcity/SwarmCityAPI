@@ -94,14 +94,14 @@ class DBService {
         return this.db.del(key);
     }
 
-    /*
+    /**
      * get all shortcodes from the database
      *
      * @return      {stream.Readable}   A readable stream of the shortcodes
      */
     getShortCodes() {
         return this.db.createReadStream({
-            gte: 'shortcode-'
+            gte: 'shortcode-',
         });
     }
 

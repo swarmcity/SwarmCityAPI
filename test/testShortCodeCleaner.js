@@ -7,30 +7,30 @@ const shortCodeCleaner = require('../src/jobs/shortCodeCleaner');
 
 const dbService = require('../src/services').dbService;
 
-const scheduledTask = require('../src/scheduler/scheduledTask')();
+// const scheduledTask = require('../src/scheduler/scheduledTask')();
 
 const testData = [
     {
         'shortCode': 'TEST1',
         'validity': (new Date).getTime() - (360 * 1000),
-        'payload': 'PAYLOAD1'
+        'payload': 'PAYLOAD1',
     }, {
         'shortCode': 'TEST2',
         'validity': (new Date).getTime() - (10 * 1000),
-        'payload': 'PAYLOAD2'
+        'payload': 'PAYLOAD2',
     }, {
         'shortCode': 'TEST3',
         'validity': (new Date).getTime() + (20 * 1000),
-        'payload': 'PAYLOAD3'
-    }
+        'payload': 'PAYLOAD3',
+    },
 ];
 
 describe('Test of shortCodeCleaner scheduling', function() {
     it('should be able to start and stop the job', function(done) {
         shortCodeCleaner.start().then(() => {
-                //Currently fails because the scheduler keeps "hiding" interval
-                //tasks
-                //should(scheduledTask.tasks.length).be.equal(1);
+                // Currently fails because the scheduler keeps "hiding" interval
+                // tasks
+                // should(scheduledTask.tasks.length).be.equal(1);
                 shortCodeCleaner.stop();
                 done();
         }).catch((error) => {
@@ -42,9 +42,9 @@ describe('Test of shortCodeCleaner scheduling', function() {
     it('should be able to reset the job', function(done) {
         shortCodeCleaner.start().then(() => {
             shortCodeCleaner.reset().then(() => {
-                //Currently fails because the scheduler keeps "hiding" interval
-                //tasks
-                //should(scheduledTask.tasks.length).be.equal(1);
+                // Currently fails because the scheduler keeps "hiding" interval
+                // tasks
+                // should(scheduledTask.tasks.length).be.equal(1);
                 shortCodeCleaner.stop();
                 done();
             }).catch((error) => {
@@ -59,7 +59,6 @@ describe('Test of shortCodeCleaner scheduling', function() {
 });
 
 describe('Test of shortCodeCleaner job', function() {
-
 	before(function(done) {
         let promises = [];
         testData.forEach((data) => {
