@@ -196,7 +196,7 @@ describe('services/db/DBService', function() {
             dbService.deleteShortCode(666);
             let key = 'shortcode-666';
             should(spy.calledWith(key)).be.ok();
-        })
+        });
 
         it('should not delete an unexisting shortcode', function() {
             let mockDB = {
@@ -215,7 +215,7 @@ describe('services/db/DBService', function() {
             dbService.deleteShortCode(666);
             let key = 'shortcode-666';
             should(spy.calledWith(key)).be.ok();
-        })
+        });
     });
 
     describe('setLastBlock()', function() {

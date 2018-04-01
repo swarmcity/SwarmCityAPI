@@ -4,7 +4,6 @@
 'use strict';
 const logger = require('../logs.js')(module);
 const validate = require('../validators');
-const jsonHash = require('json-hash');
 const scheduledTask = require('../scheduler/scheduledTask')();
 
 const dbService = require('../services').dbService;
@@ -26,8 +25,8 @@ async function cancelSubscription(task) {
                 logger.debug('Delete ShortCode %s from the db.', shortCode);
                 return dbService.deleteShortCode(shortCode);
             },
-            data: {}
-        }
+            data: {},
+        };
         await scheduledTask.addTask(_removeShortCodeTask);
         logger.debug('Scheduled removing of shortcode %s.', shortCode);
         return true;
@@ -69,8 +68,10 @@ async function createUniqueShortCode(decimals) {
 
     try {
         let shortCode = await dbService.readShortCode(newShortCode);
-        return createUniqueShortCode(decimals);
-    } catch(error) {
+        if (shortCode) {
+            return createUniqueShortCode(decimals);
+        }
+    } catch (error) {
         return newShortCode;
     }
 }
@@ -124,7 +125,7 @@ async function createSubscription(emitToSubscriber, args) {
         },
         initialResponse: {
             'shortCode': shortCode,
-            'validity': validity
+            'validity': validity,
         },
         cancelSubscription: cancelSubscription,
     };
