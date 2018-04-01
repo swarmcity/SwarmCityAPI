@@ -88,6 +88,44 @@ describe('Swarm City scheduler', function() {
             done();
         }, 1 * 300);
 	});
+
+    it('should be possible to immediately remove a task with an interval', function(done) {
+        let task = {
+			nextRun: (new Date).getTime() + 100,
+			func: hello,
+			interval: 100,
+			data: 'a',
+        }
+
+		scheduledTask.addTask(task);
+
+        should(scheduledTask.tasks.length).be.equal(1);
+		logger.debug('scheduler will wake up at ', scheduledTask.nextRun);
+
+		scheduledTask.removeTask(task);
+        should(scheduledTask.tasks.length).be.equal(0);
+        done();
+    });
+
+    it('should be possible to wait a while and remove a task with an interval', function(done) {
+        let task = {
+			nextRun: (new Date).getTime() + 100,
+			func: hello,
+			interval: 100,
+			data: 'a',
+        }
+
+		scheduledTask.addTask(task);
+
+        should(scheduledTask.tasks.length).be.equal(1);
+		logger.debug('scheduler will wake up at ', scheduledTask.nextRun);
+
+        setTimeout(() => {
+		    scheduledTask.removeTask(task);
+            should(scheduledTask.tasks.length).be.equal(0);
+            done();
+        }, 2.5 * 100);
+    });
 });
 
 /**

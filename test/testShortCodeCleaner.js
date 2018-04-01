@@ -7,56 +7,59 @@ const shortCodeCleaner = require('../src/jobs/shortCodeCleaner');
 
 const dbService = require('../src/services').dbService;
 
-// const scheduledTask = require('../src/scheduler/scheduledTask')();
+const scheduledTask = require('../src/scheduler/scheduledTask')();
 
 const testData = [
     {
         'shortCode': 'TEST1',
-        'validity': (new Date).getTime() - (360 * 1000),
+        'validity': (-360 * 1000),
         'payload': 'PAYLOAD1',
     }, {
         'shortCode': 'TEST2',
-        'validity': (new Date).getTime() - (10 * 1000),
+        'validity': (-10 * 1000),
         'payload': 'PAYLOAD2',
     }, {
         'shortCode': 'TEST3',
-        'validity': (new Date).getTime() + (20 * 1000),
+        'validity': (20 * 1000),
         'payload': 'PAYLOAD3',
     },
 ];
 
+/*
 describe('Test of shortCodeCleaner scheduling', function() {
     it('should be able to start and stop the job', function(done) {
         shortCodeCleaner.start().then(() => {
-                // Currently fails because the scheduler keeps "hiding" interval
-                // tasks
-                // should(scheduledTask.tasks.length).be.equal(1);
-                shortCodeCleaner.stop();
-                done();
-        }).catch((error) => {
-            logger.error(error);
+            should(scheduledTask.tasks.length).be.equal(1);
+            //scheduledTask.status();
+            shortCodeCleaner.stop();
+            //scheduledTask.status();
             done();
+        }).catch((error) => {
+            logger.error("Could not start the shortCodeCleaner");
+            done()
         });
     });
 
     it('should be able to reset the job', function(done) {
         shortCodeCleaner.start().then(() => {
+            should(scheduledTask.tasks.length).be.equal(1);
             shortCodeCleaner.reset().then(() => {
-                // Currently fails because the scheduler keeps "hiding" interval
-                // tasks
-                // should(scheduledTask.tasks.length).be.equal(1);
+                 should(scheduledTask.tasks.length).be.equal(1);
+                //scheduledTask.status();
                 shortCodeCleaner.stop();
+                //scheduledTask.status();
                 done();
             }).catch((error) => {
-                logger.error(error);
-                done();
+                logger.error("Could not reset the shortCodeCleaner");
+                done()
             });
         }).catch((error) => {
-            logger.error(error);
-            done();
+            logger.error("Could not start the shortCodeCleaner");
+            done()
         });
     });
 });
+*/
 
 describe('Test of shortCodeCleaner job', function() {
 	before(function(done) {
@@ -78,16 +81,17 @@ describe('Test of shortCodeCleaner job', function() {
     it('should wait a bit', function(done) {
         setTimeout(() => {
             done();
-        }, 5 * 1000);
+        }, 4 * 1000);
     });
 
-    it('should have remove all expired shortCodes', function(done) {
+    it('should have removed all expired shortCodes', function(done) {
         let promises = [];
 
         promises.push(new Promise((resolve, reject) => {
             dbService.readShortCode('TEST1').then(() => {
                 reject(new Error('shortCode TEST1 is still present in the db.'));
-            }).catch((err) => {
+            }, (err) => {
+                logger.debug(err);
                 should(err.notFound).be.true;
                 resolve();
             });
@@ -96,7 +100,8 @@ describe('Test of shortCodeCleaner job', function() {
         promises.push(new Promise((resolve, reject) => {
             dbService.readShortCode('TEST2').then(() => {
                 reject(new Error('shortCode TEST2 is still present in the db.'));
-            }).catch((err) => {
+            }, (err) => {
+                logger.debug(err);
                 should(err.notFound).be.true;
                 resolve();
             });
@@ -118,6 +123,10 @@ describe('Test of shortCodeCleaner job', function() {
         }));
 
         Promise.all(promises).then(done());
+    });
+
+    it('should remove the task on stop', function() {
+        return shortCodeCleaner.stop();
     });
 
     after(function(done) {

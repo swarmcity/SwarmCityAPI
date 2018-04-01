@@ -9,6 +9,7 @@ const scheduledTask = require('../scheduler/scheduledTask')();
 const dbService = require('../services').dbService;
 
 let task = {
+    nextRun: (new Date).getTime() + (2 * 1000),
     name: 'shortCodeCleanerTask',
     interval: 60 * 1000,
     func: (task) => {
@@ -23,7 +24,7 @@ let task = {
                         try {
                             let sc = JSON.parse(data.value);
                             // Has the shortcode expired?
-                            if (!sc.validUntil || data.validUntil < (new Date).getTime()) {
+                            if (!sc.validUntil || sc.validUntil < (new Date).getTime()) {
                                 return dbService.deleteShortCode(sc.shortcode);
                             } else {
                                 return Promise.resolve('ShortCode not expired yet.');
@@ -37,7 +38,7 @@ let task = {
                     logger.error(error);
                 })
                 .on('close', () => {
-                    reject(new Error('Stream of shortCodes closed while reading.'));
+                    resolve();
                 })
                 .on('end', () => {
                     logger.debug('All shortcodes were read');
