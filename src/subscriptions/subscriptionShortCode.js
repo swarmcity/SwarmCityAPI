@@ -144,7 +144,7 @@ function createSubscription(emitToSubscriber, args) {
 
 module.exports = function() {
 	return ({
-		name: 'shortcode',
+		name: 'createShortCode',
 		createSubscription: createSubscription,
 	});
 };
