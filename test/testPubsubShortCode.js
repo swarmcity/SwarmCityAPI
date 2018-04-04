@@ -34,7 +34,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('subscribe', {
-				channel: 'shortcode',
+				channel: 'createShortCode',
 				args: {
                     publicKey: process.env.SWTBALANCE,
                     username: 'me',
@@ -69,7 +69,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('subscribe', {
-				channel: 'shortcode',
+				channel: 'createShortCode',
 				args: {
                     publicKey: process.env.SWTBALANCE,
                     username: 'me',
