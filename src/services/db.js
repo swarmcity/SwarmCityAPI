@@ -83,6 +83,17 @@ class DBService {
     }
 
     /**
+     * Delete a shortCode
+     *
+     * @param   {String}    shortCode   shortCode
+     * @return  {Promise}   Promise
+     */
+    deleteShortCode(shortCode) {
+        let key = 'shortcode-' + shortCode;
+        return this.db.del(key);
+    }
+
+    /**
      * Returns last processed block of the parameters contract
      * ( or the deployment block if not initialized yet...)
      *

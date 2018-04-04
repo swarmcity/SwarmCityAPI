@@ -178,6 +178,46 @@ describe('services/db/DBService', function() {
         });
     });
 
+    describe('deleteShortCode', function() {
+        it('should delete an existing shortcode', function() {
+            let mockDB = {
+                del: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'del').returns(true);
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService.deleteShortCode(666);
+            let key = 'shortcode-666';
+            should(spy.calledWith(key)).be.ok();
+        });
+
+        it('should not delete an unexisting shortcode', function() {
+            let mockDB = {
+                del: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'del').returns(false);
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'parameterscontract': 'mockContract',
+                }
+            );
+
+            dbService.deleteShortCode(666);
+            let key = 'shortcode-666';
+            should(spy.calledWith(key)).be.ok();
+        });
+    });
+
     describe('setLastBlock()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {

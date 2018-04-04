@@ -144,25 +144,6 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		});
 	});
 
-	it('should receive update to shortcode', function(done) {
-		let promises = [];
-		promises.push(new Promise((resolve, reject) => {
-			client.on('shortcodeChanged', (reply) => {
-				should(reply).have.property('response', 200);
-				should(reply).have.property('subscriptionId', subscription);
-				should(reply).have.property('data');
-				resolve();
-			});
-		}));
-
-		Promise.all(promises).then(() => {
-			done();
-		}).catch((err) => {
-			logger.info(err);
-			done();
-		});
-	});
-
 	it('should wait a few moments', function(done) {
 		setTimeout(() => {
 			done();
@@ -181,6 +162,33 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 			});
 		}));
 
+
+		Promise.all(promises).then(() => {
+			done();
+		}).catch((err) => {
+			logger.info(err);
+			done();
+		});
+	});
+
+	it('should wait a few moments', function(done) {
+		setTimeout(() => {
+			done();
+		}, 2 * 1000);
+	});
+
+	it('after unsubscribing the existing shortcode should be gone', function(done) {
+		let promises = [];
+		promises.push(new Promise((resolve, reject) => {
+			client.emit('readShortCode', {
+				shortCode: shortCode,
+			}, (reply) => {
+				should(reply).have.property('response', 400);
+				should(reply).not.have.property('data');
+				should(reply).have.property('error', 'Shortcode ' + shortCode + ' not found.');
+				resolve();
+			});
+		}));
 
 		Promise.all(promises).then(() => {
 			done();
