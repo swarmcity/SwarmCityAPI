@@ -42,7 +42,7 @@ function _removeSubscription(subscriptionId) {
 		_subscription.cancelSubscription(_subscription.task).then(() => {
 			delete subscriptions[subscriptionId];
 		}).catch((err) => {
-			logger.error('Error canceling subscriptioni: %j', err);
+			logger.error('Error canceling subscription: %j', err);
 		});
 		return Promise.resolve(true);
 	} else {
