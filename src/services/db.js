@@ -21,7 +21,7 @@ class DBService {
     }
 
     /**
-     * Returns the cached data for a given 
+     * Returns the cached data for a given
      *
      * @param      {String}   shortCode    The ShortCode
      * @return     {Promise}  resolves with a JSON object, rejects with an Error object
