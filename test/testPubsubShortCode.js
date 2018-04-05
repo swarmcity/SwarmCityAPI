@@ -14,7 +14,7 @@ const server = require('../src/socket');
 let subscription;
 let shortCode;
 
-describe('Swarm City API socket client > test subscribe shortcode', function() {
+describe('Swarm City API socket client > test subscribe ShortCode', function() {
 	let client;
 	let socketURL;
 
@@ -30,7 +30,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		});
 	});
 
-	it('should not be able to set the validity of a shortcode', function(done) {
+	it('should not be able to set the validity of a ShortCode', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('subscribe', {
@@ -65,7 +65,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 	});
 
 
-	it('should subscribe to shortcode', function(done) {
+	it('should subscribe to ShortCode', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('subscribe', {
@@ -97,7 +97,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		});
 	});
 
-	it('should read the data of the shortcode', function(done) {
+	it('should read the data of the ShortCode', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('readShortCode', {
@@ -123,7 +123,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 	});
 
 
-	it('should not find the data for a non-existing shortcode', function(done) {
+	it('should not find the data for a non-existing ShortCode', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('readShortCode', {
@@ -131,7 +131,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 			}, (reply) => {
 				should(reply).have.property('response', 400);
 				should(reply).not.have.property('data');
-				should(reply).have.property('error', 'Shortcode 666 not found.');
+				should(reply).have.property('error', 'ShortCode 666 not found.');
 				resolve();
 			});
 		}));
@@ -177,7 +177,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 		}, 2 * 1000);
 	});
 
-	it('after unsubscribing the existing shortcode should be gone', function(done) {
+	it('after unsubscribing the existing ShortCode should be gone', function(done) {
 		let promises = [];
 		promises.push(new Promise((resolve, reject) => {
 			client.emit('readShortCode', {
@@ -185,7 +185,7 @@ describe('Swarm City API socket client > test subscribe shortcode', function() {
 			}, (reply) => {
 				should(reply).have.property('response', 400);
 				should(reply).not.have.property('data');
-				should(reply).have.property('error', 'Shortcode ' + shortCode + ' not found.');
+				should(reply).have.property('error', 'ShortCode ' + shortCode + ' not found.');
 				resolve();
 			});
 		}));

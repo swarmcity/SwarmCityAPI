@@ -12,7 +12,7 @@ const balance = require('./subscriptionBalance')();
 const hashtags = require('./subscriptionHashtags')();
 const hashtagItems = require('./subscriptionHashtagItems')();
 const nonce = require('./subscriptionNonce')();
-const shortcode = require('./subscriptionShortCode')();
+const shortCode = require('./subscriptionShortCode')();
 const txhistory = require('./subscriptionTxHistory')();
 const txReceipt = require('./subscriptionTxReceipt');
 
@@ -22,7 +22,7 @@ channels[balance.name] = balance;
 channels[hashtags.name] = hashtags;
 channels[hashtagItems.name] = hashtagItems;
 channels[nonce.name] = nonce;
-channels[shortcode.name] = shortcode;
+channels[shortCode.name] = shortCode;
 channels[txhistory.name] = txhistory;
 channels[txReceipt.name] = txReceipt;
 

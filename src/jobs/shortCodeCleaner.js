@@ -19,13 +19,13 @@ let task = {
 
             dbService.getShortCodes()
                 .on('data', (data) => {
-                    logger.debug('Found shortcode %j', data);
+                    logger.debug('Found ShortCode %j', data);
                     promises.push(new Promise((resolve, reject) => {
                         try {
                             let sc = JSON.parse(data.value);
-                            // Has the shortcode expired?
+                            // Has the ShortCode expired?
                             if (!sc.validUntil || sc.validUntil < (new Date).getTime()) {
-                                return dbService.deleteShortCode(sc.shortcode);
+                                return dbService.deleteShortCode(sc.shortCode);
                             } else {
                                 return Promise.resolve('ShortCode not expired yet.');
                             }
@@ -41,7 +41,7 @@ let task = {
                     resolve();
                 })
                 .on('end', () => {
-                    logger.debug('All shortcodes were read');
+                    logger.debug('All ShortCodes were read');
 
                     Promise.all(promises).then(() => {
                         logger.info('DB was sweeped clean of expired ShortCodes.');

@@ -3,7 +3,7 @@
 const AbstractFunction = require('./AbstractFunction');
 
 /**
- * Function that reads a shortcode from the database.
+ * Function that reads a ShortCode from the database.
  */
 class ReadShortCodeFunction extends AbstractFunction {
     /**
@@ -46,7 +46,7 @@ class ReadShortCodeFunction extends AbstractFunction {
             } else {
                 let reply = {
                     response: 400,
-                    error: 'Shortcode ' + data.shortCode + ' not found.',
+                    error: 'ShortCode ' + data.shortCode + ' not found.',
                 };
                 return callback(reply);
             }
