@@ -42,7 +42,7 @@ describe('ReadShortCodeFunction', function() {
         should(cbSpy.calledWith(
             {
                 'response': 400,
-                'error': 'Shortcode 665 not found.',
+                'error': 'ShortCode 665 not found.',
             }
         )).be.ok();
     });
@@ -71,7 +71,7 @@ describe('ReadShortCodeFunction', function() {
         )).be.ok();
     });
 
-    it('should call the dbService to get the shortcode data', function() {
+    it('should call the dbService to get the ShortCode data', function() {
         let scheduledTask = {'addTask': () => {}};
         let schedulerSpy = sinon.stub(scheduledTask, 'addTask');
         let dbService = {'readShortCode': () => {}};

@@ -15,7 +15,7 @@ const dbService = require('../services').dbService;
  * @return     {Promise}  result of removing the task (no return value)
  */
 async function cancelSubscription(task) {
-    logger.info('cancelSubscripton to shortCode called.');
+    logger.info('cancelSubscripton to ShortCode called.');
 
     if (task.data && task.data.shortCode) {
         let shortCode = task.data.shortCode;
@@ -28,17 +28,17 @@ async function cancelSubscription(task) {
             data: {},
         };
         await scheduledTask.addTask(_removeShortCodeTask);
-        logger.debug('Scheduled removing of shortcode %s.', shortCode);
+        logger.debug('Scheduled removing of ShortCode %s.', shortCode);
         return true;
     }
     return false;
 }
 
 /**
- * create random shortcode
+ * create random ShortCode
  *
  * @param      {number}  decimals  The decimals
- * @return     {string}  a shortcode
+ * @return     {string}  a ShortCode
  */
 function createShortCode(decimals) {
 	if (decimals < 2) {
@@ -60,7 +60,7 @@ const stdValidity = 120 * 1000;
 /**
  * Creates an unique short code.
  *
- * @param      {Number}   decimals  decimals of the shortcode
+ * @param      {Number}   decimals  decimals of the ShortCode
  * @return     {Promise}  resolves with new value.
  */
 async function createUniqueShortCode(decimals) {

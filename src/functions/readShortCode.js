@@ -23,9 +23,9 @@ function name() {
  */
 function createTask(socket, data, callback) {
 	scheduledTask.addTask({
-		name: 'readShortCode',
+		name: 'read',
 		func: (task) => {
-            return dbService.readShortCode(data.shortcode);
+            return dbService.readShortCode(data.shortCode);
 		},
 		responsehandler: (res, task) => {
 			logger.info('responsehandler', res);
