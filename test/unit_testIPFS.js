@@ -2,7 +2,7 @@
 
 const should = require('should');
 
-const IPFSService= require('../src/services/ipfs').IPFSService;
+const IPFSService = require('../src/services/ipfs').IPFSService;
 
 
 describe('services/ipfs/IPFSService', function() {
@@ -48,32 +48,50 @@ describe('services/ipfs/IPFSService', function() {
             let ipfsService = new IPFSService(mockIpfs);
 
             return ipfsService
-                    .cat('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT')
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+                .cat('QmeV1kwh3333bsnT6YRfdCRrSgUPngKmAhhTa4RrqYPbKT')
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
         });
 
         it('should reject when passed an invalid hash', function() {
             let ipfsService = new IPFSService({});
 
             return ipfsService
-                    .cat('12345678')
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+                .cat('12345678')
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
+        });
+    });
+
+    describe('add()', function() {
+        it('should reject when passed an not base64 payload', function() {
+            let ipfsService = new IPFSService({});
+
+            return ipfsService
+                .add('=)(/&%$·')
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
         });
     });
 });

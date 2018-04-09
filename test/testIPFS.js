@@ -1,6 +1,6 @@
 'use strict';
 require('dotenv').config({
-	path: '../.env',
+    path: '../.env',
 });
 
 const should = require('should');
@@ -19,6 +19,18 @@ describe('functional test of IPFSService', function() {
     it('ipfs.cat test', function(done) {
         ipfsService.cat(helloworldIPFShash).then((data) => {
             should(data).equal('hello world!');
+            done();
+        }).catch((e) => {
+            done();
+        });
+    });
+
+
+    it('ipfs.add test', function(done) {
+        ipfsService.add('dGVzdGluZyBhZGQ=').then((data) => {
+            should(
+                ipfsService.isIPFSHash(data)
+            ).be.ok;
             done();
         }).catch((e) => {
             done();
