@@ -4,7 +4,7 @@ const should = require('should');
 
 const subscriptionBalance = require('../src/subscriptions/subscriptionShortCode')();
 
-describe('subscriptionShortCode', function() {
+describe('subscription', function() {
     describe('name', function() {
         it('should have a name', function() {
             should(subscriptionBalance.name).be.equal('createShortCode');

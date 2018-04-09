@@ -73,14 +73,14 @@ describe('services/db/DBService', function() {
                     });
         });
 
-        it('should fetch a shortcode from the database that has not expired', function() {
+        it('should fetch a ShortCode from the database that has not expired', function() {
             let mockDB = {
                 get: function(key) {},
             };
 
             let spy = sinon.stub(mockDB, 'get')
                            .returns(Promise.resolve(JSON.stringify({
-                               'shortcode': 12345,
+                               'shortCode': 12345,
                                'validUntil': (new Date).getTime() + 1000,
                                'payload': {},
                            })));
@@ -103,7 +103,7 @@ describe('services/db/DBService', function() {
 
             let spy = sinon.stub(mockDB, 'get')
                            .returns(Promise.resolve(JSON.stringify({
-                               'shortcode': 12345,
+                               'shortCode': 12345,
                                'validUntil': (new Date).getTime() - 1000,
                                'payload': {},
                            })));
@@ -179,7 +179,7 @@ describe('services/db/DBService', function() {
     });
 
     describe('deleteShortCode', function() {
-        it('should delete an existing shortcode', function() {
+        it('should delete an existing ShortCode', function() {
             let mockDB = {
                 del: function(key) {},
             };
@@ -198,7 +198,7 @@ describe('services/db/DBService', function() {
             should(spy.calledWith(key)).be.ok();
         });
 
-        it('should not delete an unexisting shortcode', function() {
+        it('should not delete an unexisting ShortCode', function() {
             let mockDB = {
                 del: function(key) {},
             };

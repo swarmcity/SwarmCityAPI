@@ -21,15 +21,15 @@ class DBService {
     }
 
     /**
-     * Returns the cached data for a given shortcode
+     * Returns the cached data for a given
      *
-     * @param      {String}   shortcode    The shortcode
+     * @param      {String}   shortCode    The ShortCode
      * @return     {Promise}  resolves with a JSON object, rejects with an Error object
      */
-    readShortCode(shortcode) {
-        logger.info('readShortCode start %s', shortcode);
+    readShortCode(shortCode) {
+        logger.info('readShortCode start %s', shortCode);
         return new Promise((resolve, reject) => {
-            let key = 'shortcode-' + shortcode;
+            let key = 'shortcode-' + shortCode;
             this.db.get(key).then((val) => {
                 // so we have data..
                 try {
@@ -57,18 +57,18 @@ class DBService {
     }
 
     /**
-     * saves shortcode payload in DB
+     * saves ShortCode payload in DB
      *
-     * @param      {string}   shortcode  The shortcode
+     * @param      {string}   shortCode  The ShortCode
      * @param      {Number}   validity   The validity of this data in ms
      * @param      {Object}   payload    The payload to store
      * @return     {Promise}  resolves when ready..
      */
-    saveDataToShortCode(shortcode, validity, payload) {
+    saveDataToShortCode(shortCode, validity, payload) {
         return new Promise((resolve, reject) => {
-            let key = 'shortcode-' + shortcode;
+            let key = 'shortcode-' + shortCode;
             let val = {
-                shortcode: shortcode,
+                shortCode: shortCode,
                 validUntil: (new Date).getTime() + validity,
                 payload: payload,
             };
@@ -83,9 +83,9 @@ class DBService {
     }
 
     /**
-     * Delete a shortCode
+     * Delete a ShortCode
      *
-     * @param   {String}    shortCode   shortCode
+     * @param   {String}    shortCode   ShortCode
      * @return  {Promise}   Promise
      */
     deleteShortCode(shortCode) {
@@ -95,9 +95,9 @@ class DBService {
     }
 
     /**
-     * get all shortcodes from the database
+     * get all ShortCodes from the database
      *
-     * @return      {stream.Readable}   A readable stream of the shortcodes
+     * @return      {stream.Readable}   A readable stream of the ShortCodes
      */
     getShortCodes() {
         return this.db.createReadStream({
