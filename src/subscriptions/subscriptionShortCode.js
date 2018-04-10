@@ -88,18 +88,18 @@ async function createSubscription(emitToSubscriber, args) {
 
     let payload = {};
 
-	if (!args || !args.publicKey || !validate.isAddress(args.publicKey)) {
+	if (!args || !args.address || !validate.isAddress(args.address)) {
 		throw new Error(
-            'Cannot create a ShortCode without a valid publicKey.'
+            'Cannot create a ShortCode without a valid address.'
         );
 	}
-    payload.publicKey = args.publicKey;
-	if (!args || !args.username) {
+    payload.address = args.address;
+	if (!args || !args.userName) {
 		throw new Error(
-            'Cannot create a ShortCode without a valid username.'
+            'Cannot create a ShortCode without a valid UserName.'
         );
 	}
-    payload.username = args.username;
+    payload.userName = args.userName;
 	if (!args || !args.avatar) {
 		throw new Error(
             'Cannot create a ShortCode without a valid avatar.'
@@ -107,7 +107,7 @@ async function createSubscription(emitToSubscriber, args) {
     }
     payload.avatar = args.avatar;
 
-	logger.info('Creating a ShortCode for %s', args.publicKey);
+	logger.info('Creating a ShortCode for %s', args.address);
 
     let shortCode = await createUniqueShortCode(5);
 
@@ -119,7 +119,7 @@ async function createSubscription(emitToSubscriber, args) {
             func: (task) => {},
             responsehandler: (res, task) => {},
             data: {
-                'publicKey': args.publicKey,
+                'address': args.address,
                 'shortCode': shortCode,
             },
         },

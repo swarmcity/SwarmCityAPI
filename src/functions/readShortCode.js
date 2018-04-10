@@ -33,8 +33,8 @@ function createTask(socket, data, callback) {
 				let reply = {
 					response: 200,
 					data: {
-						publicKey: res.publicKey,
-                        username: res.username,
+						address: res.address,
+                        userName: res.userName,
                         avatar: res.avatar,
 					},
 				};

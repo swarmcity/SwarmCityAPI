@@ -36,8 +36,8 @@ describe('Swarm City API socket client > test subscribe ShortCode', function() {
 			client.emit('subscribe', {
 				channel: 'createShortCode',
 				args: {
-                    publicKey: process.env.SWTBALANCE,
-                    username: 'me',
+                    address: process.env.SWTBALANCE,
+                    userName: 'me',
                     avatar: 'BASE64',
                     validity: 30 * 1000,
 				},
@@ -71,8 +71,8 @@ describe('Swarm City API socket client > test subscribe ShortCode', function() {
 			client.emit('subscribe', {
 				channel: 'createShortCode',
 				args: {
-                    publicKey: process.env.SWTBALANCE,
-                    username: 'me',
+                    address: process.env.SWTBALANCE,
+                    userName: 'me',
                     avatar: 'BASE64',
 				},
 			}, (reply) => {
@@ -105,11 +105,11 @@ describe('Swarm City API socket client > test subscribe ShortCode', function() {
 			}, (reply) => {
 				should(reply).have.property('response', 200);
 				should(reply).have.property('data')
-					.with.a.property('publicKey', process.env.SWTBALANCE);
+					.with.a.property('address', process.env.SWTBALANCE);
 				should(reply).have.property('data')
 					.with.a.property('avatar', 'BASE64');
 				should(reply).have.property('data')
-					.with.a.property('username', 'me');
+					.with.a.property('userName', 'me');
 				resolve();
 			});
 		}));
