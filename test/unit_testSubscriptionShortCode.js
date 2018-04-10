@@ -23,9 +23,9 @@ describe('subscription', function() {
             });
         });
 
-        it('should reject when no publicKey is passed', function() {
+        it('should reject when no address is passed', function() {
             subscriptionBalance.createSubscription(
-                ()=>{}, {'username': 'me', 'avatar': 'BASE64'}
+                ()=>{}, {'userName': 'me', 'avatar': 'BASE64'}
             ).then((res) => {
                 Promise.reject('Expected rejection');
             }).catch((err) => {
@@ -36,9 +36,9 @@ describe('subscription', function() {
             });
         });
 
-        it('should reject when an invalid publicKey is passed', function() {
+        it('should reject when an invalid address is passed', function() {
             subscriptionBalance.createSubscription(
-                ()=>{}, {'publicKey': 'cofefe'}
+                ()=>{}, {'address': 'cofefe'}
             ).then((res) => {
                 Promise.reject('Expected rejection');
             }).catch((err) => {
@@ -49,9 +49,9 @@ describe('subscription', function() {
             });
         });
 
-        it('should reject when no username is passed', function() {
+        it('should reject when no userName is passed', function() {
             subscriptionBalance.createSubscription(
-                ()=>{}, {'publicKey': process.env.SWTBALANCE, 'avatar': 'BASE64'}
+                ()=>{}, {'address': process.env.SWTBALANCE, 'avatar': 'BASE64'}
             ).then((res) => {
                 Promise.reject('Expected rejection');
             }).catch((err) => {
@@ -64,7 +64,7 @@ describe('subscription', function() {
 
         it('should reject when no avatar is passed', function() {
             subscriptionBalance.createSubscription(
-                ()=>{}, {'publicKey': process.env.SWTBALANCE, 'username': 'me'}
+                ()=>{}, {'address': process.env.SWTBALANCE, 'userName': 'me'}
             ).then((res) => {
                 Promise.reject('Expected rejection');
             }).catch((err) => {

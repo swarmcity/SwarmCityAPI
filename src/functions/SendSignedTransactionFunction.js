@@ -9,14 +9,14 @@ const ethereumjsutil = require('ethereumjs-util');
 /**
  * Function that sends a raw transaction to the blockchain.
  */
-class SendRawTxFunction extends AbstractFunction {
+class sendSignedTransactionFunction extends AbstractFunction {
     /**
      * @param   {Object}    scheduledTask       Taskscheduler
      * @param   {Object}    web3                Web3 connection
      */
     constructor(scheduledTask, web3) {
         super(
-            'sendRawTx', [{
+            'sendSignedTransaction', [{
                 'name': 'tx',
                 'description': 'Raw transaction you want to send.',
             }]
@@ -63,7 +63,7 @@ class SendRawTxFunction extends AbstractFunction {
      */
     func(data) {
         return (task) => {
-            logs.info('sendRawTx start');
+            logs.info('sendSignedTransaction start');
             return new Promise((resolve, reject) => {
                 if (!data.tx) {
                     reject(new Error('No tx present. Can\'t send.'));
@@ -111,4 +111,4 @@ class SendRawTxFunction extends AbstractFunction {
     }
 }
 
-module.exports = SendRawTxFunction;
+module.exports = sendSignedTransactionFunction;

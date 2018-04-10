@@ -53,8 +53,8 @@ describe('ReadShortCodeFunction', function() {
         let data = {'shortCode': '12345'};
         let rh = fut.responseHandler(data, cbSpy);
         let taskResult = {
-            'publicKey': process.env.SWTBALANCE,
-            'username': 'me',
+            'address': process.env.SWTBALANCE,
+            'userName': 'me',
             'avatar': 'BASE64',
         };
         rh(taskResult, {'success': true});
@@ -63,8 +63,8 @@ describe('ReadShortCodeFunction', function() {
             {
                 'response': 200,
                 'data': {
-                    'publicKey': taskResult.publicKey,
-                    'username': taskResult.username,
+                    'address': taskResult.address,
+                    'userName': taskResult.userName,
                     'avatar': taskResult.avatar,
                 },
             }
@@ -77,8 +77,8 @@ describe('ReadShortCodeFunction', function() {
         let dbService = {'readShortCode': () => {}};
         let dbServiceSpy = sinon.stub(dbService, 'readShortCode').returns(
             Promise.resolve({
-                'publicKey': process.env.SWTBALANCE,
-                'username': 'me',
+                'address': process.env.SWTBALANCE,
+                'userName': 'me',
                 'avatar': 'BASE64',
             })
         );
