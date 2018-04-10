@@ -56,6 +56,28 @@ class IPFSService {
             });
         });
     }
+
+    /**
+     * Returns the ipfsHash for that payload
+     *
+     * @param      {String}   payload base64 data
+     * @return     {Promise}  resolves with a IPFS hash ex. "Qm......."
+     */
+    add(payload) {
+        let regex = /^(data:\w+\/[a-zA-Z\+\-\.]+;base64,)?(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/gi; // eslint-disable-line max-len, no-useless-escape
+        if (!regex.test(payload)) {
+            return Promise.reject(new Error(payload + ' is not a base64 data'));
+        }
+
+        return new Promise((resolve, reject) => {
+            this.ipfs.files.add(Buffer.from(payload, 'utf8'), (err, result) => {
+                if (err) {
+                    return reject(new Error(err));
+                }
+                return resolve(result[0].hash);
+            });
+        });
+    }
 }
 
 module.exports = {

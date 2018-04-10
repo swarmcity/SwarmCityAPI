@@ -13,10 +13,12 @@ const ipfsService = require('../services').ipfsService;
 const dbService = require('../services').dbService;
 
 const IpfsCatFunction = require('./IpfsCatFunction');
+const IpfsAddFunction = require('./IpfsAddFunction');
 const SendRawTxFunction = require('./SendRawTxFunction');
 const ReadShortCodeFunction = require('./ReadShortCodeFunction');
 
 handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
+handlers.push(new IpfsAddFunction(scheduledTask, ipfsService));
 handlers.push(new SendRawTxFunction(scheduledTask, web3));
 handlers.push(new ReadShortCodeFunction(scheduledTask, dbService));
 
