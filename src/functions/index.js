@@ -14,7 +14,7 @@ const dbService = require('../services').dbService;
 
 const IpfsCatFunction = require('./IpfsCatFunction');
 const IpfsAddFunction = require('./IpfsAddFunction');
-const SendSignedTransactionFunction = require('./sendSignedTransactionFunction');
+const SendSignedTransactionFunction = require('./SendSignedTransactionFunction');
 const ReadShortCodeFunction = require('./ReadShortCodeFunction');
 
 handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
