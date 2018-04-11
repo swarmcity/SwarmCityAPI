@@ -55,13 +55,13 @@ async function createTransferLog(log, direction, blockHeight) {
 /**
  * Create incoming or outgoing logs in a block range
  *
- * @param   {String}    publicKey   publicKey being queried for the logs
+ * @param   {String}    address     address being queried for the logs
  * @param   {String}    direction   in or out
  * @param   {Number}    startBlock  Start querying from here
  * @param   {Number}    endBlock    Stop querying here
  * @return  {Array}     Array of objects that will resolve to SWT transfer logs.
  */
-async function createLogsForDirection(publicKey, direction, startBlock, endBlock) {
+async function createLogsForDirection(address, direction, startBlock, endBlock) {
     let logs;
 
     let filterParam = (direction == 'in' ) ? '_to' : '_from';
@@ -69,7 +69,7 @@ async function createLogsForDirection(publicKey, direction, startBlock, endBlock
     logs = swtContractInstance.getPastEvents('Transfer', {
         'fromBlock': web3.utils.toHex(startBlock),
         'toBlock': web3.utils.toHex(endBlock),
-        'filter': {[filterParam]: publicKey},
+        'filter': {[filterParam]: address},
     });
 
     let mapped = logs.map((log) => {
@@ -79,17 +79,17 @@ async function createLogsForDirection(publicKey, direction, startBlock, endBlock
 }
 
 /**
- * Get all logs up to the current block for a certain publicKey.
+ * Get all logs up to the current block for a certain address.
  *
- * @param   {String}    publicKey   publicKey we want the logs for
+ * @param   {String}    address     address we want the logs for
  * @param   {Number}    startBlock  Block starting from which to fetch logs
  * @param   {Number}    endBlock    Block up to which we fetch logs
  * @return  {Array}     Array of objects that will resolve to SWT transfer logs.
  */
-async function getTransactionHistory(publicKey, startBlock, endBlock) {
+async function getTransactionHistory(address, startBlock, endBlock) {
     logger.info(
         'Creating txHistory for %s from block %d to %d',
-        publicKey,
+        address,
         startBlock,
         endBlock
     );
@@ -97,10 +97,10 @@ async function getTransactionHistory(publicKey, startBlock, endBlock) {
     let transferLogs = [];
 
     transferLogs = transferLogs.concat(
-        await createLogsForDirection(publicKey, 'out', startBlock, endBlock)
+        await createLogsForDirection(address, 'out', startBlock, endBlock)
     );
     transferLogs = transferLogs.concat(
-        await createLogsForDirection(publicKey, 'in', startBlock, endBlock)
+        await createLogsForDirection(address, 'in', startBlock, endBlock)
     );
 
     return transferLogs;
@@ -148,7 +148,7 @@ function sortLog(transactionHistory) {
  * @return     {Promise}  result of removing the task (no return value)
  */
 function cancelSubscription(task) {
-    return dbService.deleteTransactionHistory(task.data.publicKey);
+    return dbService.deleteTransactionHistory(task.data.address);
 }
 
 /**
@@ -160,12 +160,12 @@ function cancelSubscription(task) {
  */
 function createSubscription(emitToSubscriber, args) {
 	// check arguments
-	if (!args || !args.publicKey || !validate.isAddress(args.publicKey)) {
+	if (!args || !args.address || !validate.isAddress(args.address)) {
 		return Promise.reject(
-            'Cannot subscribe to a transactionHistory without a valid publicKey.'
+            'Cannot subscribe to a transactionHistory without a valid address.'
         );
 	}
-	logger.info('Subscribing to transactionHistory for %s', args.publicKey);
+	logger.info('Subscribing to transactionHistory for %s', args.address);
 
     // run a task that gets the past tx history for this pubkey
     let _getPastTxHistoryTask = {
@@ -175,7 +175,7 @@ function createSubscription(emitToSubscriber, args) {
             let endBlock = blockHeaderTask.getBlockNumber(task);
 
             let txLog = [];
-            txLog = await getTransactionHistory(task.data.publicKey, startBlock, endBlock);
+            txLog = await getTransactionHistory(task.data.address, startBlock, endBlock);
 
             let txHistory = [];
             await Promise.all(txLog);
@@ -187,13 +187,13 @@ function createSubscription(emitToSubscriber, args) {
             txHistory = sortLog(txHistory);
 
             return dbService.setTransactionHistory(
-                task.data.publicKey,
+                task.data.address,
                 endBlock,
                 txHistory
             );
         },
         data: {
-            publicKey: args.publicKey,
+            address: args.address,
         },
     };
     scheduledTask.addTask(_getPastTxHistoryTask);
@@ -202,7 +202,7 @@ function createSubscription(emitToSubscriber, args) {
     let _task = {
         func: async (task) => {
             let result = {};
-            result = await dbService.getTransactionHistory(task.data.publicKey);
+            result = await dbService.getTransactionHistory(task.data.address);
 
             if (!task.data.lastReplyHash) {
                 let replyHash = jsonHash.digest(result.transactionHistory);
@@ -215,7 +215,7 @@ function createSubscription(emitToSubscriber, args) {
             if (startBlock < endBlock) {
                 // Let's see if anything happened in this blockrange
                 let txLog = [];
-                txLog = await getTransactionHistory(task.data.publicKey, startBlock, endBlock);
+                txLog = await getTransactionHistory(task.data.address, startBlock, endBlock);
 
                 let transactionHistory = result.transactionHistory;
 
@@ -228,11 +228,11 @@ function createSubscription(emitToSubscriber, args) {
                     });
                     transactionHistory = sortLog(transactionHistory);
                     await dbService.setTransactionHistory(
-                        task.data.publicKey,
+                        task.data.address,
                         endBlock,
                         transactionHistory
                     );
-                    result = await dbService.getTransactionHistory(task.data.publicKey);
+                    result = await dbService.getTransactionHistory(task.data.address);
                 }
             }
             result.transactionHistory = updateConfirmations(result.transactionHistory, endBlock);
@@ -250,7 +250,7 @@ function createSubscription(emitToSubscriber, args) {
 			return blockHeaderTask.addTask(task);
 		},
 		data: {
-			publicKey: args.publicKey,
+			address: args.address,
 		},
 	};
 	blockHeaderTask.addTask(_task);

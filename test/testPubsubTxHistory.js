@@ -38,7 +38,7 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 				client.emit('subscribe', {
 					channel: 'txHistory',
 					args: {
-						publicKey: process.env.SWTBALANCE,
+						address: process.env.SWTBALANCE,
 					},
 				}, (data) => {
 					should(data).have.property('response', 200);
