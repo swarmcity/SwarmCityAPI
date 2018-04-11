@@ -36,11 +36,11 @@ class ReadShortCodeFunction extends AbstractFunction {
             if (task.success && res) {
                 let reply = {
                     response: 200,
-					data: {
-						address: res.address,
+                    data: {
+                        address: res.address,
                         userName: res.userName,
                         avatar: res.avatar,
-					},
+                    },
                 };
                 return callback(reply);
             } else {
