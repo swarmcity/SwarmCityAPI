@@ -9,20 +9,23 @@ const sendSignedTransactionTask = require('../tasks/sendSignedTransaction')();
 /**
  * Function that sends a raw transaction to the blockchain.
  */
-class sendSignedTransactionFunction extends AbstractFunction {
+class ReplyShortCodeFunction extends AbstractFunction {
     /**
      * @param   {Object}    scheduledTask       Taskscheduler
-     * @param   {Object}    web3                Web3 connection
+     * @param   {Object}    dbService           Database service
      */
-    constructor(scheduledTask, web3) {
+    constructor(scheduledTask, dbService) {
         super(
-            'sendSignedTransaction', [{
+            'replyShortCode', [{
+                'name': 'shortCode',
+                'description': 'shortCode to reply',
+            }, {
                 'name': 'tx',
                 'description': 'Raw transaction you want to send.',
             }]
         );
         this.scheduledTask = scheduledTask;
-        this.web3 = web3;
+        this.dbService = dbService;
     }
 
     /**
@@ -46,8 +49,7 @@ class sendSignedTransactionFunction extends AbstractFunction {
             } else {
                 let reply = {
                     response: 500,
-                    data: res,
-                    error: task.error,
+                    data: task.error,
                 };
                 return callback(reply);
             }
@@ -63,8 +65,20 @@ class sendSignedTransactionFunction extends AbstractFunction {
      */
     func(data) {
         return (task) => {
-            logs.info('sendSignedTransaction start');
-            return sendSignedTransactionTask.sendSignedTransaction(data);
+            logs.info('ReplyShortCodeFunction start');
+            return new Promise((resolve, reject) => {
+                this.dbService.readShortCode(data.shortCode).then((res) => {
+                    // The generated code is single-use , we never will re-use a shortcode.
+                    // Not when it expires , and not when the request was canceled.
+                    this.dbService.deleteShortCode(res).then((res) => {
+                        return sendSignedTransactionTask.sendSignedTransaction(data);
+                    }).catch((error) => {
+                        reject(error);
+                    });
+                }).catch((error) => {
+                    reject(error);
+                });
+            });
         };
     }
 
@@ -87,4 +101,4 @@ class sendSignedTransactionFunction extends AbstractFunction {
     }
 }
 
-module.exports = sendSignedTransactionFunction;
+module.exports = ReplyShortCodeFunction;

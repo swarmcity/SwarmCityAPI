@@ -8,18 +8,17 @@ let handlers = [
 
 const scheduledTask = require('../scheduler/scheduledTask')();
 
-const web3 = require('../globalWeb3').web3;
 const ipfsService = require('../services').ipfsService;
 const dbService = require('../services').dbService;
 
 const IpfsCatFunction = require('./IpfsCatFunction');
 const IpfsAddFunction = require('./IpfsAddFunction');
-const SendSignedTransactionFunction = require('./SendSignedTransactionFunction');
+const ReplyShortCodeFunction = require('./ReplyShortCodeFunction');
 const ReadShortCodeFunction = require('./ReadShortCodeFunction');
 
 handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
 handlers.push(new IpfsAddFunction(scheduledTask, ipfsService));
-handlers.push(new SendSignedTransactionFunction(scheduledTask, web3));
+handlers.push(new ReplyShortCodeFunction(scheduledTask, dbService));
 handlers.push(new ReadShortCodeFunction(scheduledTask, dbService));
 
 /**
