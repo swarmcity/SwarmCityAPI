@@ -4,7 +4,7 @@ const logs = require('../logs')(module);
 
 const AbstractFunction = require('./AbstractFunction');
 
-const ethereumjsutil = require('ethereumjs-util');
+const sendSignedTransactionTask = require('../tasks/sendSignedTransaction')();
 
 /**
  * Function that sends a raw transaction to the blockchain.
@@ -64,31 +64,7 @@ class sendSignedTransactionFunction extends AbstractFunction {
     func(data) {
         return (task) => {
             logs.info('sendSignedTransaction start');
-            return new Promise((resolve, reject) => {
-                if (!data.tx) {
-                    reject(new Error('No tx present. Can\'t send.'));
-                }
-                let tx = ethereumjsutil.addHexPrefix(data.tx);
-                logs.debug('Sending signed transaction: %s', tx);
-                this.web3.eth.sendSignedTransaction(tx)
-                    .once('transactionHash', (hash) => {
-                        logs.debug('transactionHash %s', hash);
-                        resolve({'transactionHash': hash});
-                    })
-                    .on('error', (err, receipt) => {
-                        if (err.message &&
-                            err.message.startsWith('Failed to check for transaction receipt')
-                           ) {
-                            logs.debug('Another complaint about the receipt ignored.');
-                        } else {
-                            logs.error(err);
-                            if (receipt) {
-                                logs.error('We might be out of Gas: %j', receipt);
-                            }
-                            reject(new Error('Transaction error: ' + err));
-                        }
-                    });
-            });
+            return sendSignedTransactionTask.sendSignedTransaction(data);
         };
     }
 

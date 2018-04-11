@@ -51,7 +51,7 @@ class DBService {
                     logger.error('key %s not found (yet) in DB.', key);
                     return reject(err);
                 }
-                reject(err);
+                return reject(err);
             });
         });
     }
