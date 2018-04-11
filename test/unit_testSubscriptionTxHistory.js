@@ -24,7 +24,7 @@ describe('subscriptionTxHistory', function() {
         });
 
 
-        it('should reject when no publicKey is passed', function() {
+        it('should reject when no address is passed', function() {
             subscriptionTxHistory.createSubscription(()=>{}, {}).then((res) => {
                 Promise.reject('Expected rejection');
             }).catch((err) => {
@@ -35,9 +35,9 @@ describe('subscriptionTxHistory', function() {
             });
         });
 
-        it('should reject when an invalid publicKey is passed', function() {
+        it('should reject when an invalid address is passed', function() {
             subscriptionTxHistory.createSubscription(
-                ()=>{}, {'publicKey': 'cofefe'}
+                ()=>{}, {'address': 'cofefe'}
             ).then((res) => {
                 Promise.reject('Expected rejection');
             }).catch((err) => {
