@@ -238,7 +238,12 @@ function createSubscription(emitToSubscriber, args) {
                 }
             }
             // result.transactionHistory = updateConfirmations(result.transactionHistory, endBlock);
-            return result.transactionHistory;
+            let txList = {};
+            result.transactionHistory.forEach((tx) => {
+                txList[tx.transactionHash] = tx;
+            });
+            // return result.transactionHistory;
+            return txList;
         },
         responsehandler: (res, task) => {
             let replyHash = jsonHash.digest(res);
