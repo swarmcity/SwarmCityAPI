@@ -73,6 +73,8 @@ class ReplyShortCodeFunction extends AbstractFunction {
                     this.dbService.deleteShortCode(data.shortCode).then((res) => {
                         sendSignedTransactionTask.sendSignedTransaction(data).then((tx) =>{
                             resolve(tx);
+                        }).catch((error) => {
+                            reject(error);
                         });
                     }).catch((error) => {
                         reject(error);
