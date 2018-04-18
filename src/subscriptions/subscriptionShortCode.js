@@ -67,7 +67,7 @@ async function createUniqueShortCode(decimals) {
 	let newShortCode = createShortCode(decimals);
 
     try {
-        let shortCode = await dbService.readShortCode(newShortCode);
+        let shortCode = await dbService.readShortCode(newShortCode, true);
         if (shortCode) {
             return createUniqueShortCode(decimals);
         }

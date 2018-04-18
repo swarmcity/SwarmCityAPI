@@ -48,7 +48,7 @@ async function createTransferLog(log, direction, blockHeight) {
         'symbol': 'SWT',
         'from': log.returnValues._from,
         'to': log.returnValues._to,
-        'confirmed': blockHeight - log.blockNumber >= 12,
+        // 'confirmed': blockHeight - log.blockNumber >= 12,
     };
 }
 
@@ -64,7 +64,7 @@ async function createTransferLog(log, direction, blockHeight) {
 async function createLogsForDirection(address, direction, startBlock, endBlock) {
     let logs;
 
-    let filterParam = (direction == 'in' ) ? '_to' : '_from';
+    let filterParam = (direction == 'in') ? '_to' : '_from';
 
     logs = swtContractInstance.getPastEvents('Transfer', {
         'fromBlock': web3.utils.toHex(startBlock),
@@ -114,6 +114,7 @@ async function getTransactionHistory(address, startBlock, endBlock) {
  * @param   {Number}    currentBlock        Number of the current block
  * @return  {Array}     All transactions with the confirmed value updated.
  */
+/*
 function updateConfirmations(transactionHistory, currentBlock) {
     return transactionHistory.map((log) => {
         if (!log.confirmed) {
@@ -122,6 +123,7 @@ function updateConfirmations(transactionHistory, currentBlock) {
         return log;
     });
 }
+*/
 
 /**
  * Sort the log chronologically.
@@ -159,13 +161,13 @@ function cancelSubscription(task) {
  * @return     {Promise}  	resolves with the subscription object
  */
 function createSubscription(emitToSubscriber, args) {
-	// check arguments
-	if (!args || !args.address || !validate.isAddress(args.address)) {
-		return Promise.reject(
+    // check arguments
+    if (!args || !args.address || !validate.isAddress(args.address)) {
+        return Promise.reject(
             'Cannot subscribe to a transactionHistory without a valid address.'
         );
-	}
-	logger.info('Subscribing to transactionHistory for %s', args.address);
+    }
+    logger.info('Subscribing to transactionHistory for %s', args.address);
 
     // run a task that gets the past tx history for this pubkey
     let _getPastTxHistoryTask = {
@@ -235,38 +237,43 @@ function createSubscription(emitToSubscriber, args) {
                     result = await dbService.getTransactionHistory(task.data.address);
                 }
             }
-            result.transactionHistory = updateConfirmations(result.transactionHistory, endBlock);
-            return result.transactionHistory;
-		},
-		responsehandler: (res, task) => {
-			let replyHash = jsonHash.digest(res);
-			if (task.data.lastReplyHash !== replyHash) {
-				logger.debug('received modified response RES=%j', res);
-				emitToSubscriber('txHistoryChanged', res);
-				task.data.lastReplyHash = replyHash;
-			} else {
-				logger.info('Data hasn\'t changed.');
-			}
-			return blockHeaderTask.addTask(task);
-		},
-		data: {
-			address: args.address,
-		},
-	};
-	blockHeaderTask.addTask(_task);
-	// run it a first time return subscription
-	return _task.func(_task).then((reply) => {
-		return Promise.resolve({
-			task: _task,
-			initialResponse: reply,
-			cancelSubscription: cancelSubscription,
-		});
-	});
+            // result.transactionHistory = updateConfirmations(result.transactionHistory, endBlock);
+            let txList = {};
+            result.transactionHistory.forEach((tx) => {
+                txList[tx.transactionHash] = tx;
+            });
+            // return result.transactionHistory;
+            return txList;
+        },
+        responsehandler: (res, task) => {
+            let replyHash = jsonHash.digest(res);
+            if (task.data.lastReplyHash !== replyHash) {
+                logger.debug('received modified response RES=%j', res);
+                emitToSubscriber('txHistoryChanged', res);
+                task.data.lastReplyHash = replyHash;
+            } else {
+                logger.info('Data hasn\'t changed.');
+            }
+            return blockHeaderTask.addTask(task);
+        },
+        data: {
+            address: args.address,
+        },
+    };
+    blockHeaderTask.addTask(_task);
+    // run it a first time return subscription
+    return _task.func(_task).then((reply) => {
+        return Promise.resolve({
+            task: _task,
+            initialResponse: reply,
+            cancelSubscription: cancelSubscription,
+        });
+    });
 }
 
 module.exports = function() {
-	return ({
-		name: 'txHistory',
-		createSubscription: createSubscription,
-	});
+    return ({
+        name: 'txHistory',
+        createSubscription: createSubscription,
+    });
 };

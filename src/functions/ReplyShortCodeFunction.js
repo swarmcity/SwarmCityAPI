@@ -67,11 +67,15 @@ class ReplyShortCodeFunction extends AbstractFunction {
         return (task) => {
             logs.info('ReplyShortCodeFunction start');
             return new Promise((resolve, reject) => {
-                this.dbService.readShortCode(data.shortCode).then((res) => {
+                this.dbService.readShortCode(data.shortCode, true).then((res) => {
                     // The generated code is single-use , we never will re-use a shortcode.
                     // Not when it expires , and not when the request was canceled.
-                    this.dbService.deleteShortCode(res).then((res) => {
-                        return sendSignedTransactionTask.sendSignedTransaction(data);
+                    this.dbService.deleteShortCode(data.shortCode).then((res) => {
+                        sendSignedTransactionTask.sendSignedTransaction(data).then((tx) =>{
+                            resolve(tx);
+                        }).catch((error) => {
+                            reject(error);
+                        });
                     }).catch((error) => {
                         reject(error);
                     });
