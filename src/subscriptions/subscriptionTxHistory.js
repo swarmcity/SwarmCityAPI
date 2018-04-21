@@ -41,13 +41,14 @@ async function createTransferLog(log, direction, blockHeight) {
 
     return {
         'transactionHash': log.transactionHash,
-        'blockNumber': log.blockNumber,
+        'block': log.blockNumber,
         'dateTime': block.timestamp,
         'direction': direction,
         'amount': log.returnValues._amount / 10 ** 18,
         'symbol': 'SWT',
         'from': log.returnValues._from,
         'to': log.returnValues._to,
+        'status': 0,
         // 'confirmed': blockHeight - log.blockNumber >= 12,
     };
 }
@@ -238,12 +239,14 @@ function createSubscription(emitToSubscriber, args) {
                 }
             }
             // result.transactionHistory = updateConfirmations(result.transactionHistory, endBlock);
+            /*
             let txList = {};
             result.transactionHistory.forEach((tx) => {
                 txList[tx.transactionHash] = tx;
             });
-            // return result.transactionHistory;
-            return txList;
+            */
+            return result.transactionHistory;
+            // return txList;
         },
         responsehandler: (res, task) => {
             let replyHash = jsonHash.digest(res);
