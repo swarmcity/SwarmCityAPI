@@ -238,15 +238,7 @@ function createSubscription(emitToSubscriber, args) {
                     result = await dbService.getTransactionHistory(task.data.address);
                 }
             }
-            // result.transactionHistory = updateConfirmations(result.transactionHistory, endBlock);
-            /*
-            let txList = {};
-            result.transactionHistory.forEach((tx) => {
-                txList[tx.transactionHash] = tx;
-            });
-            */
             return result.transactionHistory;
-            // return txList;
         },
         responsehandler: (res, task) => {
             let replyHash = jsonHash.digest(res);
