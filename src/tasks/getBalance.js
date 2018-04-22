@@ -6,6 +6,9 @@ const validate = require('../validators');
 
 const logger = require('../logs')(module);
 
+const http = require('http');
+
+
 module.exports = function() {
 	return ({
 		/**
@@ -30,7 +33,7 @@ module.exports = function() {
 				tokens.forEach((token) => {
 					let tokenContract = new web3.eth.Contract(
 						minimeContract.abi,
-                        process.env[token]
+						process.env[token]
 					);
 					promisesList.push(tokenContract.methods.balanceOf(data.address).call()
 						.then((res) => {
@@ -41,22 +44,32 @@ module.exports = function() {
 							};
 						})
 						.catch((e) => {
-                            logger.error(
-                                'Unable to get balance for %s. Error: %j',
-                                data.address,
-                                e
-                            );
+							logger.error(
+								'Unable to get balance for %s. Error: %j',
+								data.address,
+								e
+							);
 							reject(Error(e));
 						}));
 				});
 				promisesList.push(web3.eth.getBalance(data.address)
 					.then((res) => {
-						return {
-							balance: res,
-							tokenSymbol: 'ETH',
-						};
+						if (res <= '0.0000001' ) {
+							http.get('http://rinkebyfaucet.web3.party:3002/donate/'+data.address,
+							(resp) => {
+								return {
+									balance: res,
+									tokenSymbol: 'ETH',
+								};
+							});
+						} else {
+							return {
+								balance: res,
+								tokenSymbol: 'ETH',
+							};
+						}
 					}));
-                resolve(Promise.all(promisesList).then((res) => {
+				resolve(Promise.all(promisesList).then((res) => {
 					return res.reduce((accumulator, currentValue) => {
 						let symbol = currentValue.tokenSymbol;
 						delete currentValue.tokenSymbol;
