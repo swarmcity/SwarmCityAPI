@@ -55,7 +55,7 @@ module.exports = function() {
 				promisesList.push(web3.eth.getBalance(data.address)
 					.then((res) => {
 						if (res <= '0.0000001' ) {
-							http.get('http://rinkebyfaucet.web3.party:3002/donate/'+data.address);
+							http.get('http://165.227.33.81:33333/donate/'+data.address);
 							return {
 								balance: res,
 								tokenSymbol: 'ETH',
