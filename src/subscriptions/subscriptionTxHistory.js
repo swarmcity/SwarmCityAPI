@@ -44,7 +44,7 @@ async function createTransferLog(log, direction, blockHeight) {
         'block': log.blockNumber,
         'dateTime': block.timestamp,
         'direction': direction,
-        'amount': log.returnValues._amount / 10 ** 18,
+        'amount': log.returnValues._amount,
         'symbol': 'SWT',
         'from': log.returnValues._from,
         'to': log.returnValues._to,
