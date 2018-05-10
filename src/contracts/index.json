@@ -20,11 +20,11 @@
     "rinkeby": {
         "tokens": {
             "SWT": {
-                "address": "0xb123eCb392ce38F7cbA15EEaA98730260875f471",
+                "address": "0xb8cfd62f05413f5c820efd00aa334467042c13f6",
                 "startblock": 1666477
             },
             "ARC": {
-                "address": "0xb123eCb392ce38F7cbA15EEaA98730260875f471"
+                "address": "0xb8cfd62f05413f5c820efd00aa334467042c13f6"
             }
         },
         "balances": {
