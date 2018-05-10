@@ -55,15 +55,6 @@ describe('Swarm City API socket client > test ipfsAdd', function() {
 		});
 	});
 
-	it('should fail on invalid base64 when calling ipfsAdd', function(done) {
-		client.emit('ipfsAdd', {
-			payload: '@#!)=',
-		}, (reply) => {
-			should(reply).have.property('response', 500);
-			done();
-		});
-	});
-
 	after(function(done) {
         if (process.env.TESTIPFS && process.env.TESTIPFS == '1') {
             logger.info('closing client socket');
