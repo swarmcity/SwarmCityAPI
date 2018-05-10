@@ -17,7 +17,7 @@ class IpfsAddFunction extends AbstractFunction {
         super(
             'ipfsAdd', [{
                 'name': 'payload',
-                'description': 'String containing the base64 data that must be stored',
+                'description': 'String containing the data that must be stored',
             }]
         );
         this.scheduledTask = scheduledTask;
