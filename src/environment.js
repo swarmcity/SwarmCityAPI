@@ -6,7 +6,7 @@ require('dotenv').config({
 });
 
 const contracts = require('./contracts/index.json');
-const NETWORK = process.env['NETWORK'] || 'rinkeby';
+const NETWORK = process.env['NETWORK'] || 'kovan';
 const contractConfig = contracts[NETWORK];
 
 process.env.PARAMETERSCONTRACT = contractConfig['parameterscontract']['address'];

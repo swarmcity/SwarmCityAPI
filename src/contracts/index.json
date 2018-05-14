@@ -34,5 +34,23 @@
             "address": "0xc72C38CEc7E46Ba8Ebe50abaaeFa807589A881F8",
             "startblock": 1660062
         }
+    },
+    "kovan": {
+        "tokens": {
+            "SWT": {
+                "address": "0xd5779b4ef0f001b7c46b29b3220d9755e3aba7a9",
+                "startblock": 7288019
+            },
+            "ARC": {
+                "address": "0xd5779b4ef0f001b7c46b29b3220d9755e3aba7a9"
+            }
+        },
+        "balances": {
+            "SWT": "0xACba1669a322cC4B472B5642ADFb814F156080b7"
+        },
+        "parameterscontract": {
+            "address": "0xc72C38CEc7E46Ba8Ebe50abaaeFa807589A881F8",
+            "startblock": 1660062
+        }
     }
 }
