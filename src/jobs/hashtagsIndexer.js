@@ -80,8 +80,22 @@ function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task)
 							}
 						} else {
 							// TODO
-							dbService.setLastBlock(endBlock).then(() => {
-								task.interval = 100;
+							let data = '[{"name":"Settler","deals":5,"id":"0x1c7e651e8ad6b39eb8f8d5a640d64d18a7eeb93d","commission":0.5,"maintainer":"0x369D787F3EcF4a0e57cDfCFB2Db92134e1982e09","contact":[{"name":"hashtagman1@gmail.com","link":"mailto:hashtagman1@gmail.com"},{"name":"@hashtag1 (Twitter)","link":"http://twitter.com/@hashtag1"}]},{"name":"DevOps","deals":64,"id":"1c9v87bc98v7a","commission":0.05,"maintainer":"0x369D787F3EcF4a0e57cDfCFB2Db92134e1982e09","contact":[{"name":"hashtagman2@gmail.com","link":"mailto:hashtagman2@gmail.com"},{"name":"@hashtag2 (Twitter)","link":"http://twitter.com/@hashtag2"}]}]'; // eslint-disable-line max-len
+
+							dbService.setHashtagList(data).then(() => {
+								dbService.setLastBlock(endBlock).then(() => {
+									task.interval = 100;
+									resolve(duration);
+								});
+							}).catch((err) => {
+								// DB error
+								// don't increase the block number & re-schedule for retry
+								logger.error(new Error(err));
+								task.interval = 1000;
+								logger.error(
+									'DB put failed. Try again in %i ms.',
+									task.interval
+								);
 								resolve(duration);
 							});
 						}
