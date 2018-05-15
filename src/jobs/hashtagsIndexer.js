@@ -35,9 +35,9 @@ function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task)
 	return new Promise((resolve, reject) => {
 		let startTime = Date.now();
 		hashtagProxyContractInstance.getPastEvents('HashtagSet', {
-				fromBlock: web3.utils.toHex(startBlock),
-				toBlock: web3.utils.toHex(endBlock),
-			})
+			fromBlock: web3.utils.toHex(startBlock),
+			toBlock: web3.utils.toHex(endBlock),
+		})
 			.then((logs) => {
 				let duration = Date.now() - startTime;
 				logger.info('Duration %i', duration);
@@ -61,9 +61,9 @@ function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task)
 										logger.error(new Error(err));
 										task.interval = 1000;
 										logger.error(
-                                            'DB put failed. Try again in %i ms.',
-                                            task.interval
-                                        );
+											'DB put failed. Try again in %i ms.',
+											task.interval
+										);
 										resolve(duration);
 									});
 								}).catch((err) => {
@@ -72,12 +72,18 @@ function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task)
 									logger.error(new Error(err));
 									task.interval = 1000;
 									logger.error(
-                                        'IPFS resolve failed. Try again in %i ms.',
-                                        task.interval
-                                    );
+										'IPFS resolve failed. Try again in %i ms.',
+										task.interval
+									);
 									resolve(duration);
 								});
 							}
+						} else {
+							// TODO
+							dbService.setLastBlock(endBlock).then(() => {
+								task.interval = 100;
+								resolve(duration);
+							});
 						}
 					}
 				} else {
@@ -134,16 +140,16 @@ module.exports = function() {
 										logger.info('++++++++++++++++++++++++++++++');
 										logger.info('took %i ms to start', taskTime);
 										logger.info(
-                                            'cumulativeEthClientTime %i ms',
+											'cumulativeEthClientTime %i ms',
 											cumulativeEthClientTime
-                                        );
+										);
 										logger.info('++++++++++++++++++++++++++++++');
 
 										dbService.setHashtagIndexerSynced(true).then(() => {
 											logger.info(
-                                                'hashtagindexer is synced',
-                                                endBlock
-                                            );
+												'hashtagindexer is synced',
+												endBlock
+											);
 											jobresolve();
 											return resolve();
 										});
@@ -153,9 +159,9 @@ module.exports = function() {
 
 									getPastEvents(startBlock, endBlock,
 										hashtagProxyContractInstance, task).then((scanDuration) => {
-										cumulativeEthClientTime += scanDuration;
-										resolve();
-									});
+											cumulativeEthClientTime += scanDuration;
+											resolve();
+										});
 								}).catch((e) => {
 									logger.error(e);
 									reject(e);
@@ -178,9 +184,9 @@ module.exports = function() {
 
 		reset: function() {
 			logger.info(
-                'Reset hashtagsIndexer. SetLastBlock to %i',
+				'Reset hashtagsIndexer. SetLastBlock to %i',
 				process.env.HASHTAGPROXYSTARTBLOCK
-            );
+			);
 			return dbService.setLastBlock(process.env.HASHTAGPROXYSTARTBLOCK).then(() => {
 				dbService.setHashtagIndexerSynced(false).then(() => {
 					return this.start();
