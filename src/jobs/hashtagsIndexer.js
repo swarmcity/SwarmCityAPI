@@ -8,7 +8,7 @@ require('../environment');
 const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
-const parametersContract = require('../contracts/Parameters.json');
+const hashtagProxyContract = require('../contracts/hashtagProxy.json');
 
 const ipfsService = require('../services').ipfsService;
 const dbService = require('../services').dbService;
@@ -27,14 +27,14 @@ function getBlockHeight() {
  *
  * @param      {Number}   startBlock                  The start block
  * @param      {Number}   endBlock                    The end block
- * @param      {Object}   parametersContractInstance  The parameters contract instance
+ * @param      {Object}   hashtagProxyContractInstance The parameters contract instance
  * @param      {Object}   task                        The task
  * @return     {Promise}  The past events.
  */
-function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
+function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task) {
 	return new Promise((resolve, reject) => {
 		let startTime = Date.now();
-		parametersContractInstance.getPastEvents('ParameterSet', {
+		hashtagProxyContractInstance.getPastEvents('HashtagSet', {
 				fromBlock: web3.utils.toHex(startBlock),
 				toBlock: web3.utils.toHex(endBlock),
 			})
@@ -101,14 +101,14 @@ module.exports = function() {
 			taskStartTime = Date.now();
 
 			// start up this task... print some parameters
-			logger.info('process.env.PARAMETERSCONTRACT=%s',
-				process.env.PARAMETERSCONTRACT);
-			logger.info('process.env.PARAMETERSCONTRACTSTARTBLOCK=%s',
-				process.env.PARAMETERSCONTRACTSTARTBLOCK);
+			logger.info('process.env.HASHTAGPROXYCONTRACT=%s',
+				process.env.HASHTAGPROXYCONTRACT);
+			logger.info('process.env.HASHTAGPROXYSTARTBLOCK=%s',
+				process.env.HASHTAGPROXYSTARTBLOCK);
 
-			let parametersContractInstance = new web3.eth.Contract(
-				parametersContract.abi,
-				process.env.PARAMETERSCONTRACT
+			let hashtagProxyContractInstance = new web3.eth.Contract(
+				hashtagProxyContract.abi,
+				process.env.HASHTAGPROXYCONTRACT
 			);
 
 			return new Promise((jobresolve, reject) => {
@@ -152,7 +152,7 @@ module.exports = function() {
 									logger.info('scanning %i -> %i', startBlock, endBlock);
 
 									getPastEvents(startBlock, endBlock,
-										parametersContractInstance, task).then((scanDuration) => {
+										hashtagProxyContractInstance, task).then((scanDuration) => {
 										cumulativeEthClientTime += scanDuration;
 										resolve();
 									});
@@ -179,9 +179,9 @@ module.exports = function() {
 		reset: function() {
 			logger.info(
                 'Reset hashtagsIndexer. SetLastBlock to %i',
-                process.env.PARAMETERSCONTRACTSTARTBLOCK
+				process.env.HASHTAGPROXYSTARTBLOCK
             );
-			return dbService.setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
+			return dbService.setLastBlock(process.env.HASHTAGPROXYSTARTBLOCK).then(() => {
 				dbService.setHashtagIndexerSynced(false).then(() => {
 					return this.start();
 				});

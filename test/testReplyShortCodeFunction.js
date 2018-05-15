@@ -75,7 +75,7 @@ describe('Swarm City API socket client > test replyShortCode', function() {
 				logger.info('replyShortCode returned', reply);
 				should(reply).have.property('response', 500);
 				should(reply).have.property('data',
-					'Transaction error: Error: Returned error: nonce too low');
+					'Transaction error: Error: Returned error: Transaction gas is too low. There is not enough gas to cover minimal cost of the transaction (minimal: 21656, got: 10000). Try increasing supplied gas.'); // eslint-disable-line
 				resolve();
 			});
 		}));
