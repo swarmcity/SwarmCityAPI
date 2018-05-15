@@ -54,6 +54,7 @@ describe('Swarm City API socket client > test replyShortCode', function() {
 			}));
 
 			Promise.all(promises).then(() => {
+				client.close();
 				done();
 			}).catch((err) => {
 				logger.info(err);
@@ -81,6 +82,7 @@ describe('Swarm City API socket client > test replyShortCode', function() {
 		}));
 
 		Promise.all(promises).then(() => {
+			client.close();
 			done();
 		}).catch((err) => {
 			logger.info(err);
@@ -90,7 +92,6 @@ describe('Swarm City API socket client > test replyShortCode', function() {
 
 	after(function(done) {
 		logger.info('closing client socket');
-		client.close();
 		server.close().then(() => {
 			logger.info('server closed...');
 			done();
