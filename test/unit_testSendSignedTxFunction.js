@@ -3,12 +3,12 @@
 const should = require('should');
 const sinon = require('sinon');
 
-const SendSignedTransactionFunction = require('../src/functions/SendSignedTxFunction');
+const SendSignedTransactionFunction = require('../src/functions/sendSignedTxFunction');
 
 describe('SendSignedTransactionFunction', function() {
     it('should have a name and parameters', function() {
         let fut = new SendSignedTransactionFunction();
-        should(fut.name()).be.equal('SendSignedTx');
+        should(fut.name()).be.equal('sendSignedTx');
         should(fut.parameters()).be.Array;
     });
 
@@ -22,7 +22,6 @@ describe('SendSignedTransactionFunction', function() {
         let scheduledTask = {'addTask': function() {}};
         let spy = sinon.stub(scheduledTask, 'addTask');
         let cb = sinon.spy();
-        let dbService = {'readShortCode': () => {}};
         let fut = new SendSignedTransactionFunction(scheduledTask, dbService);
         fut.execute(
             {},

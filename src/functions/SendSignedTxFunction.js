@@ -9,14 +9,14 @@ const sendSignedTransactionTask = require('../tasks/sendSignedTransaction')();
 /**
  * Function that sends a raw transaction to the blockchain.
  */
-class SendSignedTxFunction extends AbstractFunction {
+class sendSignedTxFunction extends AbstractFunction {
     /**
      * @param   {Object}    scheduledTask       Taskscheduler
      * @param   {Object}    dbService           Database service
      */
     constructor(scheduledTask, dbService) {
         super(
-            'SendSignedTx', [{
+            'sendSignedTx', [{
                 'name': 'tx',
                 'description': 'Raw transaction you want to send.',
             }]
@@ -62,7 +62,7 @@ class SendSignedTxFunction extends AbstractFunction {
      */
     func(data) {
         return (task) => {
-            logs.info('SendSignedTxFunction start');
+            logs.info('sendSignedTxFunction start');
             return new Promise((resolve, reject) => {
                 this.sendSignedTransaction(data.tx, true).then((res) => {
                     // The transaction is sent to the ethereum node.
@@ -93,4 +93,4 @@ class SendSignedTxFunction extends AbstractFunction {
     }
 }
 
-module.exports = SendSignedTxFunction;
+module.exports = sendSignedTxFunction;
