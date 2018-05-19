@@ -9,8 +9,8 @@ const DBService = require('./db').DBService;
 const dbService = new DBService(
     dbc,
     {
-        'parameterscontract': process.env.PARAMETERSCONTRACT,
-        'parameterscontractstartblock': process.env.PARAMETERSCONTRACTSTARTBLOCK,
+        'hashtagproxycontract': process.env.HASHTAGPROXYCONTRACT,
+        'hashtagproxycontractstartblock': process.env.HASHTAGPROXYSTARTBLOCK,
     }
 );
 

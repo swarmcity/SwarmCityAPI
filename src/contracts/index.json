@@ -12,7 +12,7 @@
         "balances": {
             "SWT": "0x7018d8f698bfa076e1bdc916e2c64caddc750944"
         },
-        "parameterscontract": {
+        "hashtagproxycontract": {
             "address": "0x452a72e290fEEeb08fF80A08aCdac2267CC29c06",
             "startblock": 4556969
         }
@@ -30,9 +30,27 @@
         "balances": {
             "SWT": "0xACba1669a322cC4B472B5642ADFb814F156080b7"
         },
-        "parameterscontract": {
+        "hashtagproxycontract": {
             "address": "0xc72C38CEc7E46Ba8Ebe50abaaeFa807589A881F8",
             "startblock": 1660062
+        }
+    },
+    "kovan": {
+        "tokens": {
+            "SWT": {
+                "address": "0x0adbc89464cb7fa752adcf3533514949a2547589",
+                "startblock": 7288019
+            },
+            "ARC": {
+                "address": "0x0adbc89464cb7fa752adcf3533514949a2547589"
+            }
+        },
+        "balances": {
+            "SWT": "0x0adbc89464cb7fa752adcf3533514949a2547589"
+        },
+        "hashtagproxycontract": {
+            "address": "0xe2cfd139f2f7ce127e0ddae6147f42657d32dc02",
+            "startblock": 7295529
         }
     }
 }

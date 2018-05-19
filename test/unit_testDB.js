@@ -137,7 +137,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -162,7 +162,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -189,7 +189,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -208,7 +208,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -229,7 +229,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -249,7 +249,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -271,7 +271,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -300,8 +300,8 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
-                    'parameterscontractstartblock': '1234',
+                    'hashtagproxycontract': 'mockContract',
+                    'hashtagproxycontractstartblock': '1234',
                 }
             );
 
@@ -325,7 +325,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -346,7 +346,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -369,7 +369,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -393,7 +393,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -417,7 +417,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -449,7 +449,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -473,7 +473,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -508,7 +508,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -543,7 +543,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -590,7 +590,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -622,7 +622,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 
@@ -656,7 +656,7 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(
                 mockDB,
                 {
-                    'parameterscontract': 'mockContract',
+                    'hashtagproxycontract': 'mockContract',
                 }
             );
 

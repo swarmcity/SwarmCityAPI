@@ -1,0 +1,192 @@
+{
+    "contractName": "HashtagProxy",
+    "abi": [
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "defaultTTL",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "_name",
+                    "type": "string"
+                },
+                {
+                    "name": "_ipfsValue",
+                    "type": "string"
+                }
+            ],
+            "name": "setHashtag",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "_ttl",
+                    "type": "uint256"
+                }
+            ],
+            "name": "setTTL",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "renounceOwnership",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "owner",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "transferOwnership",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "_name",
+                    "type": "string"
+                }
+            ],
+            "name": "getHashtagMetadata",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "name": "hashtagName",
+                    "type": "string"
+                },
+                {
+                    "indexed": false,
+                    "name": "ipfsHash",
+                    "type": "string"
+                }
+            ],
+            "name": "HashtagSet",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "name": "previousOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "OwnershipRenounced",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "name": "previousOwner",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "OwnershipTransferred",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "name": "pubKey",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "name": "hashAdded",
+                    "type": "string"
+                },
+                {
+                    "indexed": false,
+                    "name": "ttl",
+                    "type": "uint256"
+                }
+            ],
+            "name": "HashAdded",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": false,
+                    "name": "pubKey",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "name": "hashRemoved",
+                    "type": "string"
+                }
+            ],
+            "name": "HashRemoved",
+            "type": "event"
+        }
+    ]
+}

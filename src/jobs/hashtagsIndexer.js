@@ -8,7 +8,7 @@ require('../environment');
 const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
-const parametersContract = require('../contracts/Parameters.json');
+const hashtagProxyContract = require('../contracts/hashtagProxy.json');
 
 const ipfsService = require('../services').ipfsService;
 const dbService = require('../services').dbService;
@@ -27,17 +27,17 @@ function getBlockHeight() {
  *
  * @param      {Number}   startBlock                  The start block
  * @param      {Number}   endBlock                    The end block
- * @param      {Object}   parametersContractInstance  The parameters contract instance
+ * @param      {Object}   hashtagProxyContractInstance The parameters contract instance
  * @param      {Object}   task                        The task
  * @return     {Promise}  The past events.
  */
-function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
+function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task) {
 	return new Promise((resolve, reject) => {
 		let startTime = Date.now();
-		parametersContractInstance.getPastEvents('ParameterSet', {
-				fromBlock: web3.utils.toHex(startBlock),
-				toBlock: web3.utils.toHex(endBlock),
-			})
+		hashtagProxyContractInstance.getPastEvents('HashtagSet', {
+			fromBlock: web3.utils.toHex(startBlock),
+			toBlock: web3.utils.toHex(endBlock),
+		})
 			.then((logs) => {
 				let duration = Date.now() - startTime;
 				logger.info('Duration %i', duration);
@@ -61,9 +61,9 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 										logger.error(new Error(err));
 										task.interval = 1000;
 										logger.error(
-                                            'DB put failed. Try again in %i ms.',
-                                            task.interval
-                                        );
+											'DB put failed. Try again in %i ms.',
+											task.interval
+										);
 										resolve(duration);
 									});
 								}).catch((err) => {
@@ -72,12 +72,32 @@ function getPastEvents(startBlock, endBlock, parametersContractInstance, task) {
 									logger.error(new Error(err));
 									task.interval = 1000;
 									logger.error(
-                                        'IPFS resolve failed. Try again in %i ms.',
-                                        task.interval
-                                    );
+										'IPFS resolve failed. Try again in %i ms.',
+										task.interval
+									);
 									resolve(duration);
 								});
 							}
+						} else {
+							// TODO
+							let data = '[{"name":"Settler","deals":5,"id":"0x1c7e651e8ad6b39eb8f8d5a640d64d18a7eeb93d","commission":0.5,"maintainer":"0x369D787F3EcF4a0e57cDfCFB2Db92134e1982e09","contact":[{"name":"hashtagman1@gmail.com","link":"mailto:hashtagman1@gmail.com"},{"name":"@hashtag1 (Twitter)","link":"http://twitter.com/@hashtag1"}]},{"name":"DevOps","deals":64,"id":"1c9v87bc98v7a","commission":0.05,"maintainer":"0x369D787F3EcF4a0e57cDfCFB2Db92134e1982e09","contact":[{"name":"hashtagman2@gmail.com","link":"mailto:hashtagman2@gmail.com"},{"name":"@hashtag2 (Twitter)","link":"http://twitter.com/@hashtag2"}]}]'; // eslint-disable-line max-len
+
+							dbService.setHashtagList(data).then(() => {
+								dbService.setLastBlock(endBlock).then(() => {
+									task.interval = 100;
+									resolve(duration);
+								});
+							}).catch((err) => {
+								// DB error
+								// don't increase the block number & re-schedule for retry
+								logger.error(new Error(err));
+								task.interval = 1000;
+								logger.error(
+									'DB put failed. Try again in %i ms.',
+									task.interval
+								);
+								resolve(duration);
+							});
 						}
 					}
 				} else {
@@ -101,14 +121,14 @@ module.exports = function() {
 			taskStartTime = Date.now();
 
 			// start up this task... print some parameters
-			logger.info('process.env.PARAMETERSCONTRACT=%s',
-				process.env.PARAMETERSCONTRACT);
-			logger.info('process.env.PARAMETERSCONTRACTSTARTBLOCK=%s',
-				process.env.PARAMETERSCONTRACTSTARTBLOCK);
+			logger.info('process.env.HASHTAGPROXYCONTRACT=%s',
+				process.env.HASHTAGPROXYCONTRACT);
+			logger.info('process.env.HASHTAGPROXYSTARTBLOCK=%s',
+				process.env.HASHTAGPROXYSTARTBLOCK);
 
-			let parametersContractInstance = new web3.eth.Contract(
-				parametersContract.abi,
-				process.env.PARAMETERSCONTRACT
+			let hashtagProxyContractInstance = new web3.eth.Contract(
+				hashtagProxyContract.abi,
+				process.env.HASHTAGPROXYCONTRACT
 			);
 
 			return new Promise((jobresolve, reject) => {
@@ -134,16 +154,16 @@ module.exports = function() {
 										logger.info('++++++++++++++++++++++++++++++');
 										logger.info('took %i ms to start', taskTime);
 										logger.info(
-                                            'cumulativeEthClientTime %i ms',
+											'cumulativeEthClientTime %i ms',
 											cumulativeEthClientTime
-                                        );
+										);
 										logger.info('++++++++++++++++++++++++++++++');
 
 										dbService.setHashtagIndexerSynced(true).then(() => {
 											logger.info(
-                                                'hashtagindexer is synced',
-                                                endBlock
-                                            );
+												'hashtagindexer is synced',
+												endBlock
+											);
 											jobresolve();
 											return resolve();
 										});
@@ -152,10 +172,10 @@ module.exports = function() {
 									logger.info('scanning %i -> %i', startBlock, endBlock);
 
 									getPastEvents(startBlock, endBlock,
-										parametersContractInstance, task).then((scanDuration) => {
-										cumulativeEthClientTime += scanDuration;
-										resolve();
-									});
+										hashtagProxyContractInstance, task).then((scanDuration) => {
+											cumulativeEthClientTime += scanDuration;
+											resolve();
+										});
 								}).catch((e) => {
 									logger.error(e);
 									reject(e);
@@ -178,10 +198,10 @@ module.exports = function() {
 
 		reset: function() {
 			logger.info(
-                'Reset hashtagsIndexer. SetLastBlock to %i',
-                process.env.PARAMETERSCONTRACTSTARTBLOCK
-            );
-			return dbService.setLastBlock(process.env.PARAMETERSCONTRACTSTARTBLOCK).then(() => {
+				'Reset hashtagsIndexer. SetLastBlock to %i',
+				process.env.HASHTAGPROXYSTARTBLOCK
+			);
+			return dbService.setLastBlock(process.env.HASHTAGPROXYSTARTBLOCK).then(() => {
 				dbService.setHashtagIndexerSynced(false).then(() => {
 					return this.start();
 				});

@@ -15,8 +15,8 @@ class DBService {
     constructor(db, options) {
         this.db = db;
         this.options = options || {
-            'parameterscontract': '',
-            'parameterscontractstartblock': '',
+            'hashtagproxycontract': '',
+            'hashtagproxycontractstartblock': '',
         };
     }
 
@@ -106,23 +106,23 @@ class DBService {
     }
 
     /**
-     * Returns last processed block of the parameters contract
+     * Returns last processed block of the hashtagProxy contract
      * ( or the deployment block if not initialized yet...)
      *
      * @return     {Promise}  The last block.
      */
     getLastBlock() {
         return new Promise((resolve, reject) => {
-            let key = 'lastblock-' + this.options.parameterscontract;
+            let key = 'lastblock-' + this.options.hashtagproxycontract;
             this.db.get(key).then((val) => {
                 resolve(parseInt(val));
             }).catch((err) => {
                 if (err.notFound) {
                     logger.info(
                         'no lastblock in DB. Falling back to the startblock %i',
-                        this.options.parameterscontractstartblock
+                        this.options.hashtagproxycontractstartblock
                     );
-                    resolve(parseInt(this.options.parameterscontractstartblock));
+                    resolve(parseInt(this.options.hashtagproxycontractstartblock));
                 }
                 reject(new Error(err));
             });
@@ -136,7 +136,7 @@ class DBService {
      * @return     {Promise}    promise
      */
     setLastBlock(blockNumber) {
-        return this.db.put('lastblock-' + this.options.parameterscontract, blockNumber);
+        return this.db.put('lastblock-' + this.options.hashtagproxycontract, blockNumber);
     }
 
     /**
@@ -156,7 +156,7 @@ class DBService {
      * @return      {Promise}   promise
      */
     setHashtagList(list) {
-        return this.db.put(this.options.parameterscontract + '-hashtaglist', list);
+        return this.db.put(this.options.hashtagproxycontract + '-hashtaglist', list);
     }
 
     /**
@@ -166,7 +166,7 @@ class DBService {
      */
     getHashtagList() {
         return new Promise((resolve, reject) => {
-            let key = this.options.parameterscontract + '-hashtaglist';
+            let key = this.options.hashtagproxycontract + '-hashtaglist';
             this.db.get(key).then((val) => {
                 try {
                     let hashtags = JSON.parse(val);
