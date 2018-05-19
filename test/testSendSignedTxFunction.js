@@ -23,7 +23,7 @@ describe('Swarm City API socket client > test sendSignedTx', function() {
 		}).then((con) => {
 			socketURL = 'http://localhost:' + con.port;
 			done();
-		})
+		});
 	});
 
 	it('should connect and call sendSignedTx',
