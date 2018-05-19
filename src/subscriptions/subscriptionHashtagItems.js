@@ -27,7 +27,12 @@ function cancelSubscription(task) {
  * @return     {Promise}  	resolves with the subscription object
  */
 function createSubscription(emitToSubscriber, args) {
-	logs.info('subscribe to balance please....');
+	// check arguments
+	// if (!args || !args.address || !validate.isAddress(args.address)) {
+	// 	return Promise.reject('Cannot subscribe to a hashtag without a valid address.');
+	// }
+	logs.info('Subscribing to hastagitems for %s', args.address);
+
 	// create task
 	let _task = {
 		func: (task) => {
@@ -39,11 +44,11 @@ function createSubscription(emitToSubscriber, args) {
 		responsehandler: (res, task) => {
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
-				logs.debug('received getBalance RES=', JSON.stringify(res, null, 4));
-				emitToSubscriber('hashtagsChanged', res);
+				logs.debug('received hashtagItems RES=', JSON.stringify(res, null, 4));
+				emitToSubscriber('hashtagItemsChanged', res);
 				task.data.lastReplyHash = replyHash;
 			} else {
-				logs.info('hashtagsChanged => data hasn\'t changed.');
+				logs.info('hashtagItemsChanged => data hasn\'t changed.');
 			}
 			return blockHeaderTask.addTask(task);
 		},
@@ -64,7 +69,7 @@ function createSubscription(emitToSubscriber, args) {
 
 module.exports = function() {
 	return ({
-		name: 'hashtagitems',
+		name: 'hashtagItems',
 		createSubscription: createSubscription,
 	});
 };
