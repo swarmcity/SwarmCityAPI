@@ -3,7 +3,7 @@
 const should = require('should');
 const sinon = require('sinon');
 
-const SendSignedTransactionFunction = require('../src/functions/sendSignedTxFunction');
+const SendSignedTransactionFunction = require('../src/functions/SendSignedTxFunction');
 
 describe('SendSignedTransactionFunction', function() {
     it('should have a name and parameters', function() {
