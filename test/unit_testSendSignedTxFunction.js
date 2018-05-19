@@ -15,17 +15,17 @@ describe('SendSignedTransactionFunction', function() {
     it('should validate that the correct parameters are present', function() {
         let fut = new SendSignedTransactionFunction();
         let errors = fut.validateData({});
-        should(errors.length).be.equal(2);
+        should(errors.length).be.equal(1);
     });
 
     it('should create a task and add it to the queue', function() {
-        let scheduledTask = {'addTask': function() {}};
+        let scheduledTask = {'addTask': function() { }};
         let spy = sinon.stub(scheduledTask, 'addTask');
         let cb = sinon.spy();
-        let fut = new SendSignedTransactionFunction(scheduledTask, dbService);
+        let fut = new SendSignedTransactionFunction(scheduledTask);
         fut.execute(
             {},
-            {'tx': '0xf889808609184e72a00082271094000000000000000000000000000000000000000080a47f74657374320000000000000000000000000000000000000000000000000000006000571ca08a8bbf888cfa37bbf0bb965423625641fc956967b81d12e23709cead01446075a01ce999b56a8a88504be365442ea61239198e23d1fce7d00fcfc5cd3b44b7215f'}, // eslint-disable-line
+            { 'tx': '0xf889808609184e72a00082271094000000000000000000000000000000000000000080a47f74657374320000000000000000000000000000000000000000000000000000006000571ca08a8bbf888cfa37bbf0bb965423625641fc956967b81d12e23709cead01446075a01ce999b56a8a88504be365442ea61239198e23d1fce7d00fcfc5cd3b44b7215f' }, // eslint-disable-line
             cb
         );
         should(spy.calledOnce).be.ok();
@@ -46,6 +46,4 @@ describe('SendSignedTransactionFunction', function() {
             }
         )).be.ok();
     });
-
-    
 });

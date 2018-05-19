@@ -12,9 +12,8 @@ const sendSignedTransactionTask = require('../tasks/sendSignedTransaction')();
 class sendSignedTxFunction extends AbstractFunction {
     /**
      * @param   {Object}    scheduledTask       Taskscheduler
-     * @param   {Object}    dbService           Database service
      */
-    constructor(scheduledTask, dbService) {
+    constructor(scheduledTask) {
         super(
             'sendSignedTx', [{
                 'name': 'tx',
@@ -22,7 +21,6 @@ class sendSignedTxFunction extends AbstractFunction {
             }]
         );
         this.scheduledTask = scheduledTask;
-        this.dbService = dbService;
     }
 
     /**
@@ -64,9 +62,9 @@ class sendSignedTxFunction extends AbstractFunction {
         return (task) => {
             logs.info('sendSignedTxFunction start');
             return new Promise((resolve, reject) => {
-                this.sendSignedTransaction(data.tx, true).then((res) => {
+                sendSignedTransactionTask.sendSignedTransaction(data, true).then((res) => {
                     // The transaction is sent to the ethereum node.
-                    resolve(tx);
+                    resolve(res);
                 }).catch((error) => {
                     reject(error);
                 });
