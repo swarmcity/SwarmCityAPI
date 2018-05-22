@@ -36,9 +36,9 @@ describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', funct
 		for (let i = 0; i < 1; i++) {
 			promises.push(new Promise((resolve, reject) => {
 				client.emit('subscribe', {
-					channel: 'hashtagitems',
+					channel: 'hashtagItems',
 					args: {
-						address: '0x7018d8f698bfa076e1bdc916e2c64caddc750944',
+						address: '0x9258385b6bad9b1f6d5374b063b8c4b63c5b7191',
 					},
 				}, (data) => {
 					should(data).have.property('response', 200);
@@ -46,7 +46,7 @@ describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', funct
 
 					subscriptions.push(data.subscriptionId);
 
-					logger.info('subscribe>>>balance', data);
+					logger.info('subscribe>>>hashtagItems', data);
 					resolve();
 				});
 			}));
@@ -59,13 +59,6 @@ describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', funct
 			done();
 		});
 	});
-
-
-	// it('should wait a while', (done) => {
-	// 	setTimeout(() => {
-	// 		done();
-	// 	}, 2 * 1000);
-	// });
 
 	it('should unsubscribe / receive a confirmation', (done) => {
 		let promises = [];

@@ -6,6 +6,8 @@ const logs = require('../logs.js')(module);
 const jsonHash = require('json-hash');
 const getHashtagItems = require('../tasks/getHashtagItems')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
+const validate = require('../validators');
+
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe
@@ -28,18 +30,16 @@ function cancelSubscription(task) {
  */
 function createSubscription(emitToSubscriber, args) {
 	// check arguments
-	// if (!args || !args.address || !validate.isAddress(args.address)) {
-	// 	return Promise.reject('Cannot subscribe to a hashtag without a valid address.');
-	// }
+	if (!args || !args.address || !validate.isAddress(args.address)) {
+		return Promise.reject('Cannot subscribe to a hashtag without a valid address.');
+	}
 	logs.info('Subscribing to hastagitems for %s', args.address);
 
 	// create task
 	let _task = {
-		func: (task) => {
-			return Promise.resolve(getHashtagItems.getHashtagItems(task.data).then((res) => {
-				task.data.lastReplyHash = jsonHash.digest(res);
-				return (res);
-			}));
+		name: 'hashtagItems',
+		func: async (task) => {
+			return await getHashtagItems.getHashtagItems(task.data);
 		},
 		responsehandler: (res, task) => {
 			let replyHash = jsonHash.digest(res);

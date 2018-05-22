@@ -1,51 +1,27 @@
 const logs = require('../logs')(module);
-module.exports = function(web3) {
+const dbService = require('../services').dbService;
+
+module.exports = function() {
 	return ({
 		getHashtagItems: function(hashtag) {
-			const returnObject = {
-
-				'hashtagData': [{
-					'hashtagMaintainer': '0xA4E3e53e89e575b32249e6105dA159a4f48D34de',
-					'hashtagName': 'BoardwalkTest',
-					'hashtagDescription': 'This is the testing hashtag for Boardwalk v2',
-					'hashtagItems': 4,
-					'hashtagContact': [{
-						'contactName': 'Bernd Lapp',
-						'contactLink': 'https://twitter.com/BerndLapp',
-					}],
-				}],
-				'itemsData': [{
-					'itemId': '0x000',
-					'name': 'Faffy D',
-					'avatar': 'IPFS',
-					'balance': 10,
-					'description': 'Need a ride from McDonalds Meir to CryptoSpot',
-					'dateTime': 1508335855072,
-					'location': 'u1557fpvm1hb',
-					'value': 12,
-				}, {
-					'itemId': '0x000',
-					'name': 'Faffy D',
-					'avatar': 'IPFS',
-					'balance': 10,
-					'description': 'Need a ride from McDonalds Meir to CryptoSpot',
-					'dateTime': 1508335855072,
-					'location': 'u1557fpvm1hb',
-					'value': 12,
-				}, {
-					'itemId': '0x000',
-					'name': 'Faffy D',
-					'avatar': 'IPFS',
-					'balance': 10,
-					'description': 'Need a ride from McDonalds Meir to CryptoSpot',
-					'dateTime': 1508335855072,
-					'location': 'u1557fpvm1hb',
-					'value': 12,
-				}],
-			};
 			return new Promise((resolve, reject) => {
-				logs.info('HashtagsItems: ', returnObject);
-				resolve(returnObject);
+				dbService.getHashtagDeals(hashtag.address).then((items) => {
+					let hashtagInfo = {
+						'hashtagData': {
+							'hashtagMaintainer': '0x9258385b6bad9b1f6d5374b063b8c4b63c5b7191',
+							'hashtagName': 'Settler',
+							'hashtagDescription': 'This is the testing hashtag for Boardwalk v2',
+							'hashtagItems': items.length,
+							'hashtagContact': [{
+								'contactName': 'Bernd Lapp',
+								'contactLink': 'https://twitter.com/BerndLapp',
+							}],
+						}, 'itemsData': items,
+					};
+
+					logs.info('HashtagsItems: ', hashtagInfo);
+					resolve(hashtagInfo);
+				});
 			});
 		},
 	});
