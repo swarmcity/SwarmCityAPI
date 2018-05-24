@@ -260,9 +260,12 @@ class DBService {
                 let newItem = JSON.parse(val);
                 let data = JSON.parse(metadata);
                 newItem.description = data.description;
-                newItem.location = data.location;
-                newItem.seeker.username = data.name;
+                newItem.location = data.location || '';
+                newItem.seeker.username = data.username;
                 newItem.seeker.avatarHash = data.avatarHash;
+                this.db.put(key, JSON.stringify(newItem)).then(() => {
+                    resolve({});
+                });
             }).catch((err) => {
                 if (err.notFound) {
                     logger.info(
