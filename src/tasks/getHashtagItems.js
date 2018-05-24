@@ -1,4 +1,3 @@
-const logs = require('../logs')(module);
 const dbService = require('../services').dbService;
 
 module.exports = function() {
