@@ -6,7 +6,6 @@ module.exports = function() {
 			return new Promise((resolve, reject) => {
 				dbService.getHashtagDeals(hashtag.address).then((items) => {
 					let hashtagInfo = {
-						'hashtagData': {
 							'name': 'Settler',
 							'stats': {
 								'paidNoConflict': 69,
@@ -16,13 +15,13 @@ module.exports = function() {
 							},
 							'description': 'Settler is the first amazing hashtag',
 							'maintainer': {
-								'avatar': '',
+								'avatarHash': '',
 								'username': 'Mungo Weber',
 								'address': '0x3847F87F3EcF4a0e57djF73B2Db92134e1983ef5',
 							},
-						}, 'itemsData': items,
+							'hashtagFee': 500000000000000000,
+							'items': items,
 					};
-
 					resolve(hashtagInfo);
 				});
 			});

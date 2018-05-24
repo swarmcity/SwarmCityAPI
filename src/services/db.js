@@ -262,49 +262,7 @@ class DBService {
                 newItem.description = data.description;
                 newItem.location = data.location;
                 newItem.seeker.username = data.name;
-                newItem.seeker.avatar = data.avatar;
-                this.db.put(key, JSON.stringify(newItem)).then(() => {
-                    IPFSTask.addTask({
-                        count: 1,
-                        func: (task) => {
-                            const ipfsService = require('../services').ipfsService;
-
-                            return ipfsService.cat(task.data.hash, (error, file) => {
-                                if (error) reject(error);
-                                resolve(file.toString('utf8'));
-                            });
-                        },
-                        responsehandler: async (res, task) => {
-                            if (task.error === 'Error: this dag node is a directory') {
-                                return;
-                            } else if (task.error === 'Error: IPFS request timed out'
-                                || task.error === 'Error: read ECONNRESET') {
-                                task.error = null;
-
-                                task.count = task.count * 10;
-                                if (task.count > 172800) {
-                                    logger.error('Error on hash %s: %s',
-                                        task.data.hash,
-                                        task.error);
-                                    return;
-                                }
-                                task.nextRun = (new Date).getTime() + task.count * 1000;
-                                logger.info('Timeout on hash %s', task.data.hash);
-                                IPFSTask.addTask(task);
-                                return;
-                            } else if (task.error) {
-                                IPFSTask.addTask(task);
-                                return;
-                            }
-                            newItem.seeker.avatar = res;
-                            await this.db.put(key, JSON.stringify(newItem));
-                            return;
-                        },
-                        data: {
-                            hash: data.avatar,
-                        },
-                    });
-                });
+                newItem.seeker.avatarHash = data.avatarHash;
             }).catch((err) => {
                 if (err.notFound) {
                     logger.info(

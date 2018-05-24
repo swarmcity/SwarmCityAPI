@@ -50,7 +50,7 @@ async function createItem(log, blockHeight) {
         'seeker': {
             address: log.returnValues.owner,
             username: '',
-            avatar: '',
+            avatarHash: '',
             rep: 0,
         },
         'description': '',
