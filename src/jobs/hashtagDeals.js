@@ -6,9 +6,10 @@ const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
 const hashtagContract = require('../contracts/hashtagSimpleDeal.json');
 
+const IPFSTask = require('../scheduler/IPFSTask')();
 
-const ipfsService = require('../services').ipfsService;
 const dbService = require('../services').dbService;
+const ipfsService = require('../services').ipfsService;
 
 /**
  * Gets the block height from the blockchain
@@ -44,10 +45,17 @@ async function createItem(log, blockHeight) {
         'itemHash': log.returnValues.dealhash,
         'hashtagFee': log.returnValues.hashtagFee,
         'ipfsMetadata': log.returnValues.ipfsMetadata,
-        'totalValue': log.returnValues.totalValue,
+        /* 'totalValue': log.returnValues.totalValue, */
         'value': log.returnValues.offerValue,
-        'seeker': {username: log.returnValues.owne},
-        'timestamp': block.timestamp,
+        'seeker': {
+            address: log.returnValues.owner,
+            username: '',
+            avatar: '',
+            rep: 0,
+        },
+        'description': '',
+        'dateTime': block.timestamp,
+        'location': '',
     };
 }
 
@@ -80,15 +88,47 @@ function getPastEvents(startBlock, endBlock, hashtagAddress, task) {
 
                     createItem(log, log.blockNumber).then((item) => {
                         dbService.setHashtagItem(hashtagAddress, item).then(() => {
-                            if (ipfsService.isIPFSHash(item.ipfsMetadata)) {
-                                ipfsService.cat(log.returnValues.ipfsMetadata).then((data) => {
-                                    data = data.toString();
-                                });
-                            }
+                            IPFSTask.addTask({
+                                count: 1,
+                                func: (task) => {
+                                    return ipfsService.cat(task.data.hash, (error, file) => {
+                                        if (error) reject(error);
+                                        resolve(file.toString('utf8'));
+                                    });
+                                },
+                                responsehandler: async (res, task) => {
+                                    if (task.error === 'Error: this dag node is a directory') {
+                                        return;
+                                    } else if (task.error === 'Error: IPFS request timed out'
+                                        || task.error === 'Error: read ECONNRESET') {
+                                        task.error = null;
+                                        task.count = task.count * 10;
+                                        if (task.count > 172800) {
+                                            logger.error('Error on hash %s: %s',
+                                                task.data.hash,
+                                                task.error);
+                                            return;
+                                        }
+                                        task.nextRun = (new Date).getTime() + task.count * 1000;
+                                        logger.info('Timeout on hash %s', task.data.hash);
+                                        IPFSTask.addTask(task);
+                                        return;
+                                    } else if (task.error) {
+                                        IPFSTask.addTask(task);
+                                        return;
+                                    }
+                                    await dbService.updateHashtagItem(hashtagAddress, item, res);
+                                    return;
+                                },
+                                data: {
+                                    hash: item.ipfsMetadata,
+                                },
+                            });
                         });
                     });
                 }
             }
+
             dbService.setLastHashtagBlock(hashtagAddress, endBlock).then(() => {
                 task.interval = 100;
                 resolve(duration);

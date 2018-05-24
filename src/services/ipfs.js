@@ -2,8 +2,6 @@
 
 const logger = require('../logs')(module);
 
-const bl = require('bl');
-
 /**
  * A service that collects all interactions with IPFS
  */
@@ -42,17 +40,11 @@ class IPFSService {
             return Promise.reject(new Error(hash + ' is not a valid IPFS hash'));
         }
         return new Promise((resolve, reject) => {
-            this.ipfs.files.cat(hash, (err, stream) => {
+            this.ipfs.files.cat(hash, (err, file) => {
                 if (err) {
                     return reject(new Error(err));
                 }
-                stream.pipe(bl((err, data) => {
-                    if (err) {
-                        reject(new Error(err));
-                    } else {
-                        resolve(data);
-                    }
-                }));
+                resolve(file.toString('utf8'));
             });
         });
     }
