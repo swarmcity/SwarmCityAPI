@@ -8,14 +8,19 @@ module.exports = function() {
 				dbService.getHashtagDeals(hashtag.address).then((items) => {
 					let hashtagInfo = {
 						'hashtagData': {
-							'hashtagMaintainer': '0x9258385b6bad9b1f6d5374b063b8c4b63c5b7191',
-							'hashtagName': 'Settler',
-							'hashtagDescription': 'This is the testing hashtag for Boardwalk v2',
-							'hashtagItems': items.length,
-							'hashtagContact': [{
-								'contactName': 'Bernd Lapp',
-								'contactLink': 'https://twitter.com/BerndLapp',
-							}],
+							'name': 'Settler',
+							'stats': {
+								'paidNoConflict': 69,
+								'resolved': 23,
+								'seekers': 42,
+								'providers': 12,
+							},
+							'description': 'Settler is the first amazing hashtag',
+							'maintainer': {
+								'avatar': '',
+								'username': 'Mungo Weber',
+								'address': '0x3847F87F3EcF4a0e57djF73B2Db92134e1983ef5',
+							},
 						}, 'itemsData': items,
 					};
 
