@@ -259,10 +259,10 @@ class DBService {
             this.db.get(key).then((val) => {
                 let newItem = JSON.parse(val);
                 let data = JSON.parse(metadata);
-                newItem.description = data.description;
+                newItem.description = data.description || '';
                 newItem.location = data.location || '';
-                newItem.seeker.username = data.username;
-                newItem.seeker.avatarHash = data.avatarHash;
+                newItem.seeker.username = data.username || '';
+                newItem.seeker.avatarHash = data.avatarHash || '';
                 this.db.put(key, JSON.stringify(newItem)).then(() => {
                     resolve({});
                 });

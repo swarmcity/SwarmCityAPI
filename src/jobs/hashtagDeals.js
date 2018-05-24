@@ -51,7 +51,7 @@ async function createItem(log, blockHeight) {
             address: log.returnValues.owner,
             username: '',
             avatarHash: '',
-            rep: 0,
+            rep: log.returnValues.seekerRep,
         },
         'description': '',
         'dateTime': block.timestamp,
