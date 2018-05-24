@@ -24,7 +24,6 @@ module.exports = function() {
 						}, 'itemsData': items,
 					};
 
-					logs.info('HashtagsItems: ', hashtagInfo);
 					resolve(hashtagInfo);
 				});
 			});
