@@ -39,13 +39,13 @@ function createSubscription(emitToSubscriber, args) {
 	let _task = {
 		name: 'hashtagItems',
 		func: async (task) => {
-			return await getHashtagItems.getHashtagItems(task.data);
+			return JSON.stringify(await getHashtagItems.getHashtagItems(task.data));
 		},
 		responsehandler: (res, task) => {
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
 				logs.debug('received hashtagItems RES=', JSON.stringify(res, null, 4));
-				emitToSubscriber('hashtagItemsChanged', res);
+				emitToSubscriber('hashtagItemsChanged', JSON.stringify(res));
 				task.data.lastReplyHash = replyHash;
 			} else {
 				logs.info('hashtagItemsChanged => data hasn\'t changed.');
