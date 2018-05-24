@@ -38,7 +38,7 @@ describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', funct
 				client.emit('subscribe', {
 					channel: 'hashtagItems',
 					args: {
-						address: '0x9258385b6bad9b1f6d5374b063b8c4b63c5b7191',
+						address: '0xeba08e7a1d8145b25c78b473fbc35aa24973d908',
 					},
 				}, (data) => {
 					should(data).have.property('response', 200);

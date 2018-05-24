@@ -149,7 +149,7 @@ function start() {
     let taskStartTime = 0;
     taskStartTime = Date.now();
 
-    let hashtagAddress = '0x9258385b6bad9b1f6d5374b063b8c4b63c5b7191';
+    let hashtagAddress = '0xeba08e7a1d8145b25c78b473fbc35aa24973d908';
 
     // When we have the list of hashtags it will be necessary to add an
     // array of tasks, one for each hashtag
