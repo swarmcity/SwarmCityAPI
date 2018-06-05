@@ -1,8 +1,6 @@
 'use strict';
 
 const logger = require('../logs')(module);
-const IPFSTask = require('../scheduler/IPFSTask')();
-
 
 /**
  * A service that collects all interactions with LevelDb
