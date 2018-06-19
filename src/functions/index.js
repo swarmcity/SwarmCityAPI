@@ -16,13 +16,14 @@ const IpfsAddFunction = require('./IpfsAddFunction');
 const ReplyShortCodeFunction = require('./ReplyShortCodeFunction');
 const ReadShortCodeFunction = require('./ReadShortCodeFunction');
 const SendSignedTxFunction = require('./SendSignedTxFunction');
-
+const ReplyRequest = require('./ReplyRequest');
 
 handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
 handlers.push(new IpfsAddFunction(scheduledTask, ipfsService));
 handlers.push(new ReplyShortCodeFunction(scheduledTask, dbService));
 handlers.push(new ReadShortCodeFunction(scheduledTask, dbService));
 handlers.push(new SendSignedTxFunction(scheduledTask));
+handlers.push(new ReplyRequest(scheduledTask));
 
 /**
  * register the array of socket handlers

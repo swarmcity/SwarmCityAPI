@@ -1,13 +1,9 @@
 'use strict';
 
 const web3 = require('../globalWeb3').web3;
-
 const validate = require('../validators');
-
 const logger = require('../logs')(module);
-
 const http = require('http');
-
 
 module.exports = function() {
 	return ({

@@ -279,6 +279,47 @@ class DBService {
     }
 
     /**
+     * Set the replier
+     *
+     * @param       {Number}    address     The address of the hashtag
+     * @param       {String}    itemhash    The hash of the item
+     * @param       {Object}    data        The data
+     * @return      {Promise}   promise
+     */
+    replyRequest(address, itemhash, reply) {
+        return new Promise((resolve, reject) => {
+            let key = 'deal-' + address + '-' + itemHash;
+            this.db.get(key).then((val) => {
+                let newItem = JSON.parse(val);
+                let reply = JSON.parse(reply);
+                // If there's no replierslist yet, create the array
+                if(!newItem.repliers) {
+                    newItem.repliers = {};
+                } 
+                let replierList = newItem.repliers;
+
+                replierList.push(reply);
+
+                newItem.repliers = repliersList;
+
+                this.db.put(key, JSON.stringify(newItem)).then(() => {
+                    resolve({});
+                });
+            }).catch((err) => {
+                if (err.notFound) {
+                    logger.info(
+                        'no item %s for %s in DB',
+                        itemHash,
+                        address
+                    );
+                    resolve({});
+                }
+                reject(new Error(err));
+            });
+        });
+    }
+
+    /**
     * Get all deals for a hastag
     *
     * @param       {Number}    address     The address of the hashtag
