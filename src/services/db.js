@@ -282,25 +282,25 @@ class DBService {
      * Set the replier
      *
      * @param       {Number}    address     The address of the hashtag
-     * @param       {String}    itemhash    The hash of the item
-     * @param       {Object}    data        The data
+     * @param       {String}    itemHash    The hash of the item
+     * @param       {Object}    reply        The data
      * @return      {Promise}   promise
      */
-    replyRequest(address, itemhash, reply) {
+    replyRequest(address, itemHash, reply) {
         return new Promise((resolve, reject) => {
             let key = 'deal-' + address + '-' + itemHash;
             this.db.get(key).then((val) => {
                 let newItem = JSON.parse(val);
                 let reply = JSON.parse(reply);
                 // If there's no replierslist yet, create the array
-                if(!newItem.repliers) {
+                if (!newItem.repliers) {
                     newItem.repliers = {};
-                } 
+                }
                 let replierList = newItem.repliers;
 
                 replierList.push(reply);
 
-                newItem.repliers = repliersList;
+                newItem.repliers = replierList;
 
                 this.db.put(key, JSON.stringify(newItem)).then(() => {
                     resolve({});

@@ -1,9 +1,9 @@
 'use strict';
 
-const web3 = require('../globalWeb3').web3;
+// const web3 = require('../globalWeb3').web3;
 const validate = require('../validators');
-const logger = require('../logs')(module);
-const http = require('http');
+// const logger = require('../logs')(module);
+// const http = require('http');
 const dbService = require('../services').dbService;
 
 module.exports = function() {
@@ -19,10 +19,9 @@ module.exports = function() {
 				}
 
 				dbService.replyRequest(data.address, data.ItemHash, data.reply).then(() => {
-					resolve(result);
+					resolve();
 				});
-				
-			}).catch(reject);
+			});
 		},
 	});
 };
