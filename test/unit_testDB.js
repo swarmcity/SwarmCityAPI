@@ -218,6 +218,102 @@ describe('services/db/DBService', function() {
         });
     });
 
+    describe('setLastHashtagBlock()', function() {
+        it('should put correct information in the database', function() {
+            let mockDB = {
+                put: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'hashtagproxycontract': 'mockContract',
+                }
+            );
+
+            dbService.setLastHashtagBlock(150);
+            let key = 'lastblock-mockContract';
+            should(spy.calledWith(key, 150)).be.ok;
+        });
+    });
+
+    describe('getLastHashtagBlock()', function() {
+        it('should return the last block number from the database', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+            let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve('4456'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'hashtagproxycontract': 'mockContract',
+                }
+            );
+
+            dbService.getLastHashtagBlock().then((value) => {
+                should(value).be.equal(4456);
+            });
+
+            let key = 'lastblock-mockContract';
+            should(spy.calledWith(key));
+        });
+
+        it('should reject on DB lookup failure', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+            let spy = sinon.stub(mockDB, 'get')
+                           .returns(Promise.reject('Unknown DB Error'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'hashtagproxycontract': 'mockContract',
+                }
+            );
+
+            dbService.getLastHashtagBlock()
+                    .then(() => {
+                        return Promise.reject('Expected rejection');
+                    })
+                    .catch((e) => {
+                        return Promise.resolve(e);
+                    })
+                    .then((err) => {
+                        should(err).be.ok;
+                    });
+
+            let key = 'lastblock-mockContract';
+            should(spy.calledWith(key));
+        });
+
+        it('should return the startvalue on entry not found', function() {
+            let mockDB = {
+                get: function(key) {},
+            };
+            let spy = sinon.stub(mockDB, 'get')
+                           .returns(Promise.reject({'notFound': true}));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'hashtagproxycontract': 'mockContract',
+                    'hashtagproxycontractstartblock': '12345',
+                }
+            );
+
+            dbService.getLastHashtagBlock().then((value) => {
+                should(value).be.equal(12345);
+            });
+
+            let key = 'lastblock-mockContract';
+            should(spy.calledWith(key));
+        });
+    });
+
     describe('setLastBlock()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
@@ -455,6 +551,27 @@ describe('services/db/DBService', function() {
 
             dbService.setHashtagIndexerSynced(true);
             let key = 'hashtagindexer-synced';
+            should(spy.calledWith(key, true)).be.ok();
+        });
+    });
+
+    describe('setHashtagSynced()', function() {
+        it('should put correct information in the database', function() {
+            let mockDB = {
+                put: function(key) {},
+            };
+
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'hashtagproxycontract': 'mockContract',
+                }
+            );
+
+            dbService.setHashtagSynced(true);
+            let key = 'hashtag-synced-';
             should(spy.calledWith(key, true)).be.ok();
         });
     });
