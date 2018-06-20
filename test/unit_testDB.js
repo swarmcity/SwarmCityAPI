@@ -561,7 +561,7 @@ describe('services/db/DBService', function() {
                 put: function(key) {},
             };
 
-            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('things'));
 
             let dbService = new DBService(
                 mockDB,
