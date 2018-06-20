@@ -569,9 +569,9 @@ describe('services/db/DBService', function() {
                     'hashtagproxycontract': 'mockContract',
                 }
             );
-
-            dbService.setHashtagSynced(true);
-            let key = 'hashtag-synced-';
+            let address = '0x123456789';
+            dbService.setHashtagSynced(address, true);
+            let key = 'hashtag-synced-'+address;
             should(spy.calledWith(key, true)).be.ok();
         });
     });
