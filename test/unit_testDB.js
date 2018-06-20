@@ -254,7 +254,7 @@ describe('services/db/DBService', function() {
                 }
             );
             let address = '0x1234';
-            let item = { temHash: 'Qm13' };
+            let item = {temHash: 'Qm13'};
             dbService.setHashtagItem(address, item);
             let key = 'deal-' + address + '-' + item.itemHash;
             should(spy.calledWith(key, item)).be.ok;
@@ -273,7 +273,7 @@ describe('services/db/DBService', function() {
                 }
             );
 
-            dbService.getHashtagItem('x0123', { itemHash: '123' }).then((res) => {
+            dbService.getHashtagItem('x0123', {itemHash: '123'}).then((res) => {
                 Promise.reject('Expected rejection');
             }).catch((err) => {
                 return Promise.resolve(err);
@@ -339,7 +339,7 @@ describe('services/db/DBService', function() {
                 get: function(key) { },
             };
             let spy = sinon.stub(mockDB, 'get')
-                .returns(Promise.reject({ 'notFound': true }));
+                .returns(Promise.reject({'notFound': true}));
 
             let dbService = new DBService(
                 mockDB,
@@ -435,7 +435,7 @@ describe('services/db/DBService', function() {
                 get: function(key) { },
             };
             let spy = sinon.stub(mockDB, 'get')
-                .returns(Promise.reject({ 'notFound': true }));
+                .returns(Promise.reject({'notFound': true}));
 
             let dbService = new DBService(
                 mockDB,
@@ -528,7 +528,7 @@ describe('services/db/DBService', function() {
                 get: function(key) { },
             };
 
-            let spy = sinon.stub(mockDB, 'get').returns(Promise.reject({ 'notFound': true }));
+            let spy = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
 
             let dbService = new DBService(
                 mockDB,
@@ -698,7 +698,7 @@ describe('services/db/DBService', function() {
                 put: function(key, value) { },
             };
 
-            let spyGet = sinon.stub(mockDB, 'get').returns(Promise.reject({ 'notFound': true }));
+            let spyGet = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
             let spyPut = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
