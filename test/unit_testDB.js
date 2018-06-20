@@ -17,16 +17,16 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(mockDB);
 
             return dbService
-                    .readShortCode('shortCodeString')
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+                .readShortCode('shortCodeString')
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
         });
 
         it('should reject on DB entry not found', function() {
@@ -40,57 +40,57 @@ describe('services/db/DBService', function() {
             let dbService = new DBService(mockDB);
 
             return dbService
-                    .readShortCode('shortCodeString')
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+                .readShortCode('shortCodeString')
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
         });
 
         it('should reject on unreadable data', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
 
             sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
             let dbService = new DBService(mockDB);
 
             return dbService
-                    .readShortCode('shortCodeString')
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+                .readShortCode('shortCodeString')
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
         });
 
         it('should fetch a ShortCode from the database that has not expired', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'get')
-                           .returns(Promise.resolve(JSON.stringify({
-                               'shortCode': 12345,
-                               'validUntil': (new Date).getTime() + 1000,
-                               'payload': {},
-                           })));
+                .returns(Promise.resolve(JSON.stringify({
+                    'shortCode': 12345,
+                    'validUntil': (new Date).getTime() + 1000,
+                    'payload': {},
+                })));
             let dbService = new DBService(mockDB);
 
             dbService
-                    .readShortCode('12345')
-                    .then((value) => {
-                        value.should.be.Object;
-                    });
+                .readShortCode('12345')
+                .then((value) => {
+                    value.should.be.Object;
+                });
 
             let key = 'shortcode-12345';
             should(spy.calledWith(key)).be.ok;
@@ -98,28 +98,28 @@ describe('services/db/DBService', function() {
 
         it('should not fetch a shortcode from the database that has expired', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'get')
-                           .returns(Promise.resolve(JSON.stringify({
-                               'shortCode': 12345,
-                               'validUntil': (new Date).getTime() - 1000,
-                               'payload': {},
-                           })));
+                .returns(Promise.resolve(JSON.stringify({
+                    'shortCode': 12345,
+                    'validUntil': (new Date).getTime() - 1000,
+                    'payload': {},
+                })));
             let dbService = new DBService(mockDB);
 
             dbService
-                    .readShortCode('12345')
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+                .readShortCode('12345')
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
 
             let key = 'shortcode-12345';
             should(spy.calledWith(key)).be.ok;
@@ -129,7 +129,7 @@ describe('services/db/DBService', function() {
     describe('saveDataToShortCode()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
-                put: function(key) {},
+                put: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
@@ -154,7 +154,7 @@ describe('services/db/DBService', function() {
 
         it('should reject on error', function() {
             let mockDB = {
-                put: function(key) {},
+                put: function(key) { },
             };
 
             sinon.stub(mockDB, 'put').returns(Promise.reject('Some error'));
@@ -181,7 +181,7 @@ describe('services/db/DBService', function() {
     describe('deleteShortCode', function() {
         it('should delete an existing ShortCode', function() {
             let mockDB = {
-                del: function(key) {},
+                del: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'del').returns(true);
@@ -200,7 +200,7 @@ describe('services/db/DBService', function() {
 
         it('should not delete an unexisting ShortCode', function() {
             let mockDB = {
-                del: function(key) {},
+                del: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'del').returns(false);
@@ -221,7 +221,7 @@ describe('services/db/DBService', function() {
     describe('setLastHashtagBlock()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
-                put: function(key) {},
+                put: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
@@ -239,10 +239,54 @@ describe('services/db/DBService', function() {
         });
     });
 
+    describe('setHashtagItem(()', function() {
+        it('should put correct information in the database', function() {
+            let mockDB = {
+                put: function(key) { },
+            };
+
+            let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'hashtagproxycontract': 'mockContract',
+                }
+            );
+            let address = '0x1234';
+            let item = { temHash: 'Qm13' };
+            dbService.setHashtagItem(address, item);
+            let key = 'deal-' + address + '-' + item.itemHash;
+            should(spy.calledWith(key, item)).be.ok;
+        });
+    });
+    describe('getHashtagItem(()', function() {
+        it('should reject on non existing getHashtagItem', function() {
+            let mockDB = {
+                get: function(key) { },
+            };
+
+            let dbService = new DBService(
+                mockDB,
+                {
+                    'hashtagproxycontract': 'mockContract',
+                }
+            );
+
+            dbService.getHashtagItem('x0123', { itemHash: '123' }).then((res) => {
+                Promise.reject('Expected rejection');
+            }).catch((err) => {
+                return Promise.resolve(err);
+            }).then((err) => {
+                should(err).be.ok();
+            });
+        });
+    });
+
     describe('getLastHashtagBlock()', function() {
         it('should return the last block number from the database', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
             let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve('4456'));
 
@@ -263,10 +307,10 @@ describe('services/db/DBService', function() {
 
         it('should reject on DB lookup failure', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
             let spy = sinon.stub(mockDB, 'get')
-                           .returns(Promise.reject('Unknown DB Error'));
+                .returns(Promise.reject('Unknown DB Error'));
 
             let dbService = new DBService(
                 mockDB,
@@ -276,15 +320,15 @@ describe('services/db/DBService', function() {
             );
 
             dbService.getLastHashtagBlock()
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
 
             let key = 'lastblock-mockContract';
             should(spy.calledWith(key));
@@ -292,10 +336,10 @@ describe('services/db/DBService', function() {
 
         it('should return the startvalue on entry not found', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
             let spy = sinon.stub(mockDB, 'get')
-                           .returns(Promise.reject({'notFound': true}));
+                .returns(Promise.reject({ 'notFound': true }));
 
             let dbService = new DBService(
                 mockDB,
@@ -317,7 +361,7 @@ describe('services/db/DBService', function() {
     describe('setLastBlock()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
-                put: function(key) {},
+                put: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
@@ -338,7 +382,7 @@ describe('services/db/DBService', function() {
     describe('getLastBlock()', function() {
         it('should return the last block number from the database', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
             let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve('456'));
 
@@ -359,10 +403,10 @@ describe('services/db/DBService', function() {
 
         it('should reject on DB lookup failure', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
             let spy = sinon.stub(mockDB, 'get')
-                           .returns(Promise.reject('Unknown DB Error'));
+                .returns(Promise.reject('Unknown DB Error'));
 
             let dbService = new DBService(
                 mockDB,
@@ -372,15 +416,15 @@ describe('services/db/DBService', function() {
             );
 
             dbService.getLastBlock()
-                    .then(() => {
-                        return Promise.reject('Expected rejection');
-                    })
-                    .catch((e) => {
-                        return Promise.resolve(e);
-                    })
-                    .then((err) => {
-                        should(err).be.ok;
-                    });
+                .then(() => {
+                    return Promise.reject('Expected rejection');
+                })
+                .catch((e) => {
+                    return Promise.resolve(e);
+                })
+                .then((err) => {
+                    should(err).be.ok;
+                });
 
             let key = 'lastblock-mockContract';
             should(spy.calledWith(key));
@@ -388,10 +432,10 @@ describe('services/db/DBService', function() {
 
         it('should return the startvalue on entry not found', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
             let spy = sinon.stub(mockDB, 'get')
-                           .returns(Promise.reject({'notFound': true}));
+                .returns(Promise.reject({ 'notFound': true }));
 
             let dbService = new DBService(
                 mockDB,
@@ -413,7 +457,7 @@ describe('services/db/DBService', function() {
     describe('setHashtagList()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
-                put: function(key) {},
+                put: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
@@ -434,7 +478,7 @@ describe('services/db/DBService', function() {
     describe('getHashtagList()', function() {
         it('should get the hashtaglist from the database', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve('[]'));
@@ -457,7 +501,7 @@ describe('services/db/DBService', function() {
 
         it('should return an empty list when the database contains invalid data', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
@@ -481,10 +525,10 @@ describe('services/db/DBService', function() {
 
         it('should return an empty list when the database is empty', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
 
-            let spy = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
+            let spy = sinon.stub(mockDB, 'get').returns(Promise.reject({ 'notFound': true }));
 
             let dbService = new DBService(
                 mockDB,
@@ -505,7 +549,7 @@ describe('services/db/DBService', function() {
 
         it('should reject on DB lookup failure', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'get').returns(Promise.reject('Unknown error'));
@@ -537,7 +581,7 @@ describe('services/db/DBService', function() {
     describe('setHashtagIndexerSynced()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
-                put: function(key) {},
+                put: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
@@ -558,7 +602,7 @@ describe('services/db/DBService', function() {
     describe('setHashtagSynced()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
-                put: function(key) {},
+                put: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('things'));
@@ -571,7 +615,7 @@ describe('services/db/DBService', function() {
             );
             let address = '0x123456789';
             dbService.setHashtagSynced(address, true);
-            let key = 'hashtag-synced-'+address;
+            let key = 'hashtag-synced-' + address;
             should(spy.calledWith(key, true)).be.ok();
         });
     });
@@ -580,8 +624,8 @@ describe('services/db/DBService', function() {
     describe('getTransactionHistory()', function() {
         it('should return an empty list when the database contains invalid data', function() {
             let mockDB = {
-                get: function(key) {},
-                put: function(key, value) {},
+                get: function(key) { },
+                put: function(key, value) { },
             };
 
             let spyGet = sinon.stub(mockDB, 'get').returns(Promise.resolve('{]'));
@@ -615,8 +659,8 @@ describe('services/db/DBService', function() {
 
         it('should return an empty list when the database contains null', function() {
             let mockDB = {
-                get: function(key) {},
-                put: function(key, value) {},
+                get: function(key) { },
+                put: function(key, value) { },
             };
 
             let spyGet = sinon.stub(mockDB, 'get').returns(Promise.resolve(null));
@@ -650,11 +694,11 @@ describe('services/db/DBService', function() {
 
         it('should return an empty list when there is nothing in the database', function() {
             let mockDB = {
-                get: function(key) {},
-                put: function(key, value) {},
+                get: function(key) { },
+                put: function(key, value) { },
             };
 
-            let spyGet = sinon.stub(mockDB, 'get').returns(Promise.reject({'notFound': true}));
+            let spyGet = sinon.stub(mockDB, 'get').returns(Promise.reject({ 'notFound': true }));
             let spyPut = sinon.stub(mockDB, 'put').returns(Promise.resolve());
 
             let dbService = new DBService(
@@ -685,8 +729,8 @@ describe('services/db/DBService', function() {
 
         it('should return data when there is something in the database', function() {
             let mockDB = {
-                get: function(key) {},
-                put: function(key, value) {},
+                get: function(key) { },
+                put: function(key, value) { },
             };
 
             let pubkey = '0x123456789';
@@ -731,7 +775,7 @@ describe('services/db/DBService', function() {
 
         it('should reject on DB lookup failure', function() {
             let mockDB = {
-                get: function(key) {},
+                get: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'get').returns(Promise.reject('Unknown error'));
@@ -765,7 +809,7 @@ describe('services/db/DBService', function() {
     describe('setTransactionHistory()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
-                put: function(key) {},
+                put: function(key) { },
             };
 
             let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
