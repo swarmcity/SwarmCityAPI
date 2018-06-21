@@ -13,12 +13,13 @@ if (process.env.IPFSAPIHOST && process.env.IPFSAPIPORT) {
 		host: process.env.IPFSAPIHOST,
 		port: process.env.IPFSAPIPORT,
 		protocol: 'http',
+		timeout: 60000,
 	});
 } else {
 	logger.info('connecting via multiaddr IPFSAPI %s', process.env.IPFSAPI);
-	ipfs = ipfsAPI(process.env.IPFSAPI);
+	ipfs = ipfsAPI(process.env.IPFSAPI, {timeout: 60000});
 }
 
 module.exports = {
-    ipfs: ipfs,
+	ipfs: ipfs,
 };

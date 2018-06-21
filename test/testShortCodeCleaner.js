@@ -129,6 +129,22 @@ describe('Test of shortCodeCleaner job', function() {
         return shortCodeCleaner.stop();
     });
 
+    it('should be able to reset the job', function(done) {
+        shortCodeCleaner.start().then(() => {
+            shortCodeCleaner.reset().then(() => {
+                shortCodeCleaner.stop();
+                done();
+            }).catch((error) => {
+                shortCodeCleaner.stop();
+                logger.error('Could not reset the shortCodeCleaner');
+                done();
+            });
+        }).catch((error) => {
+            logger.error('Could not start the shortCodeCleaner');
+            done();
+        });
+    });
+
     after(function(done) {
         let promises = [];
         testData.forEach((data) => {

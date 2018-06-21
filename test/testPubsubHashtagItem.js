@@ -12,7 +12,7 @@ const options = {
 // create a server
 const server = require('../src/socket');
 
-describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', function() {
+describe('Swarm City API socket client > test pubsub on \'hashtagitem\'', function() {
 	let client;
 	let subscriptions = [];
 
@@ -36,9 +36,10 @@ describe('Swarm City API socket client > test pubsub on \'hashtagitems\'', funct
 		for (let i = 0; i < 1; i++) {
 			promises.push(new Promise((resolve, reject) => {
 				client.emit('subscribe', {
-					channel: 'hashtagItems',
+					channel: 'hashtagItem',
 					args: {
 						address: '0xeba08e7a1d8145b25c78b473fbc35aa24973d908',
+						itemHash: '0x06d0540d044ea8d6efd0a994c5235aebaa414607c632f6f0f1b5d6ea658a829a', // eslint-disable-line max-len
 					},
 				}, (data) => {
 					should(data).have.property('response', 200);

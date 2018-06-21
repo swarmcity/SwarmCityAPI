@@ -48,6 +48,9 @@ function stopListening() {
 			if (success) {
 				logger.info('Successfully unsubscribed!');
 				newBlockHeadersSubscription = null;
+				if (tasks.length != 0) {
+					startListening();
+				}
 			}
 		});
 	}

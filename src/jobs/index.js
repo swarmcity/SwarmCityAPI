@@ -4,7 +4,8 @@ const logger = require('../logs')(module);
 
 let jobPromises = [
 	require('./hashtagsIndexer')().start(),
-    require('./shortCodeCleaner').start(),
+	require('./shortCodeCleaner').start(),
+	require('./hashtagDeals').start(),
 ];
 
 module.exports = function() {

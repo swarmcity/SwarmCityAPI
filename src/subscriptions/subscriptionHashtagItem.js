@@ -3,8 +3,7 @@
  */
 'use strict';
 const logs = require('../logs.js')(module);
-const jsonHash = require('json-hash');
-const getHashtagItems = require('../tasks/getHashtagItems')();
+const getHashtagItem = require('../tasks/getHashtagItem')();
 const blockHeaderTask = require('../scheduler/blockHeaderTask')();
 const validate = require('../validators');
 
@@ -33,27 +32,23 @@ function createSubscription(emitToSubscriber, args) {
 	if (!args || !args.address || !validate.isAddress(args.address)) {
 		return Promise.reject('Cannot subscribe to a hashtag without a valid address.');
 	}
-	logs.info('Subscribing to hastagitems for %s', args.address);
+	logs.info('Subscribing to hastagitem for %s', args.address, args.itemHash);
 
 	// create task
 	let _task = {
-		name: 'hashtagItems',
+		name: 'hashtagItem',
 		func: async (task) => {
-			return JSON.stringify(await getHashtagItems.getHashtagItems(task.data));
+			return JSON.stringify(await getHashtagItem
+				.getHashtagItem(task.data.address, task.data.itemHash));
 		},
 		responsehandler: (res, task) => {
-			let replyHash = jsonHash.digest(res);
-			if (task.data.lastReplyHash !== replyHash) {
-				logs.debug('received hashtagItems RES=', JSON.stringify(res, null, 4));
-				emitToSubscriber('hashtagItemsChanged', JSON.stringify(res));
-				task.data.lastReplyHash = replyHash;
-			} else {
-				logs.info('hashtagItemsChanged => data hasn\'t changed.');
-			}
+			logs.debug('received hashtagItem RES=', JSON.stringify(res, null, 4));
+			emitToSubscriber('hashtagItemChanged', JSON.stringify(res));
 			return blockHeaderTask.addTask(task);
 		},
 		data: {
 			address: args.address,
+			itemHash: args.itemHash,
 		},
 	};
 	blockHeaderTask.addTask(_task);
@@ -69,7 +64,7 @@ function createSubscription(emitToSubscriber, args) {
 
 module.exports = function() {
 	return ({
-		name: 'hashtagItems',
+		name: 'hashtagItem',
 		createSubscription: createSubscription,
 	});
 };

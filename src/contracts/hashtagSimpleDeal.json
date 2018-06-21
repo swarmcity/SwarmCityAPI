@@ -72,27 +72,27 @@
           "type": "uint8"
         },
         {
-          "name": "fee",
+          "name": "_hashtagFee",
           "type": "uint256"
         },
         {
-          "name": "dealValue",
+          "name": "_dealValue",
           "type": "uint256"
         },
         {
-          "name": "providerRep",
+          "name": "_providerRep",
           "type": "uint256"
         },
         {
-          "name": "seekerRep",
+          "name": "_seekerRep",
           "type": "uint256"
         },
         {
-          "name": "provider",
+          "name": "_provider",
           "type": "address"
         },
         {
-          "name": "ipfsMetadata",
+          "name": "_ipfsMetadata",
           "type": "string"
         }
       ],
@@ -109,28 +109,6 @@
         }
       ],
       "name": "setPayoutAddress",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_dealhash",
-          "type": "bytes32"
-        },
-        {
-          "name": "_offerValue",
-          "type": "uint256"
-        },
-        {
-          "name": "_ipfsMetadata",
-          "type": "string"
-        }
-      ],
-      "name": "makeDealForTwo",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -171,6 +149,40 @@
       ],
       "payable": false,
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_dealhash",
+          "type": "bytes32"
+        },
+        {
+          "name": "_offerValue",
+          "type": "uint256"
+        },
+        {
+          "name": "_ipfsMetadata",
+          "type": "string"
+        },
+        {
+          "name": "_v",
+          "type": "uint8"
+        },
+        {
+          "name": "_r",
+          "type": "bytes32"
+        },
+        {
+          "name": "_s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "makeDealForTwo",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -432,6 +444,11 @@
           "indexed": false,
           "name": "totalValue",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "seekerRep",
+          "type": "uint256"
         }
       ],
       "name": "NewDealForTwo",
@@ -496,18 +513,23 @@
       "inputs": [
         {
           "indexed": false,
-          "name": "owner",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "fromcontract",
           "type": "address"
         },
         {
           "indexed": false,
           "name": "extraData",
           "type": "bytes"
-        },
-        {
-          "indexed": false,
-          "name": "amount",
-          "type": "uint256"
         }
       ],
       "name": "ReceivedApproval",

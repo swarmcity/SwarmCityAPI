@@ -39,7 +39,7 @@ class IpfsCatFunction extends AbstractFunction {
             if (task.success && res) {
                 // format the output if requested
                 // else return the Buffer
-                switch (data.format || 'buffer') {
+                switch (data.format) {
                     case 'base64':
                     case 'ascii':
                     case 'hex':

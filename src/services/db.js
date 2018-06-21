@@ -130,6 +130,30 @@ class DBService {
     }
 
     /**
+     * Returns last processed block of the hashtag contract
+     *
+     * @param       {String}   hashtag the address of the hashtag
+     * @return      {Promise}  The last block.
+     */
+    getLastHashtagBlock(hashtag) {
+        return new Promise((resolve, reject) => {
+            let key = 'lastblock-' + hashtag;
+            this.db.get(key).then((val) => {
+                resolve(parseInt(val));
+            }).catch((err) => {
+                if (err.notFound) {
+                    logger.info(
+                        'no lastblock in DB. Falling back to the startblock %i',
+                        this.options.hashtagproxycontractstartblock
+                    );
+                    resolve(parseInt(this.options.hashtagproxycontractstartblock));
+                }
+                reject(new Error(err));
+            });
+        });
+    }
+
+    /**
      * Sets the last block.
      *
      * @param      {Number}     blockNumber  The block number
@@ -138,6 +162,18 @@ class DBService {
     setLastBlock(blockNumber) {
         return this.db.put('lastblock-' + this.options.hashtagproxycontract, blockNumber);
     }
+
+    /**
+     * Sets the last block.
+     *
+     * @param      {Number}     address         The address of the hashtag
+     * @param      {Number}     blockNumber     The block number
+     * @return     {Promise}    promise
+     */
+    setLastHashtagBlock(address, blockNumber) {
+        return this.db.put('lastblock-' + address, blockNumber);
+    }
+
 
     /**
      * Set the hashtagindexer to synced
@@ -150,6 +186,17 @@ class DBService {
     }
 
     /**
+     * Set the hashtagindexer to synced
+     *
+     * @param      {Number}     address         The address of the hashtag
+     * @param       {Boolean}   synced  Is it synced or not?
+     * @return      {Promise}   promise
+     */
+    setHashtagSynced(address, synced) {
+        return this.db.put('hashtag-synced-' + address, synced);
+    }
+
+    /**
      * Set the hashtaglist
      *
      * @param       {String}    list    The hashtaglist
@@ -157,6 +204,113 @@ class DBService {
      */
     setHashtagList(list) {
         return this.db.put(this.options.hashtagproxycontract + '-hashtaglist', list);
+    }
+
+    /**
+     * Set the hashtaglist
+     *
+     * @param       {Number}    address     The address of the hashtag
+     * @param       {String}    item        The hashtaglist
+     * @return      {Promise}   promise
+     */
+    setHashtagItem(address, item) {
+        return this.db.put('deal-' + address + '-' + item.itemHash, JSON.stringify(item));
+    }
+
+    /**
+     * Set the hashtaglist
+     *
+     * @param       {Number}    address     The address of the hashtag
+     * @param       {String}    itemHash    The itemHash
+     * @return      {Promise}   promise
+     */
+    getHashtagItem(address, itemHash) {
+        return new Promise((resolve, reject) => {
+            let key = 'deal-' + address + '-' + itemHash;
+            this.db.get(key).then((val) => {
+                resolve(JSON.parse(val));
+            }).catch((err) => {
+                if (err.notFound) {
+                    logger.info(
+                        'no deal %s for %s in DB',
+                        itemHash,
+                        address
+                    );
+                    resolve({});
+                }
+                reject(new Error(err));
+            });
+        });
+    }
+
+    /**
+     * Set the hashtaglist
+     *
+     * @param       {Number}    address     The address of the hashtag
+     * @param       {String}    item        The hashtaglist
+     * @param       {String}    metadata    The metadata
+     * @return      {Promise}   promise
+     */
+    updateHashtagItem(address, item, metadata) {
+        return new Promise((resolve, reject) => {
+            let key = 'deal-' + address + '-' + item.itemHash;
+            this.db.get(key).then((val) => {
+                let newItem = JSON.parse(val);
+                let data = JSON.parse(metadata);
+                newItem.description = data.description || '';
+                newItem.location = data.location || '';
+                newItem.seeker.username = data.username || '';
+                newItem.seeker.avatarHash = data.avatarHash || '';
+                this.db.put(key, JSON.stringify(newItem)).then(() => {
+                    resolve({});
+                });
+            }).catch((err) => {
+                if (err.notFound) {
+                    logger.info(
+                        'no item %s for %s in DB',
+                        item.itemHash,
+                        address
+                    );
+                    resolve({});
+                }
+                reject(new Error(err));
+            });
+        });
+    }
+
+    /**
+    * Get all deals for a hastag
+    *
+    * @param       {Number}    address     The address of the hashtag
+    * @return      {stream.Readable}   A readable stream of the ShortCodes
+    */
+    getHashtagDeals(address) {
+        return new Promise((resolve, reject) => {
+            let items = [];
+            let searchKey = 'deal-' + address + '-0x';
+            this.db.createReadStream({
+                gte: searchKey,
+            }).on('data', function(data) {
+                try {
+                    if (data.key.startsWith(searchKey)) {
+                        let item = JSON.parse(data.value);
+
+                        if (item.itemHash) {
+                            items.push(item);
+                        }
+                    }
+                } catch (e) {
+                    logger.error(
+                        'Unable to fetch block to determine time of block. Error: %s',
+                        e
+                    );
+                }
+            }).on('error', function(err) {
+                reject(new Error(err));
+            }).on('close', function() {
+                resolve(items);
+            });
+        });
     }
 
     /**
