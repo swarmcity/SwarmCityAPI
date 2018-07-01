@@ -5,7 +5,9 @@ const ipfsService = require('./services').ipfsService;
 const logs = require('./logs')(module);
 
 const server = http.createServer((request, response) => {
-    let hash = request.url.substr(1);
+    logs.info('New hash request: %s', request.url);
+    // Remove /img/
+    let hash = request.url.substr(5);
     if (hash && hash.length === 46 && hash.substring(0, 2) === 'Qm') {
         ipfsService.cat(hash).then((data) => {
             if (isBase64(data.toString('utf8'))) {
@@ -35,7 +37,7 @@ const server = http.createServer((request, response) => {
  */
 function isBase64(image) {
     // eslint-disable-next-line no-useless-escape
-    let regex = '/^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i'; // eslint-disable-line max-len
+    let regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i; // eslint-disable-line max-len
     return regex.test(image);
 }
 
@@ -55,7 +57,8 @@ function listen(customConfig) {
             if (err) {
                 reject(err);
             }
-            logs.info('server is listening on %s:%i', PORT);
+            logs.info('server is listening on %s', PORT);
+            resolve();
         });
     });
 }
