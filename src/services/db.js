@@ -279,6 +279,30 @@ class DBService {
     }
 
     /**
+     * Add reply to the hastagItem
+     *
+     * @param       {Number}    address     The address of the hashtag
+     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {Object}    reply       The metadata
+     * @return      {Promise}   promise
+     */
+    addReplyToHashtagItem(address, itemHash, reply) {
+        let key = 'deal-' + address + '-' + itemHash;
+        return this.db.get(key).then((val) => {
+            if (!val) throw Error('Missing hashtagItem');
+            let hashtagItem = JSON.parse(val);
+            // Initialize array of replies
+            if (!Array.isArray(hashtagItem.replies)) hashtagItem.replies = [];
+            // Append reply
+            hashtagItem.replies.unshift(reply);
+            // Store modified item
+            return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
+                return hashtagItem;
+            });
+        });
+    }
+
+    /**
     * Get all deals for a hastag
     *
     * @param       {Number}    address     The address of the hashtag

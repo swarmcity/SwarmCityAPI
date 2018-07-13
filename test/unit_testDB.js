@@ -283,6 +283,32 @@ describe('services/db/DBService', function() {
         });
     });
 
+    describe('addReplyToHashtagItem()', function() {
+        const hashtagItem = {'hash': 'someHash'};
+        const db = {
+            'deal-0x1234-hash': JSON.stringify(hashtagItem),
+        };
+        let mockDB = {
+            get: async (key) => db[key],
+            put: async (key, val) => {db[key] = val;},
+        };
+        const reply = 'reply';
+
+        let dbService = new DBService(mockDB);
+
+        it('should reject on non existing getHashtagItem', () => {
+            return dbService.addReplyToHashtagItem('address', 'hash', {})
+            .should.be.rejected();
+        });
+
+        it('should add a reply to the hashtagItem object', async () => {
+            let res = await dbService.addReplyToHashtagItem('0x1234', 'hash', reply);
+            should(res).deepEqual(Object.assign(hashtagItem, {
+                replies: [reply],
+            }));
+        });
+    });
+
     describe('getLastHashtagBlock()', function() {
         it('should return the last block number from the database', function() {
             let mockDB = {
