@@ -8,8 +8,8 @@ const fetchProviderReputation = require('../src/functions/utils/fetchProviderRep
 
 describe('fetchProviderReputation', function() {
     const infura = 'wss://kovan.infura.io/ws';
-    const infura2 = 'wss://kovan.infura.io/_ws';
-    const dappnode = 'ws://my.kovan.dnp.dappnode.eth:8546';
+    // const infura2 = 'wss://kovan.infura.io/_ws';
+    // const dappnode = 'ws://my.kovan.dnp.dappnode.eth:8546';
     const url = infura;
 
     let web3;
