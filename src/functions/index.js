@@ -14,6 +14,7 @@ const dbService = require('../services').dbService;
 const IpfsCatFunction = require('./IpfsCatFunction');
 const IpfsAddFunction = require('./IpfsAddFunction');
 const ReplyShortCodeFunction = require('./ReplyShortCodeFunction');
+const ReplyRequestFunction = require('./ReplyRequestFunction');
 const ReadShortCodeFunction = require('./ReadShortCodeFunction');
 const SendSignedTxFunction = require('./SendSignedTxFunction');
 
@@ -21,6 +22,7 @@ const SendSignedTxFunction = require('./SendSignedTxFunction');
 handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
 handlers.push(new IpfsAddFunction(scheduledTask, ipfsService));
 handlers.push(new ReplyShortCodeFunction(scheduledTask, dbService));
+handlers.push(new ReplyRequestFunction(scheduledTask, dbService));
 handlers.push(new ReadShortCodeFunction(scheduledTask, dbService));
 handlers.push(new SendSignedTxFunction(scheduledTask));
 
