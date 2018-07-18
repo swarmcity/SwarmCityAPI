@@ -4,48 +4,6 @@
     {
       "constant": true,
       "inputs": [],
-      "name": "name",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_dealid",
-          "type": "string"
-        }
-      ],
-      "name": "fundDeal",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "payoutaddress",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
       "name": "ProviderRep",
       "outputs": [
         {
@@ -59,40 +17,25 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "_dealhash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "readDeal",
+      "inputs": [],
+      "name": "payoutAddress",
       "outputs": [
         {
-          "name": "status",
-          "type": "uint8"
-        },
-        {
-          "name": "_hashtagFee",
-          "type": "uint256"
-        },
-        {
-          "name": "_dealValue",
-          "type": "uint256"
-        },
-        {
-          "name": "_providerRep",
-          "type": "uint256"
-        },
-        {
-          "name": "_seekerRep",
-          "type": "uint256"
-        },
-        {
-          "name": "_provider",
+          "name": "",
           "type": "address"
-        },
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "hashtagName",
+      "outputs": [
         {
-          "name": "_ipfsMetadata",
+          "name": "",
           "type": "string"
         }
       ],
@@ -102,36 +45,8 @@
     },
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "_payoutaddress",
-          "type": "address"
-        }
-      ],
-      "name": "setPayoutAddress",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
       "inputs": [],
       "name": "renounceOwnership",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_ipfsMetadataHash",
-          "type": "string"
-        }
-      ],
-      "name": "setMetadataHash",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -149,80 +64,6 @@
       ],
       "payable": false,
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_dealhash",
-          "type": "bytes32"
-        },
-        {
-          "name": "_offerValue",
-          "type": "uint256"
-        },
-        {
-          "name": "_ipfsMetadata",
-          "type": "string"
-        },
-        {
-          "name": "_v",
-          "type": "uint8"
-        },
-        {
-          "name": "_r",
-          "type": "bytes32"
-        },
-        {
-          "name": "_s",
-          "type": "bytes32"
-        }
-      ],
-      "name": "makeDealForTwo",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_msgsender",
-          "type": "address"
-        },
-        {
-          "name": "_amount",
-          "type": "uint256"
-        },
-        {
-          "name": "_fromcontract",
-          "type": "address"
-        },
-        {
-          "name": "_extraData",
-          "type": "bytes"
-        }
-      ],
-      "name": "receiveApproval",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_dealhash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "dispute",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -257,71 +98,11 @@
       "constant": false,
       "inputs": [
         {
-          "name": "_dealhash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "payout",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_newHashtagFee",
-          "type": "uint256"
-        }
-      ],
-      "name": "setHashtagFee",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_dealhash",
-          "type": "bytes32"
-        },
-        {
-          "name": "_seekerFraction",
-          "type": "uint256"
-        }
-      ],
-      "name": "resolve",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
           "name": "newOwner",
           "type": "address"
         }
       ],
       "name": "transferOwnership",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_dealhash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "cancelDeal",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -362,7 +143,7 @@
           "type": "address"
         },
         {
-          "name": "_name",
+          "name": "_hashtagName",
           "type": "string"
         },
         {
@@ -392,7 +173,7 @@
           "type": "uint256"
         }
       ],
-      "name": "ProviderRepAdded",
+      "name": "SeekerRepAdded",
       "type": "event"
     },
     {
@@ -409,7 +190,7 @@
           "type": "uint256"
         }
       ],
-      "name": "SeekerRepAdded",
+      "name": "ProviderRepAdded",
       "type": "event"
     },
     {
@@ -422,7 +203,7 @@
         },
         {
           "indexed": false,
-          "name": "dealhash",
+          "name": "itemHash",
           "type": "bytes32"
         },
         {
@@ -432,7 +213,7 @@
         },
         {
           "indexed": false,
-          "name": "offerValue",
+          "name": "itemValue",
           "type": "uint256"
         },
         {
@@ -451,7 +232,7 @@
           "type": "uint256"
         }
       ],
-      "name": "NewDealForTwo",
+      "name": "NewItemForTwo",
       "type": "event"
     },
     {
@@ -459,7 +240,7 @@
       "inputs": [
         {
           "indexed": false,
-          "name": "provider",
+          "name": "providerAddress",
           "type": "address"
         },
         {
@@ -469,7 +250,7 @@
         },
         {
           "indexed": false,
-          "name": "dealhash",
+          "name": "itemHash",
           "type": "bytes32"
         },
         {
@@ -491,7 +272,7 @@
         },
         {
           "indexed": false,
-          "name": "dealhash",
+          "name": "itemHash",
           "type": "bytes32"
         },
         {
@@ -505,7 +286,7 @@
           "type": "string"
         }
       ],
-      "name": "DealStatusChange",
+      "name": "ItemStatusChange",
       "type": "event"
     },
     {
@@ -575,6 +356,167 @@
       ],
       "name": "OwnershipTransferred",
       "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_msgsender",
+          "type": "address"
+        },
+        {
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "name": "_fromcontract",
+          "type": "address"
+        },
+        {
+          "name": "_extraData",
+          "type": "bytes"
+        }
+      ],
+      "name": "receiveApproval",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_payoutaddress",
+          "type": "address"
+        }
+      ],
+      "name": "setPayoutAddress",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_ipfsMetadataHash",
+          "type": "string"
+        }
+      ],
+      "name": "setMetadataHash",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_newHashtagFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setHashtagFee",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_itemHash",
+          "type": "bytes32"
+        },
+        {
+          "name": "_itemValue",
+          "type": "uint256"
+        },
+        {
+          "name": "_ipfsMetadata",
+          "type": "string"
+        }
+      ],
+      "name": "newItem",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_itemId",
+          "type": "string"
+        }
+      ],
+      "name": "fundDeal",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_itemHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "payout",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_itemHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "readDeal",
+      "outputs": [
+        {
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "name": "hashtagFee",
+          "type": "uint256"
+        },
+        {
+          "name": "itemValue",
+          "type": "uint256"
+        },
+        {
+          "name": "providerRep",
+          "type": "uint256"
+        },
+        {
+          "name": "seekerRep",
+          "type": "uint256"
+        },
+        {
+          "name": "providerAddress",
+          "type": "address"
+        },
+        {
+          "name": "ipfsMetadata",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
     }
   ]
 }
