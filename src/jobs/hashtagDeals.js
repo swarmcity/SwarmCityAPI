@@ -42,11 +42,11 @@ async function createItem(log, blockHeight) {
     }
 
     return {
-        'itemHash': log.returnValues.dealhash,
+        'itemHash': log.returnValues.itemHash,
         'hashtagFee': log.returnValues.hashtagFee,
         'ipfsMetadata': log.returnValues.ipfsMetadata,
         /* 'totalValue': log.returnValues.totalValue, */
-        'value': log.returnValues.offerValue,
+        'value': log.returnValues.itemValue,
         'seeker': {
             address: log.returnValues.owner,
             username: '',
@@ -75,7 +75,7 @@ function getPastEvents(startBlock, endBlock, hashtagAddress, task) {
             hashtagContract.abi,
             hashtagAddress
         );
-        hashtagContractInstance.getPastEvents('NewDealForTwo', {
+        hashtagContractInstance.getPastEvents('NewItemForTwo', {
             fromBlock: web3.utils.toHex(startBlock),
             toBlock: web3.utils.toHex(endBlock),
         }).then((logs) => {
@@ -149,7 +149,7 @@ function start() {
     let taskStartTime = 0;
     taskStartTime = Date.now();
 
-    let hashtagAddress = '0xeba08e7a1d8145b25c78b473fbc35aa24973d908';
+    let hashtagAddress = '0x88B6EBF931E0Ac672cB67BDF1F7ca6378Ca14D3A';
 
     // When we have the list of hashtags it will be necessary to add an
     // array of tasks, one for each hashtag
