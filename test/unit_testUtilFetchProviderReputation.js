@@ -14,7 +14,8 @@ describe('fetchProviderReputation', function() {
 
     let web3;
 
-    before('connect to web3', (done) => {
+    before('connect to web3', function(done) {
+        this.timeout(60000);
         const web3WebsocketProvider = new Web3.providers.WebsocketProvider(url);
         web3WebsocketProvider.on('connect', () => {
             logger.info('Test web3 instance connected to '+url);
@@ -22,7 +23,7 @@ describe('fetchProviderReputation', function() {
             web3 = new Web3(web3WebsocketProvider);
             done();
         });
-    }).timeout(60000);
+    });
 
     it('should fetch the reputation of a provider', async () => {
         const hashtagAddress = '0xeba08e7a1d8145b25c78b473fbc35aa24973d908';
