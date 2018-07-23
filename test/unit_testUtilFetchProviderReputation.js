@@ -22,7 +22,7 @@ describe('fetchProviderReputation', function() {
             web3 = new Web3(web3WebsocketProvider);
             done();
         });
-    });
+    }).timeout(60000);
 
     it('should fetch the reputation of a provider', async () => {
         const hashtagAddress = '0xeba08e7a1d8145b25c78b473fbc35aa24973d908';
