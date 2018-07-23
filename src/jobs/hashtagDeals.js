@@ -149,7 +149,8 @@ function start() {
     let taskStartTime = 0;
     taskStartTime = Date.now();
 
-    let hashtagAddress = '0x88B6EBF931E0Ac672cB67BDF1F7ca6378Ca14D3A';
+    // #### Temporal solution
+    let hashtagAddress = process.env.HASHTAG_CONTRACT;
 
     // When we have the list of hashtags it will be necessary to add an
     // array of tasks, one for each hashtag
