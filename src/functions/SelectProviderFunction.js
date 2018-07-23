@@ -2,32 +2,28 @@
 
 const AbstractFunction = require('./AbstractFunction');
 const logger = require('../logs.js')(module);
-const parseReplyRequest = require('./utils/parseReplyRequest');
-const fetchProviderReputationDefault = require('./utils/fetchProviderReputation');
+const parseSelectProvider = require('./utils/parseSelectProvider');
 
 /**
- * Function that adds a reply to a hashtagItem in the database.
+ * Function that adds a selectee to a hashtagItem in the database.
  */
-class ReplyRequestFunction extends AbstractFunction {
+class SelectProviderFunction extends AbstractFunction {
     /**
      * @param   {Object}    scheduledTask       Taskscheduler
      * @param   {Object}    dbService           Database service
-     * @param   {Object}    fetchProviderReputation Dependency
      */
     constructor(
         scheduledTask,
         dbService,
-        fetchProviderReputation = fetchProviderReputationDefault
     ) {
         super(
-            'replyRequest', [{
-                'name': 'reply',
+            'selectProvider', [{
+                'name': 'selectee',
                 'description': 'Object with various necessary info.',
             }]
         );
         this.scheduledTask = scheduledTask;
         this.dbService = dbService;
-        this.fetchProviderReputation = fetchProviderReputation;
     }
 
     /**
@@ -49,10 +45,10 @@ class ReplyRequestFunction extends AbstractFunction {
                 };
                 return callback(reply);
             } else {
-                logger.error('Failed to add reply', task.error);
+                logger.error('Failed to add selectee', task.error);
                 let reply = {
                     response: 400,
-                    error: 'Failed to add reply: '+task.error,
+                    error: 'Failed to add selectee: '+task.error,
                 };
                 return callback(reply);
             }
@@ -69,33 +65,33 @@ class ReplyRequestFunction extends AbstractFunction {
     func(data) {
         // Example of data.reply
         // {
-        //     "itemHash": "0xc81f79b9521bd29a12d3e84149c93108ecd4ce5bfa99f91cd244588b5e362967",
-        //     "hashtagAddress": "0xeba08e7a1d8145b25c78b473fbc35aa24973d908",
-        //     "replier": {
-        //         "username": "dapplion",
-        //         "avatarHash": "QmWT5xHV1GXgeFBTDfUWtf34JQJtugokK9FtzVQ5r6DPmt",
-        //         "address": "0xa5654a8D13619fB9A904647BB5F0015BfE55007d",
-        //         "publicKey": "f37d2ba36925f7a4bf647faa703384f31c00bc1cc42780...
+        //     'itemHash': '0x06d0540d044ea8d6efd0a994c5235aebaa414607c632f6f0f1b5d6ea658a829a',
+        //     'hashtagAddress': '0xeba08e7a1d8145b25c78b473fbc35aa24973d908',
+        //     'selectee': {
+        //         'secret': '<String>', // the ID of the item (not the hash)...
+        //         'address': '0xeba08e7a1d8145b25c78b473fbc35aa24973d908', // the ETH address
         //     },
-        //     "decription": "asdd"
+        //     'reply': {
+        //         'dateTime': 12345,
+        //         'username': 'Tester Y',
+        //         'avatarHash': '<base64>',
+        //         'publicKey': 'abc1234...', // the full Ethereum public key
+        //         'address': '0x123...abc', // the ETH address
+        //         'reputation': '<String>', // the ProviderRep balance on this hashtag
+        //         'description': '<String>', // the reply msg
+        //     },
         // }
         return async (task) => {
-            const args = parseReplyRequest(data.reply);
-            const providerRep = await this.fetchProviderReputation(
-                args.hashtagAddress,
-                args.providerAddress
-            );
-            const reply = Object.assign(args.replier, {
-                reputation: providerRep, // '5'
-                description: args.description, // 'I can help you better'
-                dateTime: (new Date).getTime()/1000|0, // 1528215492, unix timestamp in seconds
+            const args = parseSelectProvider(data.selectee);
+            const selectee = Object.assign(args.selectee, {
+                reply: args.reply,
             });
-            logger.info('Storing replyRequest for item %s', args.itemHash);
+            logger.info('Storing selectee for item %s', args.itemHash);
             // Returns the new hashtagItem
-            return await this.dbService.addReplyToHashtagItem(
+            return await this.dbService.addSelecteeToHashtagItem(
                 args.hashtagAddress,
                 args.itemHash,
-                reply
+                selectee
             );
         };
     }
@@ -119,4 +115,4 @@ class ReplyRequestFunction extends AbstractFunction {
     }
 }
 
-module.exports = ReplyRequestFunction;
+module.exports = SelectProviderFunction;

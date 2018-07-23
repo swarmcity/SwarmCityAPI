@@ -303,6 +303,28 @@ class DBService {
     }
 
     /**
+     * Add selectee to the hastagItem
+     *
+     * @param       {Number}    address     The address of the hashtag
+     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {Object}    selectee    The metadata
+     * @return      {Promise}   promise
+     */
+    addSelecteeToHashtagItem(address, itemHash, selectee) {
+        let key = 'deal-' + address + '-' + itemHash;
+        return this.db.get(key).then((val) => {
+            if (!val) throw Error('Missing hashtagItem');
+            let hashtagItem = JSON.parse(val);
+            // Add selectee
+            hashtagItem.selectee = selectee;
+            // Store modified item
+            return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
+                return hashtagItem;
+            });
+        });
+    }
+
+    /**
     * Get all deals for a hastag
     *
     * @param       {Number}    address     The address of the hashtag
