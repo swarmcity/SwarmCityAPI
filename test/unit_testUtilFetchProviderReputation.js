@@ -14,7 +14,8 @@ describe('fetchProviderReputation', function() {
 
     let web3;
 
-    before('connect to web3', (done) => {
+    before('connect to web3', function(done) {
+        this.timeout(60000);
         const web3WebsocketProvider = new Web3.providers.WebsocketProvider(url);
         web3WebsocketProvider.on('connect', () => {
             logger.info('Test web3 instance connected to '+url);
