@@ -281,13 +281,13 @@ class DBService {
     /**
      * Add reply to the hastagItem
      *
-     * @param       {Number}    address     The address of the hashtag
+     * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
      * @param       {String}    itemHash    The hash of the hastagItem
      * @param       {Object}    reply       The metadata
      * @return      {Promise}   promise
      */
-    addReplyToHashtagItem(address, itemHash, reply) {
-        let key = 'deal-' + address + '-' + itemHash;
+    addReplyToHashtagItem(hashtagAddress, itemHash, reply) {
+        let key = 'deal-' + hashtagAddress + '-' + itemHash;
         return this.db.get(key).then((val) => {
             if (!val) throw Error('Missing hashtagItem');
             let hashtagItem = JSON.parse(val);
@@ -305,13 +305,13 @@ class DBService {
     /**
      * Add selectee to the hastagItem
      *
-     * @param       {Number}    address     The address of the hashtag
+     * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
      * @param       {String}    itemHash    The hash of the hastagItem
      * @param       {Object}    selectee    The metadata
      * @return      {Promise}   promise
      */
-    addSelecteeToHashtagItem(address, itemHash, selectee) {
-        let key = 'deal-' + address + '-' + itemHash;
+    addSelecteeToHashtagItem(hashtagAddress, itemHash, selectee) {
+        let key = 'deal-' + hashtagAddress + '-' + itemHash;
         return this.db.get(key).then((val) => {
             if (!val) throw Error('Missing hashtagItem');
             let hashtagItem = JSON.parse(val);
@@ -323,6 +323,54 @@ class DBService {
             });
         });
     }
+
+    /**
+     * Change selectee key to provider
+     *
+     * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
+     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {Object}    selectee    The metadata
+     * @return      {Promise}   promise
+     */
+    changeSelecteeToProvider(hashtagAddress, itemHash) {
+        let key = 'deal-' + hashtagAddress + '-' + itemHash;
+        return this.db.get(key).then((val) => {
+            if (!val) throw Error('Missing hashtagItem');
+            let hashtagItem = JSON.parse(val);
+            // Change a key of the itemHash object
+            const fromKey = 'selectee';
+            const toKey = 'provider';
+            hashtagItem[toKey] = hashtagItem[fromKey];
+            delete hashtagItem[fromKey];
+            // Store modified item
+            return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
+                return hashtagItem;
+            });
+        });
+    }
+
+    /**
+     * update items status
+     *
+     * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
+     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    newStatus    The metadata
+     * @return      {Promise}   promise
+     */
+    updateItemStatus(hashtagAddress, itemHash, newStatus) {
+        let key = 'deal-' + hashtagAddress + '-' + itemHash;
+        return this.db.get(key).then((val) => {
+            if (!val) throw Error('Missing hashtagItem');
+            let hashtagItem = JSON.parse(val);
+            // update the status
+            hashtagItem.status = newStatus;
+            // Store modified item
+            return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
+                return hashtagItem;
+            });
+        });
+    }
+
 
     /**
     * Get all deals for a hastag

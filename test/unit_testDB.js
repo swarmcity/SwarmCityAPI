@@ -333,6 +333,52 @@ describe('services/db/DBService', function() {
         });
     });
 
+    describe('changeSelecteeToProvider()', function() {
+        const hashtagItem = {'selectee': 'info'};
+        const db = {
+            'deal-0x1234-hash': JSON.stringify(hashtagItem),
+        };
+        let mockDB = {
+            get: async (key) => db[key],
+            put: async (key, val) => {db[key] = val;},
+        };
+
+        let dbService = new DBService(mockDB);
+
+        it('should reject on non existing getHashtagItem', () => {
+            return dbService.changeSelecteeToProvider('address', 'hash')
+            .should.be.rejected();
+        });
+
+        it('should change the selectee key to provider', async () => {
+            let res = await dbService.changeSelecteeToProvider('0x1234', 'hash');
+            should(res).deepEqual({'provider': 'info'});
+        });
+    });
+
+    describe('updateItemStatus()', function() {
+        const hashtagItem = {'hash': 'someHash'};
+        const db = {
+            'deal-0x1234-hash': JSON.stringify(hashtagItem),
+        };
+        let mockDB = {
+            get: async (key) => db[key],
+            put: async (key, val) => {db[key] = val;},
+        };
+
+        let dbService = new DBService(mockDB);
+
+        it('should reject on non existing getHashtagItem', () => {
+            return dbService.updateItemStatus('address', 'hash', 1)
+            .should.be.rejected();
+        });
+
+        it('should add a selectee to the hashtagItem object', async () => {
+            let res = await dbService.updateItemStatus('0x1234', 'hash', 1);
+            should(res).deepEqual(Object.assign(hashtagItem, {status: 1}));
+        });
+    });
+
     describe('getLastHashtagBlock()', function() {
         it('should return the last block number from the database', function() {
             let mockDB = {
