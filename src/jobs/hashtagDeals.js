@@ -60,7 +60,86 @@ async function createItem(log, blockHeight) {
 }
 
 /**
- * Gets the past events.
+ * handles a FundItem event.
+ *
+ * @param      {Object}   log                         The start block
+ * @param      {Object}   hashtagAddress              The hashtag contract address
+ */
+function handleEventFundItem(log, hashtagAddress) {
+    let itemHash = log.returnValues.itemHash;
+    dbService.changeSelecteeToProvider(hashtagAddress, itemHash).then(() => {
+        // No use for the result
+    });
+}
+
+/**
+ * handles a ItemStatusChange event.
+ *
+ * @param      {Object}   log                         The start block
+ * @param      {Object}   hashtagAddress              The hashtag contract address
+ */
+function handleEventItemStatusChange(log, hashtagAddress) {
+    // ItemStatusChange(
+    //     address owner,
+    //     bytes32 itemHash,
+    //     itemStatuses newstatus,
+    //     string ipfsMetadata
+    // )
+    let itemHash = log.returnValues.itemHash;
+    let newstatus = log.returnValues.newstatus;
+    dbService.updateItemStatus(hashtagAddress, itemHash, newstatus).then(() => {
+        // No use for the result
+    });
+}
+
+/**
+ * Gets the NewItemForTwo past events.
+ *
+ * @param      {Object}   log                         The start block
+ * @param      {Object}   hashtagAddress              The hashtag contract address
+ */
+function handleEventNewItemForTwo(log, hashtagAddress) {
+    createItem(log, log.blockNumber).then((item) => {
+        dbService.setHashtagItem(hashtagAddress, item).then(() => {
+            IPFSTask.addTask({
+                count: 1,
+                func: (task) => {
+                    return ipfsService.cat(task.data.hash);
+                },
+                responsehandler: async (res, task) => {
+                    if (task.error === 'Error: this dag node is a directory') {
+                        return;
+                    } else if (task.error === 'Error: IPFS request timed out'
+                        || task.error === 'Error: read ECONNRESET') {
+                        task.error = null;
+                        task.count = task.count * 10;
+                        if (task.count > 172800) {
+                            logger.error('Error on hash %s: %s',
+                                task.data.hash,
+                                task.error);
+                            return;
+                        }
+                        task.nextRun = (new Date).getTime() + task.count * 1000;
+                        logger.info('Timeout on hash %s', task.data.hash);
+                        IPFSTask.addTask(task);
+                        return;
+                    } else if (task.error) {
+                        IPFSTask.addTask(task);
+                        return;
+                    }
+                    await dbService.updateHashtagItem(hashtagAddress, item, res);
+                    return;
+                },
+                data: {
+                    hash: item.ipfsMetadata,
+                },
+            });
+        });
+    });
+}
+
+/**
+ * Gets past events.
  *
  * @param      {Number}   startBlock                  The start block
  * @param      {Number}   endBlock                    The end block
@@ -75,57 +154,26 @@ function getPastEvents(startBlock, endBlock, hashtagAddress, task) {
             hashtagContract.abi,
             hashtagAddress
         );
-        hashtagContractInstance.getPastEvents('NewItemForTwo', {
+        hashtagContractInstance.getPastEvents('allEvents', {
             fromBlock: web3.utils.toHex(startBlock),
             toBlock: web3.utils.toHex(endBlock),
         }).then((logs) => {
             let duration = Date.now() - startTime;
             logger.info('Duration %i', duration);
 
-            if (logs && logs.length > 0) {
+            if (logs) {
                 for (let i = 0; i < logs.length; i++) {
                     let log = logs[i];
-
-                    createItem(log, log.blockNumber).then((item) => {
-                        dbService.setHashtagItem(hashtagAddress, item).then(() => {
-                            IPFSTask.addTask({
-                                count: 1,
-                                func: (task) => {
-                                    return ipfsService.cat(task.data.hash, (error, file) => {
-                                        if (error) reject(error);
-                                        resolve(file.toString('utf8'));
-                                    });
-                                },
-                                responsehandler: async (res, task) => {
-                                    if (task.error === 'Error: this dag node is a directory') {
-                                        return;
-                                    } else if (task.error === 'Error: IPFS request timed out'
-                                        || task.error === 'Error: read ECONNRESET') {
-                                        task.error = null;
-                                        task.count = task.count * 10;
-                                        if (task.count > 172800) {
-                                            logger.error('Error on hash %s: %s',
-                                                task.data.hash,
-                                                task.error);
-                                            return;
-                                        }
-                                        task.nextRun = (new Date).getTime() + task.count * 1000;
-                                        logger.info('Timeout on hash %s', task.data.hash);
-                                        IPFSTask.addTask(task);
-                                        return;
-                                    } else if (task.error) {
-                                        IPFSTask.addTask(task);
-                                        return;
-                                    }
-                                    await dbService.updateHashtagItem(hashtagAddress, item, res);
-                                    return;
-                                },
-                                data: {
-                                    hash: item.ipfsMetadata,
-                                },
-                            });
-                        });
-                    });
+                    switch (log.event) {
+                        case 'NewItemForTwo':
+                            handleEventNewItemForTwo(log, hashtagAddress);
+                            break;
+                        case 'FundItem':
+                            handleEventFundItem(log, hashtagAddress);
+                            break;
+                        case 'ItemStatusChange':
+                            handleEventItemStatusChange(log, hashtagAddress);
+                    }
                 }
             }
 

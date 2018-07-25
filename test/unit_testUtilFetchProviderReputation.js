@@ -6,7 +6,7 @@ const Web3 = require('web3');
 
 const fetchProviderReputation = require('../src/functions/utils/fetchProviderReputation');
 
-describe('fetchProviderReputation', function() {
+describe.skip('fetchProviderReputation', function() {
     const infura = 'wss://kovan.infura.io/ws';
     // const infura2 = 'wss://kovan.infura.io/_ws';
     // const dappnode = 'ws://my.kovan.dnp.dappnode.eth:8546';
