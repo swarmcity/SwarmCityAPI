@@ -365,7 +365,6 @@ describe('services/db/DBService', function() {
             get: async (key) => db[key],
             put: async (key, val) => {db[key] = val;},
         };
-        const selectee = 'selectee';
 
         let dbService = new DBService(mockDB);
 
