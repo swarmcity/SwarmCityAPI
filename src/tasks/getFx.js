@@ -28,7 +28,6 @@ module.exports = function() {
 								priceUsd: Number(parsedBody[0].price_usd).toFixed(2),
 								symbol: parsedBody[0].symbol.toLowerCase(),
 							};
-							logger.info('updateFx success');
 							logger.debug('updateFx result=', result);
 							return resolve(result);
 						} catch (e) {

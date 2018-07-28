@@ -120,7 +120,7 @@ function handleEventNewItemForTwo(log, hashtagAddress) {
                             return;
                         }
                         task.nextRun = (new Date).getTime() + task.count * 1000;
-                        logger.info('Timeout on hash %s', task.data.hash);
+                        logger.debug('Timeout on hash %s', task.data.hash);
                         IPFSTask.addTask(task);
                         return;
                     } else if (task.error) {
@@ -159,11 +159,11 @@ function getPastEvents(startBlock, endBlock, hashtagAddress, task) {
             toBlock: web3.utils.toHex(endBlock),
         }).then((logs) => {
             let duration = Date.now() - startTime;
-            logger.info('Duration %i', duration);
 
             if (logs) {
                 for (let i = 0; i < logs.length; i++) {
                     let log = logs[i];
+                    logger.info('Got event: '+log.event+' from hashtag: '+hashtagAddress);
                     switch (log.event) {
                         case 'NewItemForTwo':
                             handleEventNewItemForTwo(log, hashtagAddress);
@@ -193,10 +193,6 @@ function getPastEvents(startBlock, endBlock, hashtagAddress, task) {
  * @return      {Promise}
  */
 function start() {
-    let cumulativeEthClientTime = 0;
-    let taskStartTime = 0;
-    taskStartTime = Date.now();
-
     // #### Temporal solution
     let hashtagAddress = process.env.HASHTAG_CONTRACT;
 
@@ -219,37 +215,16 @@ function start() {
                             // no work to do ? then increase the interval
                             // and finish..
                             if (startBlock === endBlock) {
-                                logger.info('at endblock %s', endBlock);
                                 task.interval = 5000;
 
-                                let taskTime = Date.now() - taskStartTime;
-                                logger.info('++++++++++++++++++++++++++++++');
-                                logger.info('took %i ms to start', taskTime);
-                                logger.info(
-                                    'cumulativeEthClientTime %i ms',
-                                    cumulativeEthClientTime
-                                );
-                                logger.info('++++++++++++++++++++++++++++++');
-
                                 dbService.setHashtagIndexerSynced(hashtagAddress, true).then(() => {
-                                    logger.info(
-                                        'hashtag %s is synced',
-                                        hashtagAddress,
-                                        endBlock
-                                    );
                                     jobresolve();
                                     return resolve();
                                 });
                             }
 
-                            logger.info('scanning %i -> %i (Hashtag %s)',
-                                startBlock,
-                                endBlock,
-                                hashtagAddress);
-
                             getPastEvents(startBlock, endBlock,
                                 hashtagAddress, task).then((scanDuration) => {
-                                    cumulativeEthClientTime += scanDuration;
                                     resolve();
                                 });
                         }).catch((e) => {

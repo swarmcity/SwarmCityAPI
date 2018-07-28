@@ -91,7 +91,7 @@ function status() {
  */
 function subscribe(socket, data, callback) {
 	let subscriptionId = uuidv4();
-	logger.info(
+	logger.debug(
         'socket %s subscribes to channel %s with subscriptionId=%s',
         socket.id, data.channel, subscriptionId
     );
@@ -152,7 +152,7 @@ function subscribe(socket, data, callback) {
  * @param      {Function}  callback  The callback for sending data back over the socket
  */
 function unsubscribe(socket, data, callback) {
-	logger.info('unsubscribe from ID %s', data.subscriptionId);
+	// logger.info('unsubscribe from ID %s', data.subscriptionId);
 
 	_removeSubscription(data.subscriptionId).then((success) => {
 		let responseCode = success ? 200 : 401;
@@ -172,7 +172,7 @@ function unsubscribe(socket, data, callback) {
  * @param      {String}  socketId  The socket identifier
  */
 function unsubscribeAll(socketId) {
-	logger.info('socket %s: unsubscribeAll called', socketId);
+	// logger.info('socket %s: unsubscribeAll called', socketId);
 	for (let subscription in subscriptions) {
 		if (Object.prototype.hasOwnProperty.call(subscriptions, subscription)) {
 			if (subscriptions[subscription].socket.id === socketId) {

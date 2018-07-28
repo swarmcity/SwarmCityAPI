@@ -35,7 +35,7 @@ function createSubscription(emitToSubscriber, args) {
 	if (!args || !args.address || !validate.isAddress(args.address)) {
 		return Promise.reject('Cannot subscribe to a balance without a valid address.');
 	}
-	logs.info('Subscribing to balance for %s', args.address);
+	logs.debug('Subscribing to balance for %s', args.address);
 
 	// create task
 	let _task = {
@@ -53,11 +53,11 @@ function createSubscription(emitToSubscriber, args) {
 			logs.debug('received getBalance RES=%j', res);
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
-				logs.info('getBalance => data has changed. New value: %j', res);
+				logs.debug('getBalance => data has changed. New value: %j', res);
 				emitToSubscriber('balanceChanged', res);
 				task.data.lastReplyHash = replyHash;
 			} else {
-				logs.info('getBalance => data hasn\'t changed.');
+				// logs.debug('getBalance => data hasn\'t changed.');
 			}
 			return blockHeaderTask.addTask(task);
 		},

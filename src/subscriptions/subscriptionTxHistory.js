@@ -88,7 +88,7 @@ async function createLogsForDirection(address, direction, startBlock, endBlock) 
  * @return  {Array}     Array of objects that will resolve to SWT transfer logs.
  */
 async function getTransactionHistory(address, startBlock, endBlock) {
-    logger.info(
+    logger.debug(
         'Creating txHistory for %s from block %d to %d',
         address,
         startBlock,
@@ -168,7 +168,7 @@ function createSubscription(emitToSubscriber, args) {
             'Cannot subscribe to a transactionHistory without a valid address.'
         );
     }
-    logger.info('Subscribing to transactionHistory for %s', args.address);
+    logger.debug('Subscribing to transactionHistory for %s', args.address);
 
     // run a task that gets the past tx history for this pubkey
     let _getPastTxHistoryTask = {
@@ -247,7 +247,7 @@ function createSubscription(emitToSubscriber, args) {
                 emitToSubscriber('txHistoryChanged', res);
                 task.data.lastReplyHash = replyHash;
             } else {
-                logger.info('Data hasn\'t changed.');
+                // logger.info('Data hasn\'t changed.');
             }
             return blockHeaderTask.addTask(task);
         },

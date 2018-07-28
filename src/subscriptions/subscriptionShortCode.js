@@ -15,7 +15,7 @@ const dbService = require('../services').dbService;
  * @return     {Promise}  result of removing the task (no return value)
  */
 async function cancelSubscription(task) {
-    logger.info('cancelSubscripton to ShortCode called.');
+    logger.debug('cancelSubscripton to ShortCode called.');
 
     if (task.data && task.data.shortCode) {
         let shortCode = task.data.shortCode;

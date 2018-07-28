@@ -72,7 +72,7 @@ class IpfsCatFunction extends AbstractFunction {
      */
     func(data) {
         return (task) => {
-            logs.info('ipfscat start');
+            logs.debug('ipfscat start');
             return this.ipfsService.cat(data.hash);
         };
     }

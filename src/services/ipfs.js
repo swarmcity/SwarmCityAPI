@@ -35,7 +35,7 @@ class IPFSService {
      * @return     {Promise}  resolves with a Buffer object, rejects with an Error object
      */
     cat(hash) {
-        logger.info('CAT hash: %s', hash);
+        logger.debug('CAT hash: %s', hash);
         if (!this.isIPFSHash(hash)) {
             return Promise.reject(new Error(hash + ' is not a valid IPFS hash'));
         }
@@ -61,6 +61,7 @@ class IPFSService {
                 if (err) {
                     return reject(new Error(err));
                 }
+                logger.info('IPFS item added, hash: '+result[0].hash);
                 return resolve(result[0].hash);
             });
         });

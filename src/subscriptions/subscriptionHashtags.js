@@ -38,7 +38,7 @@ function createSubscription(emitToSubscriber, args) {
 				emitToSubscriber('hashtagsChanged', res);
 				task.data.lastResponse = responseHash;
 			} else {
-				logger.info('Data hasn\'t changed.');
+				// logger.info('Data hasn\'t changed.');
 			}
 			return blockHeaderTask.addTask(task);
 		},

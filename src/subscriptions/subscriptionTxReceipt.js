@@ -29,7 +29,7 @@ function cancelSubscription(task) {
  */
 function getReceipt(transactionHash) {
     return new Promise((resolve, reject) => {
-        logs.info('Getting receipt for %s', transactionHash);
+        logs.debug('Getting receipt for %s', transactionHash);
         web3.eth.getTransactionReceipt(transactionHash)
         .then((receipt) => {
             logs.debug('Receipt received: %j', receipt);
@@ -72,7 +72,7 @@ function createSubscription(emitToSubscriber, args) {
 	if (!args || !args.transactionHash) {
 		return Promise.reject('Cannot subscribe to a receipt without a valid transactionHash.');
 	}
-	logs.info('Subscribing to receipt for %s', args.transactionHash);
+	logs.debug('Subscribing to receipt for %s', args.transactionHash);
 
     // create task
     let _task = {
@@ -103,11 +103,11 @@ function createSubscription(emitToSubscriber, args) {
             logs.debug('received txReceipt RES=%j', res);
             let replyHash = jsonHash.digest(res);
             if (task.data.lastReplyHash !== replyHash) {
-                logs.info('txReceipt => data has changed. New value: %j', res);
+                logs.debug('txReceipt => data has changed. New value: %j', res);
                 emitToSubscriber('txReceiptChanged', res);
                 task.data.lastReplyHash = replyHash;
             } else {
-                logs.info('txReceipt => data hasn\'t changed.');
+                // logs.info('txReceipt => data hasn\'t changed.');
             }
             return blockHeaderTask.addTask(task);
         },
