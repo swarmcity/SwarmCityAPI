@@ -1,0 +1,145 @@
+{
+  "contractName": "hashtagList",
+  "api": [
+    {
+      "constant": false,
+      "inputs": [{ "name": "_index", "type": "uint256" }],
+      "name": "disableHashtag",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        { "name": "_index", "type": "uint256" },
+        { "name": "_hashtagName", "type": "string" },
+        { "name": "_hashtagMetaIPFS", "type": "string" },
+        { "name": "_hashtagAddress", "type": "address" }
+      ],
+      "name": "updateHashtag",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "numberOfHashtags",
+      "outputs": [{ "name": "", "type": "uint256" }],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        { "name": "_hashtagName", "type": "string" },
+        { "name": "_hashtagMetaIPFS", "type": "string" },
+        { "name": "_hashtagAddress", "type": "address" }
+      ],
+      "name": "addHashtag",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [{ "name": "", "type": "address" }],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "hashtagListIpfs",
+      "outputs": [{ "name": "", "type": "string" }],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [{ "name": "_index", "type": "uint256" }],
+      "name": "readHashtag",
+      "outputs": [
+        { "name": "hashtagName", "type": "string" },
+        { "name": "hashtagMetaIPFS", "type": "string" },
+        { "name": "hashtagAddress", "type": "address" },
+        { "name": "hashtagShown", "type": "bool" }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "hashtagListName",
+      "outputs": [{ "name": "", "type": "string" }],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [{ "name": "newOwner", "type": "address" }],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "name": "_hashtagListName", "type": "string" },
+        { "name": "_hashtagListIpfs", "type": "string" }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "name": "hashtagName", "type": "string" },
+        { "indexed": false, "name": "hashtagMetaIPFS", "type": "string" },
+        { "indexed": false, "name": "hashtagAddress", "type": "address" }
+      ],
+      "name": "HashtagAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "name": "previousOwner", "type": "address" }
+      ],
+      "name": "OwnershipRenounced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "name": "previousOwner", "type": "address" },
+        { "indexed": true, "name": "newOwner", "type": "address" }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    }
+  ]
+}

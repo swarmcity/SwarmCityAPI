@@ -8,7 +8,7 @@ require('../environment');
 const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
-const hashtagProxyContract = require('../contracts/hashtagProxy.json');
+const hashtagListContract = require('../contracts/hashtagList.json');
 
 const ipfsService = require('../services').ipfsService;
 const dbService = require('../services').dbService;
@@ -27,21 +27,21 @@ function getBlockHeight() {
  *
  * @param      {Number}   startBlock                  The start block
  * @param      {Number}   endBlock                    The end block
- * @param      {Object}   hashtagProxyContractInstance The parameters contract instance
+ * @param      {Object}   hashtagListContractInstance The parameters contract instance
  * @param      {Object}   task                        The task
  * @return     {Promise}  The past events.
  */
-function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task) {
+function getPastEvents(startBlock, endBlock, hashtagListContractInstance, task) {
 	return new Promise((resolve, reject) => {
 		let startTime = Date.now();
-		hashtagProxyContractInstance.getPastEvents('HashtagSet', {
+		hashtagListContractInstance.getPastEvents('HashtagAdded', {
 			fromBlock: web3.utils.toHex(startBlock),
 			toBlock: web3.utils.toHex(endBlock),
 		})
 			.then((logs) => {
 				let duration = Date.now() - startTime;
 
-				if (logs && logs.length > 0) {
+				if (logs) {
 					for (let i = 0; i < logs.length; i++) {
 						let log = logs[i];
 						if (log.returnValues && log.returnValues.name === 'hashtaglist') {
@@ -99,12 +99,10 @@ function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task)
 							});
 						}
 					}
-				} else {
-					dbService.setLastBlock(endBlock).then(() => {
-						task.interval = 100;
-						resolve(duration);
-					});
-				}
+				dbService.setLastBlock(endBlock).then(() => {
+					task.interval = 100;
+					resolve(duration);
+				});
 			}).catch((e) => {
 				logger.error(e);
 				reject(e);
@@ -116,14 +114,14 @@ module.exports = function() {
 	return ({
 		start: function() {
 			// start up this task... print some parameters
-			logger.info('process.env.HASHTAGPROXYCONTRACT=%s',
-				process.env.HASHTAGPROXYCONTRACT);
-			logger.info('process.env.HASHTAGPROXYSTARTBLOCK=%s',
-				process.env.HASHTAGPROXYSTARTBLOCK);
+			logger.info('process.env.HASHTAG_LIST_ADDRESS=%s',
+				process.env.HASHTAG_LIST_ADDRESS);
+			logger.info('process.env.HASHTAG_LIST_STARTBLOCK=%s',
+				process.env.HASHTAG_LIST_STARTBLOCK);
 
-			let hashtagProxyContractInstance = new web3.eth.Contract(
-				hashtagProxyContract.abi,
-				process.env.HASHTAGPROXYCONTRACT
+			let hashtagListContractInstance = new web3.eth.Contract(
+				hashtagListContract.abi,
+				process.env.HASHTAG_LIST_ADDRESS
 			);
 
 			return new Promise((jobresolve, reject) => {
@@ -180,9 +178,9 @@ module.exports = function() {
 		reset: function() {
 			logger.info(
 				'Reset hashtagsIndexer. SetLastBlock to %i',
-				process.env.HASHTAGPROXYSTARTBLOCK
+				process.env.HASHTAG_LIST_STARTBLOCK
 			);
-			return dbService.setLastBlock(process.env.HASHTAGPROXYSTARTBLOCK).then(() => {
+			return dbService.setLastBlock(process.env.HASHTAG_LIST_STARTBLOCK).then(() => {
 				dbService.setHashtagIndexerSynced(false).then(() => {
 					return this.start();
 				});
