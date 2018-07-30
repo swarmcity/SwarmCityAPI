@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
 				return getBalance.getBalance(task.data);
 			},
 			responsehandler: (res, task) => {
-				logs.info('received getBalance RES=%j', res);
+				// logs.info('received getBalance RES=%j', res);
 				task.data.socket.emit('balanceChanged', res);
 			},
 			data: {
@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
 			return getFx.getFx();
 		},
 		responsehandler: (res, task) => {
-			logs.info('received getFx RES=%j', res);
+			// logs.info('received getFx RES=%j', res);
 			task.data.socket.emit('fxChanged', res);
 		},
 		data: {
@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
 			return getGasPrice.getGasPrice();
 		},
 		responsehandler: (res, task) => {
-			logs.info('received getGasPrice RES=%j', res);
+			// logs.info('received getGasPrice RES=%j', res);
 			task.data.socket.emit('gasPriceChanged', res);
 		},
 		data: {

@@ -32,7 +32,7 @@ function getBlockNumber(task) {
  */
 function checkListenerState() {
 	if (tasks.length === 0) {
-		logger.info('the blockheadertask scheduler is empty');
+		logger.debug('the blockheadertask scheduler is empty');
 		stopListening();
 	} else {
 		startListening();
@@ -43,10 +43,10 @@ function checkListenerState() {
  */
 function stopListening() {
 	if (newBlockHeadersSubscription) {
-		logger.info('stop listening to newblock events');
+		logger.debug('stop listening to newblock events');
 		newBlockHeadersSubscription.unsubscribe(function(error, success) {
 			if (success) {
-				logger.info('Successfully unsubscribed!');
+				logger.debug('Successfully unsubscribed!');
 				newBlockHeadersSubscription = null;
 				if (tasks.length != 0) {
 					startListening();
@@ -66,7 +66,7 @@ function startListening() {
 		newBlockHeadersSubscription = web3.eth.subscribe('newBlockHeaders', (error, result) => {
 			if (result && result.number > blockNumber) {
 				blockNumber = result.number;
-				logger.info('newBlockHeaders event occured. Block number=%i', blockNumber);
+				logger.debug('newBlockHeaders event occured. Block number=%i', blockNumber);
 				let task;
 				while (task = tasks.shift()) {
                     logger.debug('Adding new task %s to queue', task.id);
@@ -89,8 +89,7 @@ function startListening() {
 function addTask(task) {
 	task.id = uuidv4();
 	tasks.push(task);
-	logger.info('******* Added blockheader task ID=%s', task.id);
-	logger.info('newBlockHeaders tasks count=%i', tasks.length);
+	logger.debug('******* Added blockheader task ID=%s', task.id);
 	startListening();
 }
 
@@ -124,7 +123,7 @@ function removeTasks(taskArray) {
  * Removes all tasks.
  */
 function removeAllTasks() {
-	logger.info('removing all task from blockHeaderTask scheduler (%i)', tasks.length);
+	logger.debug('removing all task from blockHeaderTask scheduler (%i)', tasks.length);
 	for (let i = 0; i < tasks.length; i++) {
 		removeTask(tasks[i]);
 	}
@@ -137,19 +136,17 @@ function removeAllTasks() {
  * @return     {Promise}  Resolves when status dumped.
  */
 function status() {
-	let statusId = uuidv4();
-	logger.info('---Blockheadertask status [%s]---', statusId);
 	if (tasks.length === 0) {
-		logger.info('No tasks');
+		// logger.info('No tasks');
 	} else {
-		logger.info('tasks:');
+		// logger.info('tasks:');
 
 		for (let i = 0; i < tasks.length; i++) {
 			let task = tasks[i];
-			logger.info(i + 1, ':', task.func.name, task.socket.id);
+			logger.debug(i + 1, ':', task.func.name, task.socket.id);
 		}
 	}
-	logger.info('---/Blockheadertask status [%s]---', statusId);
+	// logger.info('---/Blockheadertask status [%s]---', statusId);
 	return Promise.resolve();
 }
 

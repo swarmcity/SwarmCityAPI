@@ -40,7 +40,6 @@ function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task)
 		})
 			.then((logs) => {
 				let duration = Date.now() - startTime;
-				logger.info('Duration %i', duration);
 
 				if (logs && logs.length > 0) {
 					for (let i = 0; i < logs.length; i++) {
@@ -114,12 +113,8 @@ function getPastEvents(startBlock, endBlock, hashtagProxyContractInstance, task)
 }
 
 module.exports = function() {
-	let cumulativeEthClientTime = 0;
-	let taskStartTime = 0;
 	return ({
 		start: function() {
-			taskStartTime = Date.now();
-
 			// start up this task... print some parameters
 			logger.info('process.env.HASHTAGPROXYCONTRACT=%s',
 				process.env.HASHTAGPROXYCONTRACT);
@@ -147,33 +142,19 @@ module.exports = function() {
 									// no work to do ? then increase the interval
 									// and finish..
 									if (startBlock === endBlock) {
-										logger.info('at endblock %s', endBlock);
+										logger.debug('at endblock %s', endBlock);
 										task.interval = 5000;
 
-										let taskTime = Date.now() - taskStartTime;
-										logger.info('++++++++++++++++++++++++++++++');
-										logger.info('took %i ms to start', taskTime);
-										logger.info(
-											'cumulativeEthClientTime %i ms',
-											cumulativeEthClientTime
-										);
-										logger.info('++++++++++++++++++++++++++++++');
-
 										dbService.setHashtagIndexerSynced(true).then(() => {
-											logger.info(
-												'hashtagindexer is synced',
-												endBlock
-											);
 											jobresolve();
 											return resolve();
 										});
 									}
 
-									logger.info('scanning %i -> %i', startBlock, endBlock);
+									logger.debug('scanning %i -> %i', startBlock, endBlock);
 
 									getPastEvents(startBlock, endBlock,
 										hashtagProxyContractInstance, task).then((scanDuration) => {
-											cumulativeEthClientTime += scanDuration;
 											resolve();
 										});
 								}).catch((e) => {

@@ -27,20 +27,20 @@ class DBService {
      * @return     {Promise}  resolves with a JSON object, rejects with an Error object
      */
     readShortCode(shortCode) {
-        logger.info('readShortCode start %s', shortCode);
+        logger.debug('readShortCode start %s', shortCode);
         return new Promise((resolve, reject) => {
             let key = 'shortcode-' + shortCode;
             this.db.get(key).then((val) => {
                 // so we have data..
                 try {
                     let data = JSON.parse(val);
-                    logger.info('We found data in DB %j', data);
+                    logger.debug('We found data in DB %j', data);
                     // is the code still valid ? If it has not expired, return the data.
                     if (data.validUntil && data.validUntil >= (new Date).getTime()) {
-                        logger.info('data is OK');
+                        logger.debug('data is OK');
                         return resolve(data.payload);
                     }
-                    logger.info('data has expired');
+                    logger.debug('data has expired');
                     return reject();
                 } catch (e) {
                     // can't read the data.
@@ -72,7 +72,7 @@ class DBService {
                 validUntil: (new Date).getTime() + validity,
                 payload: payload,
             };
-            logger.info('Storing %j at %s', val, key);
+            // logger.debug('Storing %j at %s', val, key);
             this.db.put(key, JSON.stringify(val)).then(() => {
                 resolve();
             }).catch((err) => {
@@ -231,7 +231,7 @@ class DBService {
                 resolve(JSON.parse(val));
             }).catch((err) => {
                 if (err.notFound) {
-                    logger.info(
+                    logger.debug(
                         'no deal %s for %s in DB',
                         itemHash,
                         address
@@ -266,7 +266,7 @@ class DBService {
                 });
             }).catch((err) => {
                 if (err.notFound) {
-                    logger.info(
+                    logger.debug(
                         'no item %s for %s in DB',
                         item.itemHash,
                         address
@@ -435,7 +435,7 @@ class DBService {
                     });
                     resolve(hashtags);
                 } catch (e) {
-                    logger.info('Returning empty hashtag list');
+                    logger.debug('Returning empty hashtag list');
                     logger.error('Cannot parse hashtag data from DB. Data: %s. Error: %j', val, e);
                     resolve([]);
                 }
@@ -443,7 +443,7 @@ class DBService {
                 logger.error(JSON.stringify(err));
                 if (err.notFound) {
                     logger.error('key %s not found (yet) in DB.', key);
-                    logger.info('Returning empty hashtag list');
+                    logger.debug('Returning empty hashtag list');
                     resolve([]);
                 }
                 reject(new Error(err));
@@ -480,7 +480,7 @@ class DBService {
             endBlock: endBlock,
             transactionHistory: transactionHistory,
         };
-        logger.info('Storing %j at %s', val, key);
+        // logger.debug('Storing %j at %s', val, key);
         return this.db.put(key, JSON.stringify(val));
     }
 
@@ -532,14 +532,14 @@ class DBService {
                     logger.debug(history);
                     resolve(history);
                 }).catch((err) => {
-                    logger.error('Could not update lastRead value because: %s', err);
+                    logger.debug('Could not update lastRead value because: %s', err);
                     logger.debug(history);
                     resolve(history);
                 });
             }).catch((error) => {
                 logger.error(JSON.stringify(error));
                 if (error.notFound) {
-                    logger.error('key %s not found (yet) in DB.', key);
+                    logger.debug('key %s not found (yet) in DB.', key);
                     resolve(this._getEmptyTxHistory(pubkey));
                 }
                 reject(new Error(error));

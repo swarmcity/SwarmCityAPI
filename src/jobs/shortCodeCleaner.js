@@ -13,7 +13,6 @@ let task = {
     name: 'shortCodeCleanerTask',
     interval: 60 * 1000,
     func: (task) => {
-        logger.info('Sweeping the DB for expired ShortCodes.');
         return new Promise((resolve, reject) => {
             let promises = [];
 
@@ -44,7 +43,6 @@ let task = {
                     logger.debug('All ShortCodes were read');
 
                     Promise.all(promises).then(() => {
-                        logger.info('DB was sweeped clean of expired ShortCodes.');
                         resolve();
                     });
                 });

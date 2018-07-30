@@ -39,8 +39,6 @@ function _updateSchedule() {
 				_updateSchedule();
 			}, due);
 			nextRun = tasks[0].nextRun;
-			logger.info('scheduler to sleep for %i ms', due);
-			logger.info('next task is \'%s\'', tasks[0].name);
 		} else {
 			_updateSchedule();
 		}
@@ -62,18 +60,11 @@ function addTask(task) {
 	task.name = task.name || task.func.name || '(anonymous function)';
 	if (!task.responsehandler && task.interval && task.interval > 0) {
 		task.responsehandler = (res, task) => {
-			logger.info('Schedule task again in %i ms', task.interval);
 			task.nextRun = (new Date).getTime() + task.interval;
 			return addTask(task);
 		};
 	}
 	tasks.push(task);
-	logger.info(
-        'Added scheduled task "%s" with ID="%s" next run=',
-        task.name,
-        task.id,
-        task.nextRun ? task.nextRun : 'now'
-    );
 	_updateSchedule();
 	return Promise.resolve();
 }
@@ -95,7 +86,7 @@ function removeTask(task) {
 		logger.error('removeTask: cannot find task "%s" in task list', task.id);
 	}
 	if (tasks.length === 0) {
-		logger.info('the scheduledTask scheduler is empty');
+		// logger.debug('the scheduledTask scheduler is empty');
 	}
 	return Promise.resolve();
 }
@@ -128,22 +119,22 @@ function removeAllTasks() {
  */
 function status() {
 	let statusId = uuidv4();
-	logger.info('---Scheduledtask status [\'%s\']---', statusId);
+	logger.debug('---Scheduledtask status [\'%s\']---', statusId);
 	if (tasks.length === 0) {
-		logger.info('No tasks');
+		// logger.info('No tasks');
 	} else {
 		for (let i = 0; i < tasks.length; i++) {
 			let task = tasks[i];
-			logger.info(
+			logger.debug(
                 '%i: %s [socket %s]',
                 i + 1,
                 task.name || task.func.name,
                 task.socket ? task.socket.id : 'none'
             );
 		}
-		logger.info('next run:', nextRun);
+		logger.debug('next run:', nextRun);
 	}
-	logger.info('---/Scheduledtask status [\'%s\']---', statusId);
+	logger.debug('---/Scheduledtask status [\'%s\']---', statusId);
 	return Promise.resolve();
 }
 

@@ -62,7 +62,7 @@ class IpfsAddFunction extends AbstractFunction {
      */
     func(data) {
         return (task) => {
-            logs.info('ipfsadd start');
+            logs.debug('ipfsadd start');
             return this.ipfsService.add(data.payload);
         };
     }

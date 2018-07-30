@@ -32,7 +32,7 @@ function createSubscription(emitToSubscriber, args) {
 	if (!args || !args.address || !validate.isAddress(args.address)) {
 		return Promise.reject('Cannot subscribe to a nonce without a valid address.');
 	}
-	logs.info('Subscribing to nonce for %s', args.address);
+	logs.debug('Subscribing to nonce for %s', args.address);
 
 	// create task
 	let _task = {
@@ -52,9 +52,9 @@ function createSubscription(emitToSubscriber, args) {
 			if (task.data.lastReplyHash !== replyHash) {
 				emitToSubscriber('nonceChanged', res);
 				task.data.lastReplyHash = replyHash;
-				logs.info('getNonce => data has changed. New value: %j', res);
+				logs.debug('getNonce => data has changed. New value: %j', res);
 			} else {
-				logs.info('getNonce => data hasn\'t changed.');
+				// logs.info('getNonce => data hasn\'t changed.');
 			}
 			return blockHeaderTask.addTask(task);
 		},

@@ -33,7 +33,7 @@ function createSubscription(emitToSubscriber, args) {
 	if (!args || !args.address || !validate.isAddress(args.address)) {
 		return Promise.reject('Cannot subscribe to a hashtag without a valid address.');
 	}
-	logs.info('Subscribing to hastagitems for %s', args.address);
+	logs.debug('Subscribing to hastagitems for %s', args.address);
 
 	// create task
 	let _task = {
@@ -48,7 +48,7 @@ function createSubscription(emitToSubscriber, args) {
 				emitToSubscriber('hashtagItemsChanged', JSON.stringify(res));
 				task.data.lastReplyHash = replyHash;
 			} else {
-				logs.info('hashtagItemsChanged => data hasn\'t changed.');
+				// logs.info('hashtagItemsChanged => data hasn\'t changed.');
 			}
 			return blockHeaderTask.addTask(task);
 		},

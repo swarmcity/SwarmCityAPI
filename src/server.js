@@ -1,8 +1,3 @@
-// #### Temporal fix, fallback value for HASHTAG_CONTRACT
-process.env.HASHTAG_CONTRACT =
-	process.env.HASHTAG_CONTRACT
-	|| '0xC5E5AF4592Cfd750B96cFfe8c3C848ce258C72ac';
-
 // Show the current environment
 const showEnv = require('./showEnv');
 showEnv.showEnv();

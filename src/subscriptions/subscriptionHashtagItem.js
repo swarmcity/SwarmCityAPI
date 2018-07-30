@@ -32,7 +32,7 @@ function createSubscription(emitToSubscriber, args) {
 	if (!args || !args.address || !validate.isAddress(args.address)) {
 		return Promise.reject('Cannot subscribe to a hashtag without a valid address.');
 	}
-	logs.info('Subscribing to hastagitem for %s', args.address, args.itemHash);
+	logs.debug('Subscribing to hastagitem for %s', args.address, args.itemHash);
 
 	// create task
 	let _task = {
