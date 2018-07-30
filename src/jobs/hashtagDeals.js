@@ -42,7 +42,7 @@ async function createItem(log, blockHeight) {
     }
 
     return {
-        'itemHash': log.returnValues.itemHash,
+        'itemHashish': log.returnValues.itemHash,
         'hashtagFee': log.returnValues.hashtagFee,
         'ipfsMetadata': log.returnValues.ipfsMetadata,
         /* 'totalValue': log.returnValues.totalValue, */
