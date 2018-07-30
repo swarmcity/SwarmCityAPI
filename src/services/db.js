@@ -539,7 +539,7 @@ class DBService {
             }).catch((error) => {
                 logger.error(JSON.stringify(error));
                 if (error.notFound) {
-                    logger.error('key %s not found (yet) in DB.', key);
+                    logger.debug('key %s not found (yet) in DB.', key);
                     resolve(this._getEmptyTxHistory(pubkey));
                 }
                 reject(new Error(error));
