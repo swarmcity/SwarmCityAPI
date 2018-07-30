@@ -9,6 +9,7 @@ const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
 const scheduledTask = require('../scheduler/scheduledTask')();
 const hashtagListContract = require('../contracts/hashtagList.json');
+const jsonHash = require('json-hash');
 
 const dbService = require('../services').dbService;
 
@@ -30,12 +31,16 @@ async function getHashtagList() {
 	const numberOfHashtags = parseFloat(
 		await hashtagListContractInstance.methods.numberOfHashtags().call()
 	);
-
 	let hashtags = [];
 	for (let i = 0; i < numberOfHashtags; i++) {
 		try {
 			const hashtag = await hashtagListContractInstance.methods.readHashtag(i).call();
-			hashtags.push(hashtag);
+			hashtags.push({
+				hashtagName: hashtag.hashtagName,
+				hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
+				hashtagAddress: hashtag.hashtagAddress,
+				hashtagShown: hashtag.hashtagShown,
+			});
 		} catch (e) {
 			logger.error('Error retrieving hashtag #' + i + ' from hashtagList, err: ' + e);
 		}
@@ -57,56 +62,17 @@ module.exports = function() {
 					name: 'hashtagIndexerTask',
 					interval: 10 * 1000,
 					func: (task) => {
-						return new Promise((resolve, reject) => {
-							dbService.getLastBlock().then((startBlock) => {
-								getBlockHeight().then((endBlock) => {
-									let range = 30000;
-									if (startBlock + range < endBlock) {
-										endBlock = startBlock + range;
-									}
-
-									// no work to do ? then increase the interval
-									// and finish..
-									if (startBlock === endBlock) {
-										logger.info('at endblock %s', endBlock);
-										task.interval = 5000;
-
-										let taskTime = Date.now() - taskStartTime;
-										logger.info('++++++++++++++++++++++++++++++');
-										logger.info('took %i ms to start', taskTime);
-										logger.info(
-											'cumulativeEthClientTime %i ms',
-											cumulativeEthClientTime
-										);
-										logger.info('++++++++++++++++++++++++++++++');
-
-										dbService.setHashtagIndexerSynced(true).then(() => {
-											logger.info(
-												'hashtagindexer is synced',
-												endBlock
-											);
-											jobresolve();
-											return resolve();
-										});
-									}
-
-									logger.info('scanning %i -> %i', startBlock, endBlock);
-
-									getPastEvents(startBlock, endBlock,
-										hashtagListContractInstance, task).then((scanDuration) => {
-											cumulativeEthClientTime += scanDuration;
-											resolve();
-										});
-								}).catch((e) => {
-									logger.error(e);
-									reject(e);
-								});
-							}).catch((e) => {
-								logger.error(e);
-								reject(e);
-							});
+						return getHashtagList()
+						.then((hashtags) => {
+							let resHash = jsonHash.digest(hashtags);
+							if (task.data.resHash !== resHash) {
+								// If changed, store in the database and forward to clients
+								task.data.resHash = resHash;
+								return dbService.setHashtags(hashtags);
+							}
 						});
 					},
+					data: {},
 				});
 			});
 		},
@@ -122,11 +88,6 @@ module.exports = function() {
 				'Reset hashtagsIndexer. SetLastBlock to %i',
 				process.env.HASHTAG_LIST_STARTBLOCK
 			);
-			return dbService.setLastBlock(process.env.HASHTAG_LIST_STARTBLOCK).then(() => {
-				dbService.setHashtagIndexerSynced(false).then(() => {
-					return this.start();
-				});
-			});
 		},
 	});
 };

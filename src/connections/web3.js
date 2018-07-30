@@ -14,7 +14,7 @@ web3WebsocketProvider.on('end', () => {
 	logger.info('WEB3 WS DISCONNECTED');
 });
 web3WebsocketProvider.on('connect', () => {
-	logger.info('WEB3 WS CONNECTED');
+	logger.info('WEB3 WS CONNECTED to: '+process.env.ETHWS);
 });
 
 const web3 = new Web3(web3WebsocketProvider);

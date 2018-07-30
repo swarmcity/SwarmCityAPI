@@ -1,6 +1,6 @@
 {
   "contractName": "hashtagList",
-  "api": [
+  "abi": [
     {
       "constant": false,
       "inputs": [{ "name": "_index", "type": "uint256" }],
