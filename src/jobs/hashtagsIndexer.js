@@ -40,6 +40,9 @@ async function getHashtagList() {
 				hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
 				hashtagAddress: hashtag.hashtagAddress,
 				hashtagShown: hashtag.hashtagShown,
+				stats: {'paidNoConflict': 0, 'resolved': 0, 'seekers': 0, 'providers': 0},
+				description: '',
+				hashtagFee: 0,
 			});
 		} catch (e) {
 			logger.error('Error retrieving hashtag #' + i + ' from hashtagList, err: ' + e);
@@ -64,6 +67,7 @@ module.exports = function() {
 					func: (task) => {
 						return getHashtagList()
 						.then((hashtags) => {
+							jobresolve();
 							let resHash = jsonHash.digest(hashtags);
 							if (task.data.resHash !== resHash) {
 								// If changed, store in the database and forward to clients
