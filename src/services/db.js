@@ -357,10 +357,9 @@ class DBService {
             if (!val) throw Error('Missing hashtagItem');
             let hashtagItem = JSON.parse(val);
             // Change a key of the itemHash object
-            const fromKey = 'selectee';
-            const toKey = 'provider';
-            hashtagItem[toKey] = hashtagItem[fromKey];
-            delete hashtagItem[fromKey];
+            const selectee = JSON.parse(JSON.stringify(hashtagItem.selectee));
+            hashtagItem.provider = selectee;
+            delete hashtagItem.selectee;
             // Store modified item
             return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
                 return hashtagItem;
