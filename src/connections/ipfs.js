@@ -12,7 +12,7 @@ if (process.env.IPFSAPIHOST && process.env.IPFSAPIPORT) {
 	ipfs = ipfsAPI({
 		host: process.env.IPFSAPIHOST,
 		port: process.env.IPFSAPIPORT,
-		protocol: 'http',
+		protocol: 'https',
 		timeout: 60000,
 	});
 } else {
