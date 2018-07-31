@@ -64,6 +64,7 @@ module.exports = function() {
 					func: (task) => {
 						return getHashtagList()
 						.then((hashtags) => {
+							jobresolve();
 							let resHash = jsonHash.digest(hashtags);
 							if (task.data.resHash !== resHash) {
 								// If changed, store in the database and forward to clients

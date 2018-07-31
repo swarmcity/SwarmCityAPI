@@ -12,10 +12,7 @@ class GetHashtagsFunction extends AbstractFunction {
      */
     constructor(scheduledTask, dbService) {
         super(
-            'getHashtags', [{
-                'name': 'getHashtags',
-                'description': 'Hashtags to show.',
-            }]
+            'getHashtags', []
         );
         this.scheduledTask = scheduledTask;
         this.dbService = dbService;
