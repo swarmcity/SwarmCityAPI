@@ -207,6 +207,25 @@ class DBService {
     }
 
     /**
+     * Set the hashtags
+     *
+     * @param       {Object}    hashtags    The hashtaglist
+     * @return      {Promise}   promise
+     */
+    setHashtags(hashtags) {
+        return this.db.put('hashtags', JSON.stringify(hashtags));
+    }
+
+    /**
+     * Get the hashtags
+     *
+     * @return      {Promise}   promise
+     */
+    getHashtags() {
+        return this.db.get('hashtags').then(JSON.parse);
+    }
+
+    /**
      * Set the hashtaglist
      *
      * @param       {Number}    address     The address of the hashtag

@@ -190,16 +190,14 @@ function getPastEvents(startBlock, endBlock, hashtagAddress, task) {
 
 /**
  * Start this job
- * @return      {Promise}
  */
-function start() {
-    // #### Temporal solution
-    let hashtagAddress = process.env.HASHTAG_CONTRACT;
-
+async function start() {
     // When we have the list of hashtags it will be necessary to add an
     // array of tasks, one for each hashtag
 
-    return new Promise((jobresolve, reject) => {
+    const hashtags = await dbService.getHashtags();
+    for (const hashtag of hashtags) {
+        const hashtagAddress = hashtag.hashtagAddress;
         scheduledTask.addTask({
             name: 'hashtagItemsTask-' + hashtagAddress,
             interval: 100,
@@ -218,7 +216,6 @@ function start() {
                                 task.interval = 5000;
 
                                 dbService.setHashtagIndexerSynced(hashtagAddress, true).then(() => {
-                                    jobresolve();
                                     return resolve();
                                 });
                             }
@@ -238,7 +235,7 @@ function start() {
                 });
             },
         });
-    });
+    }
 }
 
 /**

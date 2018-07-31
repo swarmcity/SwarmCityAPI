@@ -18,6 +18,7 @@ const ReplyRequestFunction = require('./ReplyRequestFunction');
 const ReadShortCodeFunction = require('./ReadShortCodeFunction');
 const SelectProviderFunction = require('./SelectProviderFunction');
 const SendSignedTxFunction = require('./SendSignedTxFunction');
+const GetHashtagsFunction = require('./GetHashtagsFunction');
 
 
 handlers.push(new IpfsCatFunction(scheduledTask, ipfsService));
@@ -27,6 +28,8 @@ handlers.push(new ReplyRequestFunction(scheduledTask, dbService));
 handlers.push(new ReadShortCodeFunction(scheduledTask, dbService));
 handlers.push(new SelectProviderFunction(scheduledTask, dbService));
 handlers.push(new SendSignedTxFunction(scheduledTask));
+handlers.push(new GetHashtagsFunction(scheduledTask, dbService));
+
 
 /**
  * register the array of socket handlers
