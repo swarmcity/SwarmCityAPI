@@ -10,6 +10,7 @@ const validate = require('./validators');
 
 const scheduledTask = require('./scheduler/scheduledTask')();
 const blockHeaderTask = require('./scheduler/blockHeaderTask')();
+const dbService = require('./services').dbService;
 
 // scheduled task handlers
 const getFx = require('./tasks/getFx')();
@@ -20,6 +21,10 @@ const getBalance = require('./tasks/getBalance')();
 
 // subscription handler
 const subscriptions = require('./subscriptions')();
+
+// subscription handler
+const subscriptionsLightFactory = require('./subscriptionsLight');
+const subscriptionsLight = subscriptionsLightFactory(dbService, io);
 
 // functions handler
 const functions = require('./functions');
@@ -125,6 +130,9 @@ io.on('connection', (socket) => {
 
 	// register all verbs for functions
 	functions.registerHandlers(socket);
+
+	// execute subscriptions light
+	subscriptionsLight.connect(socket);
 });
 
 /**
