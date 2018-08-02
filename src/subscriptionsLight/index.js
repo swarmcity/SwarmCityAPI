@@ -23,9 +23,12 @@ const subscribeToChatFactory = (
 	socket.join('chat-'+data.itemHash);
 
 	// 4. Should reply with a success message:
+	const emitter = chatObject.members[data.emitterAddress];
+	if (!emitter) {
+		throw Error('You are not allowed in this chat: '+data.emitterAddress);
+	}
 	return {
-		key: chatObject.members
-		.find((member) => member.address === chatObject.emitterAddress),
+		key: emitter.key,
 	};
 };
 
@@ -35,7 +38,7 @@ const newChatMessageFactory = (
 ) => async (data) => {
 	// 1. Should store the message in the database
 	// if it doesn't exist, return an error
-	let chatObject = await db.addMessageToChat(data.itemHash);
+	let chatObject = await db.addMessageToChat(data.itemHash, data.payload);
 
 	// 2. Should broadcast to everyone in the room, including the sender
 	io.in('chat-'+data.itemHash).emit(
