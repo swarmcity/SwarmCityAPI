@@ -21,6 +21,85 @@ class DBService {
     }
 
     /**
+     * Get chat the object or create a new one.
+     *
+     * @param       {String}    itemHash    The hash of the hastagItem
+     * @return      {Promise}   promise
+     */
+    getChat(itemHash) {
+        let key = 'chat-' + itemHash;
+        return this.db.get(key).then(
+            (val) => JSON.parse(val),
+            (err) => {
+                if (err.message.includes('Key not found')) {
+                    let chat = {
+                        itemHash,
+                        members: {},
+                        messages: [],
+                    };
+                    return this.db.put(key, JSON.stringify(chat)).then(() => {
+                        return chat;
+                    });
+                } else {
+                    throw err;
+                }
+            }
+        );
+    }
+
+    /**
+     * Add members to the chat object.
+     *
+     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {Array}    members    The hash of the hastagItem
+     * @return      {Promise}   promise
+     */
+    addMembersToChat(itemHash, members) {
+        let key = 'chat-' + itemHash;
+        return this.db.get(key).then((val) => {
+            let chatObject = JSON.parse(val);
+            // Initialize the members object
+            if (!chatObject.members) {
+                chatObject.members = {};
+            }
+            for (const member of members) {
+                chatObject.members[member.address] = member;
+            }
+            return this.db.put(key, JSON.stringify(chatObject)).then(() => {
+                return chatObject;
+            });
+        });
+    }
+
+    /**
+     * Add message to the chat object.
+     *
+     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {Object}    payload    The hash of the hastagItem
+     * @return      {Promise}   promise
+     */
+    addMessageToChat(itemHash, payload) {
+        let key = 'chat-' + itemHash;
+        return this.db.get(key).then((val) => {
+            let chatObject = JSON.parse(val);
+            // Initialize the messages array
+            if (!chatObject.messages) {
+                chatObject.messages = [];
+            }
+            chatObject.messages.push({
+                sender: payload.sender,
+                time: Math.floor(Date.now()/1000),
+                message: payload.message,
+                username: payload.username,
+                avatarHash: payload.avatarHash,
+            });
+            return this.db.put(key, JSON.stringify(chatObject)).then(() => {
+                return chatObject;
+            });
+        });
+    }
+
+    /**
      * Returns the cached data for a given
      *
      * @param      {String}   shortCode    The ShortCode
