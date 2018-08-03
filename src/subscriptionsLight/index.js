@@ -22,7 +22,13 @@ const subscribeToChatFactory = (
 	// 3. Should subscribe the emitter to the chat room
 	socket.join('chat-'+data.itemHash);
 
-	// 4. Should reply with a success message:
+	// 4. Emit the full chat to the just joinned socket
+	socket.emit(
+		'chatChanged',
+		chatObject
+	);
+
+	// 5. Should reply with a success message:
 	const emitter = chatObject.members[data.emitterAddress];
 	if (!emitter) {
 		throw Error('You are not allowed in this chat: '+data.emitterAddress);
