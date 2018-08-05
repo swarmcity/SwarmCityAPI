@@ -7,25 +7,36 @@
 require('../environment');
 const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
-const scheduledTask = require('../scheduler/scheduledTask')();
 const hashtagListContract = require('../contracts/hashtagList.json');
 const jsonHash = require('json-hash');
-const IPFSTask = require('../scheduler/IPFSTask')();
 
 const dbService = require('../services').dbService;
-const ipfsService = require('../services').ipfsService;
+const ipfs = require('../scheduler/IPFSQueueLight');
 
+const hashtagDefaultValues = {
+	stats: {'paidNoConflict': 0, 'resolved': 0, 'seekers': 0, 'providers': 0},
+	description: '',
+	hashtagFee: 0,
+};
+
+let dataHash = '';
 /**
  * Gets the block height from the blockchain
  *
- * @return     {Promise}  The block height.
+ * @param      {Json}     data  Data to check
+ * @return     {Boolean}        Whether data has changed.
  */
-async function getHashtagList() {
-	// hashtagName   string :  Settler
-	// hashtagMetaIPFS   string :  zb2rhbixVsHPSfBCUowDPDpkQ4QZR84rRpBSDym44i57NWmtE
-	// hashtagAddress   address :  0x3a1a67501b75fbc2d0784e91ea6cafef6455a066
-	// hashtagShown   bool :  false
+function dataChanged(data) {
+	const newDataHash = jsonHash.digest(data);
+	const hasChanged = (dataHash !== newDataHash);
+	dataHash = newDataHash;
+	return hasChanged;
+}
 
+/**
+ * Gets hashtags from the blockchain
+ */
+async function getHashtags() {
 	const hashtagListContractInstance = new web3.eth.Contract(
 		hashtagListContract.abi,
 		process.env.HASHTAG_LIST_ADDRESS
@@ -33,77 +44,45 @@ async function getHashtagList() {
 	const numberOfHashtags = parseFloat(
 		await hashtagListContractInstance.methods.numberOfHashtags().call()
 	);
-	let hashtags = [];
+
+	const hashtags = [];
 	for (let i = 0; i < numberOfHashtags; i++) {
-		try {
-			const hashtag = await hashtagListContractInstance.methods.readHashtag(i).call();
-			hashtags.push({
-				hashtagName: hashtag.hashtagName,
-				hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
-				hashtagAddress: hashtag.hashtagAddress,
-				hashtagShown: hashtag.hashtagShown,
-				stats: {'paidNoConflict': 0, 'resolved': 0, 'seekers': 0, 'providers': 0},
-				description: '',
-				hashtagFee: 0,
-			});
-		} catch (e) {
-			logger.error('Error retrieving hashtag #' + i + ' from hashtagList, err: ' + e);
-		}
+		const hashtag = await hashtagListContractInstance.methods.readHashtag(i).call();
+		// hashtagName   string :  Settler
+		// hashtagMetaIPFS   string :  zb2rhbixVsHPSfBCUowDPDpkQ4QZR84rRpBSDym44i57NWmtE
+		// hashtagAddress   address :  0x3a1a67501b75fbc2d0784e91ea6cafef6455a066
+		// hashtagShown   bool :  false
+		hashtags.push({
+			hashtagName: hashtag.hashtagName,
+			hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
+			hashtagAddress: hashtag.hashtagAddress,
+			hashtagShown: hashtag.hashtagShown,
+		});
 	}
-	return hashtags;
-}
 
-/**
- * Gets the block height from the blockchain
- *
- * @param     {Object}  hashtag The block height.
- */
-function resolveHashtagMetadata(hashtag) {
-	// { hashtagName: 'Settler',
-	// 	hashtagMetaIPFS: 'zb2rhjRoj3v87kvser9pjj7nrrMRanwHJbu6Wh92WXUTWrKKh',
-	// 	hashtagAddress: '0x3a1A67501b75FBC2D0784e91EA6cAFef6455A066',
-	// 	hashtagShown: true },
+	// Check if hashtag data has changed
+	if (!dataChanged(hashtags)) {
+		return;
+	}
 
-	IPFSTask.addTask({
-		count: 1,
-		func: (task) => {
-			return ipfsService.cat(task.data.hash);
-		},
-		responsehandler: async (res, task) => {
-			if (task.error === 'Error: this dag node is a directory') {
-				return;
-			} else if (task.error === 'Error: IPFS request timed out'
-				|| task.error === 'Error: read ECONNRESET') {
-				task.error = null;
-				task.count = task.count * 10;
-				if (task.count > 172800) {
-					logger.error('Error on hash %s: %s',
-						task.data.hash,
-						task.error);
-					return;
-				}
-				task.nextRun = (new Date).getTime() + task.count * 1000;
-				logger.debug('Timeout on hash %s', task.data.hash);
-				IPFSTask.addTask(task);
-				return;
-			} else if (task.error) {
-				IPFSTask.addTask(task);
-				return;
-			}
-			// Object.assign(secondary, primary);
-			// dbService.updateHashtag(hashtagAddress, hastagObject);
-			await dbService.setHashtag(
-				hashtag.hashtagAddress,
-				// Data from the contract overwrites the IPFS metadata
-				Object.assign(res, hashtag)
-			);
-			return;
-		},
-		data: {
-			hash: hashtag.hashtagMetaIPFS,
-		},
+	dbService.setHashtags(hashtags);
+
+	hashtags.forEach((hashtag) => {
+		ipfs.cat(hashtag.hashtagMetaIPFS)
+		.catch((err) => {
+			logger.error('Can\'t fetch hashtag: '+hashtag.hashtagName+' IPFS metadata. err: '+err);
+			return {}; // Return empty object, which will be filled by defaults
+		})
+		.then(JSON.parse)
+		.then((hashtagMetadata) => dbService.setHashtag(
+			hashtag.hashtagAddress,
+			// Combine objects by priority: Defaults < IPFS data < Contract data
+			Object.assign(hashtagDefaultValues, hashtagMetadata, hashtag)
+		));
 	});
 }
+
+let subscription;
 
 module.exports = function() {
 	return ({
@@ -111,42 +90,23 @@ module.exports = function() {
 			// start up this task... print some parameters
 			logger.info('process.env.HASHTAG_LIST_ADDRESS=%s',
 				process.env.HASHTAG_LIST_ADDRESS);
-			logger.info('process.env.HASHTAG_LIST_STARTBLOCK=%s',
-				process.env.HASHTAG_LIST_STARTBLOCK);
 
-			return new Promise((jobresolve, reject) => {
-				scheduledTask.addTask({
-					name: 'hashtagIndexerTask',
-					interval: 10 * 1000,
-					func: (task) => {
-						return getHashtagList()
-						.then((hashtags) => {
-							jobresolve();
-							let resHash = jsonHash.digest(hashtags);
-							if (task.data.resHash !== resHash) {
-								// [ { hashtagName: 'Settler',
-								// 	hashtagMetaIPFS: 'zb2rhjRoj3v87kvser9pjj7nr...
-								// 	hashtagAddress: '0x3a1A67501b75FBC2D0784e91EA6cAFef6455A066',
-								// 	hashtagShown: true },
-								//  ...
-								// If changed, store in the database and forward to clients
-								task.data.resHash = resHash;
-								for (const hashtag of hashtags) {
-									// Resolve IPFS metadata in the background
-									resolveHashtagMetadata(hashtag);
-								}
-								dbService.setHashtags(hashtags);
-							}
-						});
-					},
-					data: {},
-				});
+			return new Promise((resolve, reject) => {
+				subscription = web3.eth.subscribe('newBlockHeaders', function(error, success) {
+					if (error) reject(error);
+					else resolve(success);
+				})
+				// Passes blockHeader as argument, but it's useless for now
+				.on('data', getHashtags);
 			});
 		},
 
 		stop: function() {
 			return new Promise((resolve, reject) => {
-				resolve();
+				subscription.unsubscribe(function(error, success) {
+					if (error) reject(error);
+					else resolve(success);
+				});
 			});
 		},
 
