@@ -38,9 +38,8 @@ function createSubscription(emitToSubscriber, args) {
 	// create task
 	let _task = {
 		name: 'hashtagItems',
-		func: async (task) => {
-			return JSON.stringify(await getHashtagItems.getHashtagItems(task.data));
-		},
+		func: (task) => getHashtagItems.getHashtagItems(task.data)
+			.then(JSON.stringify),
 		responsehandler: (res, task) => {
 			let replyHash = jsonHash.digest(res);
 			if (task.data.lastReplyHash !== replyHash) {
