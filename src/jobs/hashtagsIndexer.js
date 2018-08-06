@@ -7,23 +7,36 @@
 require('../environment');
 const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
-const scheduledTask = require('../scheduler/scheduledTask')();
 const hashtagListContract = require('../contracts/hashtagList.json');
 const jsonHash = require('json-hash');
 
 const dbService = require('../services').dbService;
+const ipfs = require('../scheduler/IPFSQueueLight');
 
+const hashtagDefaultValues = {
+	stats: {'paidNoConflict': 0, 'resolved': 0, 'seekers': 0, 'providers': 0},
+	description: '',
+	hashtagFee: 0,
+};
+
+let dataHash = '';
 /**
  * Gets the block height from the blockchain
  *
- * @return     {Promise}  The block height.
+ * @param      {Json}     data  Data to check
+ * @return     {Boolean}        Whether data has changed.
  */
-async function getHashtagList() {
-	// hashtagName   string :  Settler
-	// hashtagMetaIPFS   string :  zb2rhbixVsHPSfBCUowDPDpkQ4QZR84rRpBSDym44i57NWmtE
-	// hashtagAddress   address :  0x3a1a67501b75fbc2d0784e91ea6cafef6455a066
-	// hashtagShown   bool :  false
+function dataChanged(data) {
+	const newDataHash = jsonHash.digest(data);
+	const hasChanged = (dataHash !== newDataHash);
+	dataHash = newDataHash;
+	return hasChanged;
+}
 
+/**
+ * Gets hashtags from the blockchain
+ */
+async function getHashtags() {
 	const hashtagListContractInstance = new web3.eth.Contract(
 		hashtagListContract.abi,
 		process.env.HASHTAG_LIST_ADDRESS
@@ -31,25 +44,45 @@ async function getHashtagList() {
 	const numberOfHashtags = parseFloat(
 		await hashtagListContractInstance.methods.numberOfHashtags().call()
 	);
-	let hashtags = [];
+
+	const hashtags = [];
 	for (let i = 0; i < numberOfHashtags; i++) {
-		try {
-			const hashtag = await hashtagListContractInstance.methods.readHashtag(i).call();
-			hashtags.push({
-				hashtagName: hashtag.hashtagName,
-				hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
-				hashtagAddress: hashtag.hashtagAddress,
-				hashtagShown: hashtag.hashtagShown,
-				stats: {'paidNoConflict': 0, 'resolved': 0, 'seekers': 0, 'providers': 0},
-				description: '',
-				hashtagFee: 0,
-			});
-		} catch (e) {
-			logger.error('Error retrieving hashtag #' + i + ' from hashtagList, err: ' + e);
-		}
+		const hashtag = await hashtagListContractInstance.methods.readHashtag(i).call();
+		// hashtagName   string :  Settler
+		// hashtagMetaIPFS   string :  zb2rhbixVsHPSfBCUowDPDpkQ4QZR84rRpBSDym44i57NWmtE
+		// hashtagAddress   address :  0x3a1a67501b75fbc2d0784e91ea6cafef6455a066
+		// hashtagShown   bool :  false
+		hashtags.push({
+			hashtagName: hashtag.hashtagName,
+			hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
+			hashtagAddress: hashtag.hashtagAddress,
+			hashtagShown: hashtag.hashtagShown,
+		});
 	}
-	return hashtags;
+
+	// Check if hashtag data has changed
+	if (!dataChanged(hashtags)) {
+		return;
+	}
+
+	dbService.setHashtags(hashtags);
+
+	hashtags.forEach((hashtag) => {
+		ipfs.cat(hashtag.hashtagMetaIPFS)
+		.catch((err) => {
+			logger.error('Can\'t fetch hashtag: '+hashtag.hashtagName+' IPFS metadata. err: '+err);
+			return {}; // Return empty object, which will be filled by defaults
+		})
+		.then(JSON.parse)
+		.then((hashtagMetadata) => dbService.setHashtag(
+			hashtag.hashtagAddress,
+			// Combine objects by priority: Defaults < IPFS data < Contract data
+			Object.assign(hashtagDefaultValues, hashtagMetadata, hashtag)
+		));
+	});
 }
+
+let subscription;
 
 module.exports = function() {
 	return ({
@@ -57,33 +90,23 @@ module.exports = function() {
 			// start up this task... print some parameters
 			logger.info('process.env.HASHTAG_LIST_ADDRESS=%s',
 				process.env.HASHTAG_LIST_ADDRESS);
-			logger.info('process.env.HASHTAG_LIST_STARTBLOCK=%s',
-				process.env.HASHTAG_LIST_STARTBLOCK);
 
-			return new Promise((jobresolve, reject) => {
-				scheduledTask.addTask({
-					name: 'hashtagIndexerTask',
-					interval: 10 * 1000,
-					func: (task) => {
-						return getHashtagList()
-						.then((hashtags) => {
-							jobresolve();
-							let resHash = jsonHash.digest(hashtags);
-							if (task.data.resHash !== resHash) {
-								// If changed, store in the database and forward to clients
-								task.data.resHash = resHash;
-								return dbService.setHashtags(hashtags);
-							}
-						});
-					},
-					data: {},
-				});
+			return new Promise((resolve, reject) => {
+				subscription = web3.eth.subscribe('newBlockHeaders', function(error, success) {
+					if (error) reject(error);
+					else resolve(success);
+				})
+				// Passes blockHeader as argument, but it's useless for now
+				.on('data', getHashtags);
 			});
 		},
 
 		stop: function() {
 			return new Promise((resolve, reject) => {
-				resolve();
+				subscription.unsubscribe(function(error, success) {
+					if (error) reject(error);
+					else resolve(success);
+				});
 			});
 		},
 

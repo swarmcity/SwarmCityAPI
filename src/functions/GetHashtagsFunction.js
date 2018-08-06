@@ -56,7 +56,11 @@ class GetHashtagsFunction extends AbstractFunction {
     func(data) {
         return (task) => {
             return this.dbService.getHashtags()
-            .then((allHashtags) => allHashtags.filter((hashtag) => hashtag.hashtagShown));
+            .then((hashtags) => hashtags.filter((hashtag) => hashtag.hashtagShown))
+            .then((hashtags) => Promise.all(hashtags.map(
+                (hashtag) => this.dbService.getHashtag(hashtag.hashtagAddress)
+                .catch((err) => hashtag)
+            )));
         };
     }
 

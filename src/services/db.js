@@ -293,6 +293,24 @@ class DBService {
      */
     setHashtags(hashtags) {
         return this.db.put('hashtags', JSON.stringify(hashtags));
+        // returns an array of objects
+        // [ { hashtagName: 'Settler',
+        // 	hashtagMetaIPFS: 'zb2rhjRoj3v87kvser9pjj7nr...
+        // 	hashtagAddress: '0x3a1A67501b75FBC2D0784e91EA6cAFef6455A066',
+        // 	hashtagShown: true },
+        //  ... ]
+    }
+
+    /**
+     * Set single hashtag
+     *
+     * @param       {Number}    hashtagAddress    Hashtag address
+     * @param       {Object}    hashtag    The hashtaglist
+     * @return      {Promise}   promise
+     */
+    setHashtag(hashtagAddress, hashtag) {
+        const key = 'hashtag-'+hashtagAddress;
+        return this.db.put(key, JSON.stringify(hashtag));
     }
 
     /**
@@ -302,6 +320,17 @@ class DBService {
      */
     getHashtags() {
         return this.db.get('hashtags').then(JSON.parse);
+    }
+
+    /**
+     * Get single hashtags
+     *
+     * @param       {Number}    hashtagAddress    Hashtag address
+     * @return      {Promise}   promise
+     */
+    getHashtag(hashtagAddress) {
+        const key = 'hashtag-'+hashtagAddress;
+        return this.db.get(key).then(JSON.parse);
     }
 
     /**
