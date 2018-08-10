@@ -3,22 +3,12 @@
 require('../environment');
 const logger = require('../logs')(module);
 const web3 = require('../globalWeb3').web3;
-const scheduledTask = require('../scheduler/scheduledTask')();
 const hashtagContract = require('../contracts/hashtagSimpleDeal.json');
 
-const IPFSTask = require('../scheduler/IPFSTask')();
+const ipfs = require('../scheduler/IPFSQueueLight');
 
 const dbService = require('../services').dbService;
-const ipfsService = require('../services').ipfsService;
-
-/**
- * Gets the block height from the blockchain
- *
- * @return     {Promise}  The block height.
- */
-function getBlockHeight() {
-    return web3.eth.getBlockNumber();
-}
+const eventBus = require('../eventBus');
 
 /**
  * @param   {Object}    log     Log of a token transfer as returned by the
@@ -98,95 +88,31 @@ function handleEventItemStatusChange(log, hashtagAddress) {
  * @param      {Object}   log                         The start block
  * @param      {Object}   hashtagAddress              The hashtag contract address
  */
-function handleEventNewItemForTwo(log, hashtagAddress) {
-    createItem(log, log.blockNumber).then((item) => {
-        dbService.setHashtagItem(hashtagAddress, item).then(() => {
-            IPFSTask.addTask({
-                count: 1,
-                func: (task) => {
-                    return ipfsService.cat(task.data.hash);
-                },
-                responsehandler: async (res, task) => {
-                    if (task.error === 'Error: this dag node is a directory') {
-                        return;
-                    } else if (task.error === 'Error: IPFS request timed out'
-                        || task.error === 'Error: read ECONNRESET') {
-                        task.error = null;
-                        task.count = task.count * 10;
-                        if (task.count > 172800) {
-                            logger.error('Error on hash %s: %s',
-                                task.data.hash,
-                                task.error);
-                            return;
-                        }
-                        task.nextRun = (new Date).getTime() + task.count * 1000;
-                        logger.debug('Timeout on hash %s', task.data.hash);
-                        IPFSTask.addTask(task);
-                        return;
-                    } else if (task.error) {
-                        IPFSTask.addTask(task);
-                        return;
-                    }
-                    await dbService.updateHashtagItem(hashtagAddress, item, res);
-                    return;
-                },
-                data: {
-                    hash: item.ipfsMetadata,
-                },
-            });
-        });
+async function handleEventNewItemForTwo(log, hashtagAddress) {
+    const item = await createItem(log, log.blockNumber);
+    await dbService.setHashtagItem(hashtagAddress, item);
+    const res = await ipfs.cat(item.ipfsMetadata).catch((err) => {
+        logger.error('Metadata unavailable, '
+        +'hashtag: '+hashtagAddress+', item: '+item.itemHash);
+        return JSON.stringify({});
     });
+    await dbService.updateHashtagItem(hashtagAddress, item, res);
 }
 
-/**
- * Gets past events.
- *
- * @param      {Number}   startBlock                  The start block
- * @param      {Number}   endBlock                    The end block
- * @param      {Object}   hashtagAddress              The hashtag contract address
- * @param      {Object}   task                        The task
- * @return     {Promise}  The past events.
- */
-function getPastEvents(startBlock, endBlock, hashtagAddress, task) {
-    return new Promise((resolve, reject) => {
-        let startTime = Date.now();
-        let hashtagContractInstance = new web3.eth.Contract(
-            hashtagContract.abi,
-            hashtagAddress
-        );
-        hashtagContractInstance.getPastEvents('allEvents', {
-            fromBlock: web3.utils.toHex(startBlock),
-            toBlock: web3.utils.toHex(endBlock),
-        }).then((logs) => {
-            let duration = Date.now() - startTime;
 
-            if (logs) {
-                for (let i = 0; i < logs.length; i++) {
-                    let log = logs[i];
-                    logger.info('Got event: '+log.event+' from hashtag: '+hashtagAddress);
-                    switch (log.event) {
-                        case 'NewItemForTwo':
-                            handleEventNewItemForTwo(log, hashtagAddress);
-                            break;
-                        case 'FundItem':
-                            handleEventFundItem(log, hashtagAddress);
-                            break;
-                        case 'ItemStatusChange':
-                            handleEventItemStatusChange(log, hashtagAddress);
-                    }
-                }
-            }
-
-            dbService.setLastHashtagBlock(hashtagAddress, endBlock).then(() => {
-                task.interval = 100;
-                resolve(duration);
-            });
-        }).catch((e) => {
-            logger.error(e);
-            reject(e);
-        });
-    });
-}
+const handleEvent = (event, hashtagAddress) => {
+    logger.info('Got event: '+event.event+' from hashtag: '+hashtagAddress);
+    switch (event.event) {
+        case 'NewItemForTwo':
+            handleEventNewItemForTwo(event, hashtagAddress);
+            break;
+        case 'FundItem':
+            handleEventFundItem(event, hashtagAddress);
+            break;
+        case 'ItemStatusChange':
+            handleEventItemStatusChange(event, hashtagAddress);
+    }
+};
 
 /**
  * Start this job
@@ -195,48 +121,58 @@ async function start() {
     // When we have the list of hashtags it will be necessary to add an
     // array of tasks, one for each hashtag
 
-    const hashtags = await dbService.getHashtags();
-    for (const hashtag of hashtags) {
-        const hashtagAddress = hashtag.hashtagAddress;
-        scheduledTask.addTask({
-            name: 'hashtagItemsTask-' + hashtagAddress,
-            interval: 100,
-            func: (task) => {
-                return new Promise((resolve, reject) => {
-                    dbService.getLastHashtagBlock(hashtagAddress).then((startBlock) => {
-                        getBlockHeight().then((endBlock) => {
-                            let range = 30000;
-                            if (startBlock + range < endBlock) {
-                                endBlock = startBlock + range;
-                            }
+    eventBus.on('hashtagChange', (hashtag) => {
+        // Construct wrap
+        const handleEventWrap = (event) => {
+            handleEvent(event, hashtag.hashtagAddress);
+        };
 
-                            // no work to do ? then increase the interval
-                            // and finish..
-                            if (startBlock === endBlock) {
-                                task.interval = 5000;
-
-                                dbService.setHashtagIndexerSynced(hashtagAddress, true).then(() => {
-                                    return resolve();
-                                });
-                            }
-
-                            getPastEvents(startBlock, endBlock,
-                                hashtagAddress, task).then((scanDuration) => {
-                                    resolve();
-                                });
-                        }).catch((e) => {
-                            logger.error(e);
-                            reject(e);
-                        });
-                    }).catch((e) => {
-                        logger.error(e);
-                        reject(e);
-                    });
-                });
-            },
+        // Get past events
+        const hashtagContractInstance = new web3.eth.Contract(
+            hashtagContract.abi,
+            hashtag.hashtagAddress
+        );
+        const fromDeploy = false;
+        hashtagContractInstance.getPastEvents('NewItemForTwo', {
+            fromBlock: fromDeploy ? 8149489 : 0,
+            toBlock: 'latest',
+        })
+        .then((events) => {
+            logger.info('Got '+events.length+' past items from: '+hashtag.hashtagAddress);
+            events.forEach(handleEventWrap);
         });
-    }
+
+        // Subscribe to new events
+        hashtagContractInstance.events.allEvents()
+        .on('data', handleEventWrap);
+    });
 }
+
+// Upcoming
+// events.forEach((event) => {
+//     // NewItemForTwo Event sample return (event)
+//     // { owner: '0x26DfDB612e9226A07f5C3387cb191A43AC4491b0',
+//     //   itemHash: '0xa7618111e055533192d0b8773126e356985b28f60cdaa30967f8670e2d391c6f',
+//     //   ipfsMetadata: 'QmT4hKD7TcKMpUh6Hwjmp6QMduX7LQvr3RNkap3ZNA44oM',
+//     //   itemValue: '10000000000000000000',
+//     //   hashtagFee: '600000000000000000',
+//     //   totalValue: '10300000000000000000',
+//     //   seekerRep: '0' }
+//     hashtagContractInstance.methods.readItem(event.returnValues.itemHash).call()
+//     .then((item) => {
+//         // readItem().call() sample return (item)
+//         // { status: '0',
+//         //   hashtagFee: '600000000000000000',
+//         //   itemValue: '10000000000000000000',
+//         //   providerRep: '0',
+//         //   seekerRep: '0',
+//         //   providerAddress: '0x0000000000000000000000000000000000000000',
+//         //   ipfsMetadata: 'QmT4hKD7TcKMpUh6Hwjmp6QMduX7LQvr3RNkap3ZNA44oM' }
+//         console.log(item);
+//         console.log('Got item from '+hashtag.hashtagAddress);
+//     });
+//     // console.log('Got event: '+event.event+' from hashtag: '+hashtag.hashtagAddress);
+// });
 
 /**
  * Start this job

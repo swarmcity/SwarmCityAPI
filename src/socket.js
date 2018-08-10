@@ -7,6 +7,7 @@ const io = require('socket.io')(server, {
 });
 const logs = require('./logs')(module);
 const validate = require('./validators');
+const eventBus = require('./eventBus');
 
 const scheduledTask = require('./scheduler/scheduledTask')();
 const blockHeaderTask = require('./scheduler/blockHeaderTask')();
@@ -133,6 +134,33 @@ io.on('connection', (socket) => {
 
 	// execute subscriptions light
 	subscriptionsLight.connect(socket);
+});
+
+/**
+ * Parse a database key
+ * @param      {String}   key String, i.e. 'hashtag-0x345_item-0xd0a'
+ * @return     {Object}  object with the key's imformation parsed
+ */
+function parseKey(key) {
+	const res = {};
+	key.split('_').forEach((e) => {
+		const [val, key] = e.split('-');
+		res[key] = val;
+	});
+	return res;
+}
+
+// Receibe dbChanges
+eventBus.on('dbChange', (key, data) => {
+	const keys = parseKey(key);
+	// hashtagItem changed
+	if (keys.item) {
+		io.to(keys.hashtag).emit('hastagItemChanged', data);
+	}
+	// hashtag changed
+	else if (keys.hashtag) {
+		io.to(keys.hashtag).emit('hastagChanged', data);
+	}
 });
 
 /**

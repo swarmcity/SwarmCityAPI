@@ -5,6 +5,9 @@ showEnv.showEnv();
 let s = require('./socket');
 let http = require('./http');
 
+const blockListener = require('./scheduler/blockListener');
+blockListener.start();
+
 const scheduledTask = require('./scheduler/scheduledTask')();
 const jobs = require('./jobs')();
 const logger = require('./logs')(module);

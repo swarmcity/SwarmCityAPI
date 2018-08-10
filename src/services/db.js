@@ -1,6 +1,8 @@
 'use strict';
 
 const logger = require('../logs')(module);
+const jsonHash = require('json-hash');
+const eventBus = require('../eventBus');
 
 /**
  * A service that collects all interactions with LevelDb
@@ -19,6 +21,42 @@ class DBService {
             'hashtagproxycontractstartblock': '',
         };
     }
+
+    /**
+     * Get value of key.
+     *
+     * @param       {String}    key    key
+     * @return      {Promise}   promise
+     */
+    get(key) {
+        // proxy get
+        return this.db.get(key).then(JSON.parse);
+    }
+
+    /**
+     * Set value of key.
+     *
+     * @param       {String}    key    key
+     * @param       {Object}    data    data
+     * @return      {Promise}   promise
+     */
+    set(key, data) {
+        // proxy set
+        const newValue = JSON.stringify(data);
+        // First, verify if the value has changed
+        return this.db.get(key)
+        .catch((err) => {
+            if (err.message.includes('Key not found')) return;
+            else throw err;
+        })
+        .then((value) => {
+            if (jsonHash.digest(value) !== jsonHash.digest(newValue)) {
+                eventBus.emit('dbChange', key, data);
+            }
+            return this.db.put(key, newValue);
+        });
+    }
+
 
     /**
      * Get chat the object or create a new one.
@@ -292,13 +330,7 @@ class DBService {
      * @return      {Promise}   promise
      */
     setHashtags(hashtags) {
-        return this.db.put('hashtags', JSON.stringify(hashtags));
-        // returns an array of objects
-        // [ { hashtagName: 'Settler',
-        // 	hashtagMetaIPFS: 'zb2rhjRoj3v87kvser9pjj7nr...
-        // 	hashtagAddress: '0x3a1A67501b75FBC2D0784e91EA6cAFef6455A066',
-        // 	hashtagShown: true },
-        //  ... ]
+        return this.set('hashtags', hashtags);
     }
 
     /**
@@ -310,7 +342,7 @@ class DBService {
      */
     setHashtag(hashtagAddress, hashtag) {
         const key = 'hashtag-'+hashtagAddress;
-        return this.db.put(key, JSON.stringify(hashtag));
+        return this.set(key, hashtag);
     }
 
     /**
