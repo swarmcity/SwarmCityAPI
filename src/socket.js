@@ -142,9 +142,9 @@ eventBus.on('dbChange', (key, data) => {
 	// hashtagItem changed
 	if (key.startsWith('item-')) {
 		const hashtagAddress = key.split('-')[1];
-		io.to('hashtag-'+hashtagAddress).emit('hastagItemChanged', {
+		io.to('hashtag-'+hashtagAddress).emit('hastagItemsChanged', {
 			response: 200,
-			data,
+			data: [data],
 		});
 	}
 	// hashtag changed
