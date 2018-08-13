@@ -136,30 +136,24 @@ io.on('connection', (socket) => {
 	subscriptionsLight.connect(socket);
 });
 
-/**
- * Parse a database key
- * @param      {String}   key String, i.e. 'hashtag-0x345_item-0xd0a'
- * @return     {Object}  object with the key's imformation parsed
- */
-function parseKey(key) {
-	const res = {};
-	key.split('_').forEach((e) => {
-		const [val, key] = e.split('-');
-		res[key] = val;
-	});
-	return res;
-}
-
 // Receibe dbChanges
 eventBus.on('dbChange', (key, data) => {
-	const keys = parseKey(key);
+	// const keys = parseKey(key);
 	// hashtagItem changed
-	if (keys.item) {
-		io.to(keys.hashtag).emit('hastagItemChanged', data);
+	if (key.startsWith('item-')) {
+		const hashtagAddress = key.split('-')[1];
+		io.to('hashtag-'+hashtagAddress).emit('hastagItemChanged', {
+			response: 200,
+			data,
+		});
 	}
 	// hashtag changed
-	else if (keys.hashtag) {
-		io.to(keys.hashtag).emit('hastagChanged', data);
+	else if (key.startsWith('hashtag-')) {
+		const hashtagAddress = key.split('-')[1];
+		io.to('hashtag-'+hashtagAddress).emit('hastagChanged', {
+			response: 200,
+			data,
+		});
 	}
 });
 

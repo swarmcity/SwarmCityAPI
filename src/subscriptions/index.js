@@ -9,9 +9,6 @@ const uuidv4 = require('uuid/v4');
 
 // load the channel subscription handlers
 const balance = require('./subscriptionBalance')();
-const hashtags = require('./subscriptionHashtags')();
-const hashtagItems = require('./subscriptionHashtagItems')();
-const hashtagItem = require('./subscriptionHashtagItem')();
 const nonce = require('./subscriptionNonce')();
 const shortCode = require('./subscriptionShortCode')();
 const txhistory = require('./subscriptionTxHistory')();
@@ -20,9 +17,6 @@ const txReceipt = require('./subscriptionTxReceipt');
 // initialize available subscriptionchannels
 let channels = {};
 channels[balance.name] = balance;
-channels[hashtags.name] = hashtags;
-channels[hashtagItems.name] = hashtagItems;
-channels[hashtagItem.name] = hashtagItem;
 channels[nonce.name] = nonce;
 channels[shortCode.name] = shortCode;
 channels[txhistory.name] = txhistory;

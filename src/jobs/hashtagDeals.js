@@ -13,26 +13,25 @@ const eventBus = require('../eventBus');
 /**
  * @param   {Object}    log     Log of a token transfer as returned by the
  *                              contract.
- * @param   {Number}    blockHeight Height of the current block
  * @return  {Object}    Promise that resolves to a SWT log.
  */
-async function createItem(log, blockHeight) {
-    let block;
+async function createItem(log) {
+    let dateTime;
 
     try {
-        block = await web3.eth.getBlock(log.blockNumber);
+        const block = await web3.eth.getBlock(log.blockNumber);
+        dateTime = parseInt(block.timestamp);
     } catch (e) {
         logger.error(
             'Unable to fetch block to determine time of block. Error: %s',
             e
         );
-        block = {
-            'dateTime': (new Date).getTime(),
-        };
+        dateTime = (new Date).getTime();
     }
 
     return {
         'itemHash': log.returnValues.itemHash,
+        'hashtagAddress': log.address,
         'hashtagFee': log.returnValues.hashtagFee,
         'ipfsMetadata': log.returnValues.ipfsMetadata,
         /* 'totalValue': log.returnValues.totalValue, */
@@ -44,7 +43,7 @@ async function createItem(log, blockHeight) {
             rep: log.returnValues.seekerRep,
         },
         'description': '',
-        'dateTime': block.timestamp,
+        'dateTime': dateTime,
         'location': '',
     };
 }
@@ -89,14 +88,21 @@ function handleEventItemStatusChange(log, hashtagAddress) {
  * @param      {Object}   hashtagAddress              The hashtag contract address
  */
 async function handleEventNewItemForTwo(log, hashtagAddress) {
-    const item = await createItem(log, log.blockNumber);
-    await dbService.setHashtagItem(hashtagAddress, item);
-    const res = await ipfs.cat(item.ipfsMetadata).catch((err) => {
-        logger.error('Metadata unavailable, '
-        +'hashtag: '+hashtagAddress+', item: '+item.itemHash);
-        return JSON.stringify({});
-    });
-    await dbService.updateHashtagItem(hashtagAddress, item, res);
+    try {
+        const item = await createItem(log, log.blockNumber);
+        // Store hashtagItem
+        await dbService.setHashtagItem(hashtagAddress, item);
+
+        // Resolve its metadata
+        const res = await ipfs.cat(item.ipfsMetadata).catch((err) => {
+            logger.error('Metadata unavailable, '
+            +'hashtag: '+hashtagAddress+', item: '+item.itemHash);
+            return JSON.stringify({});
+        });
+        await dbService.updateHashtagItem(hashtagAddress, item, res);
+    } catch (e) {
+        logger.error('Error handling event NewItemForTwo: %s', e);
+    }
 }
 
 
@@ -120,7 +126,6 @@ const handleEvent = (event, hashtagAddress) => {
 async function start() {
     // When we have the list of hashtags it will be necessary to add an
     // array of tasks, one for each hashtag
-
     eventBus.on('hashtagChange', (hashtag) => {
         // Construct wrap
         const handleEventWrap = (event) => {
