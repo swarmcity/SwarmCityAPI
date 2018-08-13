@@ -13,7 +13,10 @@ const subscribeToHashtag = (
     const hashtagItems = await db.getHashtagItems();
 	socket.emit(
 		'hashtagItemsChanged',
-		hashtagItems
+		{
+			response: 200,
+			data: hashtagItems,
+		}
 	);
 
 	// 3. Return the hashtagMetadata

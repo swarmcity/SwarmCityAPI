@@ -11,7 +11,10 @@ const subscribeToHashtags = (
     const hashtags = await db.getHashtags();
 	socket.emit(
 		'hashtagsChanged',
-		hashtags
+		{
+			response: 200,
+			data: hashtags,
+		}
 	);
 };
 
