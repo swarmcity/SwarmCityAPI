@@ -30,6 +30,7 @@ class DBService {
      */
     get(key) {
         // proxy get
+        key = key.toLowerCase();
         return this.db.get(key).then((val) => {
             return val ? JSON.parse(val) : val;
         });
@@ -44,6 +45,7 @@ class DBService {
      */
     set(key, data) {
         // proxy set
+        key = key.toLowerCase();
         const newValue = JSON.stringify(data);
         // First, verify if the value has changed
         return this.db.get(key)
