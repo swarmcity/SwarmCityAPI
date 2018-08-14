@@ -10,7 +10,7 @@ const subscribeToHashtag = (
 	socket.join('hashtag-'+hashtag);
 
     // 2. Emit the full chat to the just joinned socket
-    const hashtagItems = await db.getHashtagItems();
+    const hashtagItems = await db.getHashtagItems(hashtag);
 	socket.emit(
 		'hashtagItemsChanged',
 		{
