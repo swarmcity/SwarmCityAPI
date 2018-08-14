@@ -33,10 +33,10 @@ const wrapHandler = (handler) => async (data, callback) => {
  */
 function subscriptionsLight(db, io) {
 	const connect = (socket) => {
-		const subscribeToHashtag = subscribeToHashtagFactory(db, io);
+		const subscribeToHashtag = subscribeToHashtagFactory(db, socket);
 		socket.on('subscribeToHashtag', wrapHandler(subscribeToHashtag));
 
-		const subscribeToHashtags = subscribeToHashtagsFactory(db, io);
+		const subscribeToHashtags = subscribeToHashtagsFactory(db, socket);
 		socket.on('subscribeToHashtags', wrapHandler(subscribeToHashtags));
 
 		const subscribeToChat = subscribeToChatFactory(db, socket);
