@@ -4,6 +4,7 @@ const subscribeToChatFactory = require('./subscribeToChatFactory');
 const newChatMessageFactory = require('./newChatMessageFactory');
 const subscribeToHashtagFactory = require('./subscribeToHashtagFactory');
 const subscribeToHashtagsFactory = require('./subscribeToHashtagsFactory');
+const getReputationFactory = require('./getReputationFactory');
 
 // Functionality to implement:
 // - Make sure sockets unsubscribe when they disconect (memory leak), DONE
@@ -28,10 +29,11 @@ const wrapHandler = (handler) => async (data, callback) => {
  * subscribe a socket from all subscriptions
  *
  * @param      {Object}  db  The socket identifier
+ * @param      {Object}  web3  The socket identifier
  * @param      {Object}  io  The socket identifier
  * @return      {Object}  methods  The socket identifier
  */
-function subscriptionsLight(db, io) {
+function subscriptionsLight(db, web3, io) {
 	const connect = (socket) => {
 		const subscribeToHashtag = subscribeToHashtagFactory(db, socket);
 		socket.on('subscribeToHashtag', wrapHandler(subscribeToHashtag));
@@ -44,6 +46,9 @@ function subscriptionsLight(db, io) {
 
 		const newChatMessage = newChatMessageFactory(db, io);
 		socket.on('newChatMessage', wrapHandler(newChatMessage));
+
+		const getReputation = getReputationFactory(db, web3);
+		socket.on('getReputation', wrapHandler(getReputation));
 
 		// For debugging purposes with a dedicated website
 		const getAllDb = async () => {

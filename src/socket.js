@@ -12,6 +12,7 @@ const eventBus = require('./eventBus');
 const scheduledTask = require('./scheduler/scheduledTask')();
 const blockHeaderTask = require('./scheduler/blockHeaderTask')();
 const dbService = require('./services').dbService;
+const web3 = require('./globalWeb3').web3;
 
 // scheduled task handlers
 const getFx = require('./tasks/getFx')();
@@ -25,7 +26,7 @@ const subscriptions = require('./subscriptions')();
 
 // subscription handler
 const subscriptionsLightFactory = require('./subscriptionsLight');
-const subscriptionsLight = subscriptionsLightFactory(dbService, io);
+const subscriptionsLight = subscriptionsLightFactory(dbService, web3, io);
 
 // functions handler
 const functions = require('./functions');
