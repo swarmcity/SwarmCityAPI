@@ -23,6 +23,16 @@ class DBService {
     }
 
     /**
+     * Parse utility of a db value.
+     *
+     * @param       {String}    val    value
+     * @return      {Promise}   promise
+     */
+    parse(val) {
+        return val ? JSON.parse(val) : val;
+    }
+
+    /**
      * Get value of key.
      *
      * @param       {String}    key    key
@@ -31,9 +41,29 @@ class DBService {
     get(key) {
         // proxy get
         key = key.toLowerCase();
-        return this.db.get(key).then((val) => {
-            return val ? JSON.parse(val) : val;
-        });
+        return this.db.get(key).then(this.parse);
+    }
+
+    /**
+     * Get values meeting of key followed by a wildcard.
+     *
+     * @param       {String}    key    key
+     * @return      {Promise}   promise
+     */
+    getRange(key) {
+        // proxy get
+        key = key.toLowerCase();
+        const getUnparsedValues = (key) => {
+            return new Promise((resolve, reject) => {
+                let values = [];
+                this.db.createValueStream({gte: key+'!', lte: key+'~'})
+                .on('data', (value) => values.push(value))
+                .on('end', () => resolve(values))
+                .on('error', (err) => reject(new Error(err)));
+            });
+        };
+        return getUnparsedValues(key)
+        .then((unparsedValues) => unparsedValues.map(this.parse));
     }
 
     /**
@@ -538,32 +568,7 @@ class DBService {
     * @return      {stream.Readable}   A readable stream of the ShortCodes
     */
     getHashtagDeals(address) {
-        return new Promise((resolve, reject) => {
-            let items = [];
-            let searchKey = 'item-' + address + '-0x';
-            this.db.createReadStream({
-                gte: searchKey,
-            }).on('data', function(data) {
-                try {
-                    if (data.key.startsWith(searchKey)) {
-                        let item = JSON.parse(data.value);
-
-                        if (item.itemHash) {
-                            items.push(item);
-                        }
-                    }
-                } catch (e) {
-                    logger.error(
-                        'Unable to fetch block to determine time of block. Error: %s',
-                        e
-                    );
-                }
-            }).on('error', function(err) {
-                reject(new Error(err));
-            }).on('close', function() {
-                resolve(items);
-            });
-        });
+        return this.getRange('item-' + address);
     }
 
     /**
@@ -573,29 +578,7 @@ class DBService {
     * @return      {Promise}   A readable stream of the ShortCodes
     */
     getHashtagItems(hashtagAddress) {
-        return new Promise((resolve, reject) => {
-            let items = [];
-            this.db.createReadStream({
-                gte: 'item-' + hashtagAddress + '-0x',
-                lte: 'item-' + hashtagAddress + '-0y',
-            }).on('data', function(data) {
-                try {
-                    let item = JSON.parse(data.value);
-                    if (item.itemHash) {
-                        items.push(item);
-                    }
-                } catch (e) {
-                    logger.error(
-                        'Broken item '+data.key+'. Error: %s',
-                        e
-                    );
-                }
-            }).on('error', function(err) {
-                reject(new Error(err));
-            }).on('close', function() {
-                resolve(items);
-            });
-        });
+        return this.getRange('item-' + hashtagAddress);
     }
 
     /**
