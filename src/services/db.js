@@ -577,6 +577,7 @@ class DBService {
             let items = [];
             this.db.createReadStream({
                 gte: 'item-' + hashtagAddress + '-0x',
+                lte: 'item-' + hashtagAddress + '-0y',
             }).on('data', function(data) {
                 try {
                     let item = JSON.parse(data.value);
