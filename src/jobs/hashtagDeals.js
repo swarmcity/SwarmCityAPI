@@ -26,7 +26,7 @@ async function createItem(log) {
             'Unable to fetch block to determine time of block. Error: %s',
             e
         );
-        dateTime = (new Date).getTime();
+        dateTime = Math.floor(Date.now()/1000);
     }
 
     return {
