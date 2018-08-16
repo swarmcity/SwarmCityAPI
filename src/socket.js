@@ -147,6 +147,7 @@ eventBus.on('dbChange', (key, data) => {
 			response: 200,
 			data: [data],
 		});
+		logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hastagItemsChanged\')');
 	}
 	// hashtag changed
 	else if (key.startsWith('hashtag-')) {
@@ -155,6 +156,7 @@ eventBus.on('dbChange', (key, data) => {
 			response: 200,
 			data: [data],
 		});
+		logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hastagsChanged\')');
 	}
 });
 
