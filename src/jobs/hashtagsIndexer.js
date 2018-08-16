@@ -66,7 +66,7 @@ async function getHashtags() {
 		return;
 	}
 
-	dbService.setHashtags(hashtags);
+	dbService.setHashtagList(hashtags);
 
 	hashtags.forEach((hashtag) => {
 		// Emit new hashtag found
