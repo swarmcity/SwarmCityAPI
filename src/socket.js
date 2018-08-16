@@ -7,10 +7,12 @@ const io = require('socket.io')(server, {
 });
 const logs = require('./logs')(module);
 const validate = require('./validators');
+const eventBus = require('./eventBus');
 
 const scheduledTask = require('./scheduler/scheduledTask')();
 const blockHeaderTask = require('./scheduler/blockHeaderTask')();
 const dbService = require('./services').dbService;
+const web3 = require('./globalWeb3').web3;
 
 // scheduled task handlers
 const getFx = require('./tasks/getFx')();
@@ -24,7 +26,7 @@ const subscriptions = require('./subscriptions')();
 
 // subscription handler
 const subscriptionsLightFactory = require('./subscriptionsLight');
-const subscriptionsLight = subscriptionsLightFactory(dbService, io);
+const subscriptionsLight = subscriptionsLightFactory(dbService, web3, io);
 
 // functions handler
 const functions = require('./functions');
@@ -133,6 +135,27 @@ io.on('connection', (socket) => {
 
 	// execute subscriptions light
 	subscriptionsLight.connect(socket);
+});
+
+// Receibe dbChanges
+eventBus.on('dbChange', (key, data) => {
+	// const keys = parseKey(key);
+	// hashtagItem changed
+	if (key.startsWith('item-')) {
+		const hashtagAddress = key.split('-')[1];
+		io.to('hashtag-'+hashtagAddress).emit('hastagItemsChanged', {
+			response: 200,
+			data: [data],
+		});
+	}
+	// hashtag changed
+	else if (key.startsWith('hashtag-')) {
+		const hashtagAddress = key.split('-')[1];
+		io.to('hashtag-'+hashtagAddress).emit('hastagsChanged', {
+			response: 200,
+			data: [data],
+		});
+	}
 });
 
 /**
