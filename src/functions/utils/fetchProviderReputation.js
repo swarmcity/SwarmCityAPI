@@ -20,16 +20,16 @@ async function fetchProviderReputation(hashtagAddress, providerAddress, web3 = w
     // HashtagAddress = smart contract simple deal
     // => Get the providerRep smart contract address
     // => Do balanceOf(replier.address)
-    const hastagContractInstance = new web3.eth.Contract(
+    const hashtagContractInstance = new web3.eth.Contract(
         hashtagSimpleDealContract.abi,
         hashtagAddress
     );
 
-    if (!hastagContractInstance.methods.ProviderRep) {
+    if (!hashtagContractInstance.methods.ProviderRep) {
         throw Error('Incorrect contrat ABI, ProviderRep method not found');
     }
     // eslint-disable-next-line new-cap
-    return hastagContractInstance.methods.ProviderRep().call()
+    return hashtagContractInstance.methods.ProviderRep().call()
     .then((providerRepContractAddress) => {
         if (!providerRepContractAddress || !validate.isAddress(providerRepContractAddress)) {
             throw Error('Incorrect providerRepContractAddress: '+providerRepContractAddress);

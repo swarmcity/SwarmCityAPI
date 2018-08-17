@@ -119,7 +119,7 @@ class DBService {
     /**
      * Get chat the object or create a new one.
      *
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
     getChat(itemHash) {
@@ -143,8 +143,8 @@ class DBService {
     /**
      * Add members to the chat object.
      *
-     * @param       {String}    itemHash    The hash of the hastagItem
-     * @param       {Array}    members    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
+     * @param       {Array}    members    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
     addMembersToChat(itemHash, members) {
@@ -166,8 +166,8 @@ class DBService {
     /**
      * Add message to the chat object.
      *
-     * @param       {String}    itemHash    The hash of the hastagItem
-     * @param       {Object}    payload    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
+     * @param       {Object}    payload    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
     addMessageToChat(itemHash, payload) {
@@ -483,10 +483,10 @@ class DBService {
     }
 
     /**
-     * Add reply to the hastagItem
+     * Add reply to the hashtagItem
      *
      * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @param       {Object}    reply       The metadata
      * @return      {Promise}   promise
      */
@@ -503,10 +503,10 @@ class DBService {
     }
 
     /**
-     * Add selectee to the hastagItem
+     * Add selectee to the hashtagItem
      *
      * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @param       {Object}    selectee    The metadata
      * @return      {Promise}   promise
      */
@@ -524,7 +524,7 @@ class DBService {
      * Change selectee key to provider
      *
      * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @param       {Object}    selectee    The metadata
      * @return      {Promise}   promise
      */
@@ -546,7 +546,7 @@ class DBService {
      * update items status
      *
      * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @param       {String}    newStatus    The metadata
      * @return      {Promise}   promise
      */
@@ -562,7 +562,7 @@ class DBService {
 
 
     /**
-    * Get all deals for a hastag
+    * Get all deals for a hashtag
     *
     * @param       {Number}    address     The address of the hashtag
     * @return      {stream.Readable}   A readable stream of the ShortCodes
@@ -572,7 +572,7 @@ class DBService {
     }
 
     /**
-    * Get all deals for a hastag
+    * Get all deals for a hashtag
     *
     * @param       {Number}    hashtagAddress     The address of the hashtag
     * @return      {Promise}   A readable stream of the ShortCodes

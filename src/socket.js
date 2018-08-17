@@ -144,20 +144,20 @@ eventBus.on('dbChange', (key, data) => {
 	// hashtagItem changed
 	if (key.startsWith('item-')) {
 		const hashtagAddress = key.split('-')[1];
-		io.to('hashtag-'+hashtagAddress).emit('hastagItemsChanged', {
+		io.to('hashtag-'+hashtagAddress).emit('hashtagItemsChanged', {
 			response: 200,
 			data: [data],
 		});
-		logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hastagItemsChanged\')');
+		logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hashtagItemsChanged\')');
 	}
 	// hashtag changed
 	else if (key.startsWith('hashtag-')) {
 		const hashtagAddress = key.split('-')[1];
-		io.to('hashtag-'+hashtagAddress).emit('hastagsChanged', {
+		io.to('hashtag-'+hashtagAddress).emit('hashtagsChanged', {
 			response: 200,
 			data: [data],
 		});
-		logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hastagsChanged\')');
+		logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hashtagsChanged\')');
 	}
 });
 
