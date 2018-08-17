@@ -139,6 +139,7 @@ io.on('connection', (socket) => {
 
 // Receibe dbChanges
 eventBus.on('dbChange', (key, data) => {
+	io.emit('dbChange', key, data);
 	// const keys = parseKey(key);
 	// hashtagItem changed
 	if (key.startsWith('item-')) {

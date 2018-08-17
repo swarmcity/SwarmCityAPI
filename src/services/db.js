@@ -172,7 +172,7 @@ class DBService {
      */
     addMessageToChat(itemHash, payload) {
         let key = 'chat-' + itemHash;
-        return this.db.get(key).then((chatObject) => {
+        return this.get(key).then((chatObject) => {
             // Initialize the messages array
             if (!chatObject.messages) {
                 chatObject.messages = [];
@@ -184,7 +184,7 @@ class DBService {
                 username: payload.username,
                 avatarHash: payload.avatarHash,
             });
-            return this.db.put(key, chatObject).then(() => {
+            return this.put(key, chatObject).then(() => {
                 return chatObject;
             });
         });
