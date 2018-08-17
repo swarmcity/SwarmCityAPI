@@ -51,12 +51,16 @@ function subscriptionsLight(db, web3, io) {
 		socket.on('getReputation', wrapHandler(getReputation));
 
 		// For debugging purposes with a dedicated website
-		const getAllDb = async () => {
-			socket.join('allDb');
-			const allDb = await db.getAll();
-			return allDb;
-		};
+		const getAllDb = async () => await db.getAll();
 		socket.on('getAllDb', wrapHandler(getAllDb));
+
+		const joinDebug = async () => {
+			socket.join('debug');
+		};
+		socket.on('joinDebug', wrapHandler(joinDebug));
+
+		const getRooms = async () => io.sockets.adapter.rooms;
+		socket.on('getRooms', wrapHandler(getRooms));
 	};
 
 	const disconect = (socket) => {
