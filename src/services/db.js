@@ -424,7 +424,12 @@ class DBService {
      * @return      {Promise}   promise
      */
     setHashtagItem(address, item) {
-        return this.set('item-' + address + '-' + item.itemHash, item);
+        const key = 'item-' + address + '-' + item.itemHash;
+        return this.get(key).catch((err) => ({}))
+        .then((oldItem) => this.set(
+            key,
+            Object.assign(oldItem, item))
+        );
     }
 
     /**
@@ -494,9 +499,11 @@ class DBService {
         let key = 'item-' + hashtagAddress + '-' + itemHash;
         return this.get(key).then((hashtagItem) => {
             // Initialize array of replies
-            if (!Array.isArray(hashtagItem.replies)) hashtagItem.replies = [];
+            if (!hashtagItem.replies || typeof hashtagItem.replies !== typeof {}) {
+                hashtagItem.replies = {};
+            }
             // Append reply
-            hashtagItem.replies.unshift(reply);
+            hashtagItem.replies[reply.address] = reply;
             // Store modified item
             return this.set(key, hashtagItem).then(() => hashtagItem);
         });
@@ -532,7 +539,10 @@ class DBService {
         let key = 'item-' + hashtagAddress + '-' + itemHash;
         return this.get(key).then((hashtagItem) => {
             // Change a key of the itemHash object
-            const selectee = JSON.parse(JSON.stringify(hashtagItem.selectee));
+            let selectee = null;
+            if (selectee && typeof selectee === typeof {}) {
+                selectee = JSON.parse(JSON.stringify(hashtagItem.selectee));
+            }
             hashtagItem.provider = selectee;
             delete hashtagItem.selectee;
             // Store modified item

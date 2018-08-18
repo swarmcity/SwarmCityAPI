@@ -148,7 +148,7 @@ eventBus.on('dbChange', (key, data) => {
 			response: 200,
 			data: [data],
 		});
-		logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hashtagItemsChanged\')');
+		// logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hashtagItemsChanged\')');
 	}
 	// hashtag changed
 	else if (key.startsWith('hashtag-')) {
@@ -157,7 +157,7 @@ eventBus.on('dbChange', (key, data) => {
 			response: 200,
 			data: [data],
 		});
-		logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hashtagsChanged\')');
+		// logs.info('SOCKET.IO to(\'hashtag-'+hashtagAddress+'\').emit(\'hashtagsChanged\')');
 	}
 });
 

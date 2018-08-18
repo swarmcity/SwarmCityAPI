@@ -53,6 +53,38 @@ async function createItem(log) {
     };
 }
 
+/**
+ * @param   {String}    hashtagAddress     That
+ * @param   {String}    itemHash     That
+ */
+async function updateItemState(hashtagAddress, itemHash) {
+    const hashtagContractInstance = new web3.eth.Contract(
+        hashtagContract.abi,
+        hashtagAddress
+    );
+
+    // Get current item state
+    const itemState = await hashtagContractInstance.methods.readItem(itemHash).call();
+    // status: '0',
+    // itemValue: '2000000000000000000',
+    // providerRep: '0',
+    // seekerRep: '0',
+    // providerAddress: '0x0000000000000000000000000000000000000000',
+    // ipfsMetadata: 'QmddiYtBpq5igX6j1YPJ7v1e9cFRMdMabqvve3piiMwG65',
+    // numberOfReplies: '0'
+    const item = {
+        status: itemState.status,
+        itemValue: itemState.itemValue,
+        providerRep: itemState.providerRep,
+        seekerRep: itemState.seekerRep,
+        providerAddress: itemState.providerAddress,
+        ipfsMetadata: itemState.ipfsMetadata,
+        numberOfReplies: itemState.numberOfReplies,
+    };
+
+    // Store hashtagItem
+    await dbService.setHashtagItem(hashtagAddress, item);
+}
 
 /**
  * handles a FundItem event.
@@ -60,11 +92,15 @@ async function createItem(log) {
  * @param      {Object}   log                         The start block
  * @param      {Object}   hashtagAddress              The hashtag contract address
  */
-function handleEventFundItem(log, hashtagAddress) {
+async function handleEventFundItem(log, hashtagAddress) {
     let itemHash = log.returnValues.itemHash;
-    dbService.changeSelecteeToProvider(hashtagAddress, itemHash).then(() => {
-        // No use for the result
-    });
+
+    logger.info('Got FundItem event. Hashtag '+hashtagAddress+', itemHash '+itemHash);
+
+    dbService.changeSelecteeToProvider(hashtagAddress, itemHash);
+
+    // Update the item
+    await updateItemState(hashtagAddress, itemHash);
 }
 
 /**
@@ -73,18 +109,23 @@ function handleEventFundItem(log, hashtagAddress) {
  * @param      {Object}   log                         The start block
  * @param      {Object}   hashtagAddress              The hashtag contract address
  */
-function handleEventItemStatusChange(log, hashtagAddress) {
+async function handleEventItemStatusChange(log, hashtagAddress) {
     // ItemStatusChange(
     //     address owner,
     //     bytes32 itemHash,
     //     itemStatuses newstatus,
     //     string ipfsMetadata
     // )
+
     let itemHash = log.returnValues.itemHash;
     let newstatus = log.returnValues.newstatus;
-    dbService.updateItemStatus(hashtagAddress, itemHash, newstatus).then(() => {
-        // No use for the result
-    });
+
+    logger.info('Got ItemStatusChange event. Hashtag '+hashtagAddress+', itemHash '+itemHash);
+
+    await dbService.updateItemStatus(hashtagAddress, itemHash, newstatus);
+
+    // Update the item
+    await updateItemState(hashtagAddress, itemHash);
 }
 
 /**
@@ -96,20 +137,25 @@ function handleEventItemStatusChange(log, hashtagAddress) {
 async function handleEventNewItemForTwo(log, hashtagAddress) {
     try {
         const item = await createItem(log, log.blockNumber);
+        const itemHash = item.itemHash;
 
-        const hashtagContractInstance = new web3.eth.Contract(
-            hashtagContract.abi,
-            '0xCeb2F510DE0945e6540cf507d0E18ED9A7e1B3fE'
-        );
+        logger.info('Got NewItemForTwo event. Hashtag '+hashtagAddress+', itemHash '+itemHash);
 
-        const _item = await hashtagContractInstance.methods.readItem('0xa920a4d63006a48c791571690399db8c38c7d2c07218e32f823dfbbf493d7b3f').call();
-        console.log('GOT READ ITEM');
-        console.log(_item);
+        // const getReplies = () => {
+        //     const fromBlock = 8319554 - blockDiff;
+        //     return hashtagContractInstance.getPastEvents('allEvents', {
+        //         fromBlock,
+        //         toBlock: 'latest',
+        //     })
+        //     .then((logs) => {
+        //         console.log('Got '+logs.length+' logs');
+        //     });
+        // };
 
         // Resolve its metadata
         const metadata = await ipfs.cat(item.ipfsMetadata).catch((err) => {
-            logger.error('Metadata unavailable, '
-            +'hashtag: '+hashtagAddress+', item: '+item.itemHash);
+            logger.error('ITEM Metadata unavailable, '
+            +'hashtag: '+hashtagAddress+', item: '+itemHash);
             return JSON.stringify({});
         });
         let data = JSON.parse(metadata);
@@ -118,8 +164,44 @@ async function handleEventNewItemForTwo(log, hashtagAddress) {
         item.seeker.username = data.username || '';
         item.seeker.avatarHash = data.avatarHash || '';
 
+        const hashtagContractInstance = new web3.eth.Contract(
+            hashtagContract.abi,
+            hashtagAddress
+        );
+
+        // Get current item state
+        const itemState = await hashtagContractInstance.methods.readItem(itemHash).call();
+        // status: '0',
+        // itemValue: '2000000000000000000',
+        // providerRep: '0',
+        // seekerRep: '0',
+        // providerAddress: '0x0000000000000000000000000000000000000000',
+        // ipfsMetadata: 'QmddiYtBpq5igX6j1YPJ7v1e9cFRMdMabqvve3piiMwG65',
+        // numberOfReplies: '0'
+        item.status = itemState.status;
+        item.itemValue = itemState.itemValue;
+        item.providerRep = itemState.providerRep;
+        item.seekerRep = itemState.seekerRep;
+        item.providerAddress = itemState.providerAddress;
+        item.ipfsMetadata = itemState.ipfsMetadata;
+        item.numberOfReplies = itemState.numberOfReplies;
+
         // Store hashtagItem
         await dbService.setHashtagItem(hashtagAddress, item);
+
+        // Get item's replies
+        const creationBlock = await hashtagContractInstance.methods.creationBlock().call();
+        const replies = await hashtagContractInstance.getPastEvents('ReplyItem', {
+            filter: {itemHash: itemHash},
+            fromBlock: creationBlock,
+            toBlock: 'latest',
+        });
+        if (replies.length) {
+            logger.info('Got '+replies.length+' past replies from itemhash: '+itemHash);
+            replies.forEach((reply) => {
+                handleEvent(reply, hashtagAddress);
+            });
+        }
     } catch (e) {
         logger.error('Error handling event NewItemForTwo: %s', e);
     }
@@ -139,17 +221,20 @@ async function handleEventReplyItem(log, hashtagAddress) {
         const ipfsMetadata = log.returnValues.ipfsMetadata;
         const provider = log.returnValues.provider;
 
+        logger.info('Got ReplyItem event. Hashtag '+hashtagAddress+', itemHash '+itemHash);
+
         const providerRep = await fetchProviderReputation(hashtagAddress, provider);
 
         // Resolve its metadata
         const metadata = await ipfs.cat(ipfsMetadata).catch((err) => {
-            logger.error('Metadata unavailable, '
+            logger.error('REPLY Metadata unavailable, '
             +'hashtag: '+hashtagAddress+', item: '+itemHash);
             return JSON.stringify({});
         }).then(JSON.parse);
 
         const reply = Object.assign(metadata.replier || {}, {
             reputation: providerRep, // '5'
+            address: provider,
             description: metadata.description || 'unavailable', // 'I can help you better'
             dateTime: await getBlockTime(log.blockNumber), // 1528215492, unix timestamp in seconds
         });
@@ -161,6 +246,9 @@ async function handleEventReplyItem(log, hashtagAddress) {
             itemHash,
             reply
         );
+
+        // Update the item
+        await updateItemState(hashtagAddress, itemHash);
     } catch (e) {
         logger.error('Error handling event ReplyItem: %s', e);
     }
@@ -178,14 +266,18 @@ async function handleEventSelectReplier(log, hashtagAddress) {
     try {
         const itemHash = log.returnValues.itemHash;
         const selectedReplier = log.returnValues.selectedReplier;
+        logger.info('Got SelectReplier event. Hashtag '+hashtagAddress+', itemHash '+itemHash);
 
-        logger.info('Storing selectee for item %s', itemHash);
         // Returns the new hashtagItem
         await dbService.addSelecteeToHashtagItem(
             hashtagAddress,
             itemHash,
             selectedReplier
         );
+        logger.info('Stored selectee for item %s', itemHash);
+
+        // Update the item
+        await updateItemState(hashtagAddress, itemHash);
     } catch (e) {
         logger.error('Error handling event ReplyItem: %s', e);
     }
@@ -193,15 +285,12 @@ async function handleEventSelectReplier(log, hashtagAddress) {
 
 
 const handleEvent = (event, hashtagAddress) => {
-    let itemHash;
-    if (event && event.returnValues && event.returnValues.itemHash) {
-        itemHash = event.returnValues.itemHash;
-    }
-    logger.info('Got event: '+event.event+' from hashtag: '
-        +hashtagAddress+(itemHash ? ', itemHash: '+itemHash : ''));
     switch (event.event) {
         case 'NewItemForTwo':
             handleEventNewItemForTwo(event, hashtagAddress);
+            break;
+        case 'ReceivedApproval':
+            // ignore
             break;
         case 'FundItem':
             handleEventFundItem(event, hashtagAddress);
@@ -214,6 +303,9 @@ const handleEvent = (event, hashtagAddress) => {
             break;
         case 'SelectReplier':
             handleEventSelectReplier(event, hashtagAddress);
+            break;
+        default:
+            logger.info('Got '+event.event+' (UNHANDLED) from hashtag: '+hashtagAddress);
     }
 };
 
@@ -235,7 +327,9 @@ async function start() {
             hashtag.hashtagAddress
         );
         const fromDeploy = false;
-        hashtagContractInstance.getPastEvents('NewItemForTwo', {
+        // FOR PRODUCTION: 'NewItemForTwo'
+        // FOR DEBUGGING: 'allEvents'
+        hashtagContractInstance.getPastEvents('allEvents', {
             fromBlock: fromDeploy ? 8149489 : 0,
             toBlock: 'latest',
         })
