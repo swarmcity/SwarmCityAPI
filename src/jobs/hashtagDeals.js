@@ -10,25 +10,30 @@ const ipfs = require('../scheduler/IPFSQueueLight');
 const dbService = require('../services').dbService;
 const eventBus = require('../eventBus');
 
+const fetchProviderReputation = require('../utils/fetchProviderReputation');
+
+/**
+ * @param   {Number}    blockNumber     Log of a token transfer as returned by the
+ *                              contract.
+ * @return  {String}    Promise that resolves to a SWT log.
+ */
+async function getBlockTime(blockNumber) {
+    let dateTime;
+    try {
+        const block = await web3.eth.getBlock(blockNumber);
+        dateTime = parseInt(block.timestamp);
+    } catch (e) {
+        dateTime = Math.floor(Date.now()/1000);
+    }
+    return dateTime;
+}
+
 /**
  * @param   {Object}    log     Log of a token transfer as returned by the
  *                              contract.
  * @return  {Object}    Promise that resolves to a SWT log.
  */
 async function createItem(log) {
-    let dateTime;
-
-    try {
-        const block = await web3.eth.getBlock(log.blockNumber);
-        dateTime = parseInt(block.timestamp);
-    } catch (e) {
-        logger.error(
-            'Unable to fetch block to determine time of block. Error: %s',
-            e
-        );
-        dateTime = Math.floor(Date.now()/1000);
-    }
-
     return {
         'itemHash': log.returnValues.itemHash,
         'hashtagAddress': log.address,
@@ -43,10 +48,11 @@ async function createItem(log) {
             rep: log.returnValues.seekerRep,
         },
         'description': '',
-        'dateTime': dateTime,
+        'dateTime': await getBlockTime(log.blockNumber),
         'location': '',
     };
 }
+
 
 /**
  * handles a FundItem event.
@@ -90,24 +96,109 @@ function handleEventItemStatusChange(log, hashtagAddress) {
 async function handleEventNewItemForTwo(log, hashtagAddress) {
     try {
         const item = await createItem(log, log.blockNumber);
-        // Store hashtagItem
-        await dbService.setHashtagItem(hashtagAddress, item);
+
+        const hashtagContractInstance = new web3.eth.Contract(
+            hashtagContract.abi,
+            '0xCeb2F510DE0945e6540cf507d0E18ED9A7e1B3fE'
+        );
+
+        const _item = await hashtagContractInstance.methods.readItem('0xa920a4d63006a48c791571690399db8c38c7d2c07218e32f823dfbbf493d7b3f').call();
+        console.log('GOT READ ITEM');
+        console.log(_item);
 
         // Resolve its metadata
-        const res = await ipfs.cat(item.ipfsMetadata).catch((err) => {
+        const metadata = await ipfs.cat(item.ipfsMetadata).catch((err) => {
             logger.error('Metadata unavailable, '
             +'hashtag: '+hashtagAddress+', item: '+item.itemHash);
             return JSON.stringify({});
         });
-        await dbService.updateHashtagItem(hashtagAddress, item, res);
+        let data = JSON.parse(metadata);
+        item.description = data.description || '';
+        item.location = data.location || '';
+        item.seeker.username = data.username || '';
+        item.seeker.avatarHash = data.avatarHash || '';
+
+        // Store hashtagItem
+        await dbService.setHashtagItem(hashtagAddress, item);
     } catch (e) {
         logger.error('Error handling event NewItemForTwo: %s', e);
     }
 }
 
+/**
+ * Gets the ReplyItem past events.
+ *
+ * @param      {Object}   log                         The start block
+ * @param      {Object}   hashtagAddress              The hashtag contract address
+ */
+async function handleEventReplyItem(log, hashtagAddress) {
+    // @dev Event ReplyItem - This event is fired when a new reply is added.
+    // event ReplyItem(bytes32 indexed itemHash, string ipfsMetadata, address provider);
+    try {
+        const itemHash = log.returnValues.itemHash;
+        const ipfsMetadata = log.returnValues.ipfsMetadata;
+        const provider = log.returnValues.provider;
+
+        const providerRep = await fetchProviderReputation(hashtagAddress, provider);
+
+        // Resolve its metadata
+        const metadata = await ipfs.cat(ipfsMetadata).catch((err) => {
+            logger.error('Metadata unavailable, '
+            +'hashtag: '+hashtagAddress+', item: '+itemHash);
+            return JSON.stringify({});
+        }).then(JSON.parse);
+
+        const reply = Object.assign(metadata.replier || {}, {
+            reputation: providerRep, // '5'
+            description: metadata.description || 'unavailable', // 'I can help you better'
+            dateTime: await getBlockTime(log.blockNumber), // 1528215492, unix timestamp in seconds
+        });
+
+        logger.info('Storing replyRequest for item %s', itemHash);
+        // Returns the new hashtagItem
+        await dbService.addReplyToHashtagItem(
+            hashtagAddress,
+            itemHash,
+            reply
+        );
+    } catch (e) {
+        logger.error('Error handling event ReplyItem: %s', e);
+    }
+}
+
+/**
+ * Gets the ReplyItem past events.
+ *
+ * @param      {Object}   log                         The start block
+ * @param      {Object}   hashtagAddress              The hashtag contract address
+ */
+async function handleEventSelectReplier(log, hashtagAddress) {
+    // @dev Event SelectReplier - This event is fired when a replier is set.
+    // event SelectReplier(bytes32 itemHash, address selectedReplier);
+    try {
+        const itemHash = log.returnValues.itemHash;
+        const selectedReplier = log.returnValues.selectedReplier;
+
+        logger.info('Storing selectee for item %s', itemHash);
+        // Returns the new hashtagItem
+        await dbService.addSelecteeToHashtagItem(
+            hashtagAddress,
+            itemHash,
+            selectedReplier
+        );
+    } catch (e) {
+        logger.error('Error handling event ReplyItem: %s', e);
+    }
+}
+
 
 const handleEvent = (event, hashtagAddress) => {
-    logger.info('Got event: '+event.event+' from hashtag: '+hashtagAddress);
+    let itemHash;
+    if (event && event.returnValues && event.returnValues.itemHash) {
+        itemHash = event.returnValues.itemHash;
+    }
+    logger.info('Got event: '+event.event+' from hashtag: '
+        +hashtagAddress+(itemHash ? ', itemHash: '+itemHash : ''));
     switch (event.event) {
         case 'NewItemForTwo':
             handleEventNewItemForTwo(event, hashtagAddress);
@@ -117,6 +208,12 @@ const handleEvent = (event, hashtagAddress) => {
             break;
         case 'ItemStatusChange':
             handleEventItemStatusChange(event, hashtagAddress);
+            break;
+        case 'ReplyItem':
+            handleEventReplyItem(event, hashtagAddress);
+            break;
+        case 'SelectReplier':
+            handleEventSelectReplier(event, hashtagAddress);
     }
 };
 
