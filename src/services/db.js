@@ -521,7 +521,16 @@ class DBService {
         let key = 'item-' + hashtagAddress + '-' + itemHash;
         return this.get(key).then((hashtagItem) => {
             // Add selectee
-            hashtagItem.selectee = selectee;
+            if (hashtagItem.replies
+                && typeof hashtagItem.replies === typeof {}
+                && hashtagItem.replies[selectee]
+            ) {
+                hashtagItem.selectee = hashtagItem.replies[selectee];
+            } else {
+                hashtagItem.selectee = {
+                    address: selectee,
+                };
+            }
             // Store modified item
             return this.set(key, hashtagItem).then(() => hashtagItem);
         });
