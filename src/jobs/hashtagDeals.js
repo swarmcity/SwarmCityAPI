@@ -79,7 +79,6 @@ async function updateItemState(hashtagAddress, itemHash) {
         seekerRep: itemState.seekerRep,
         providerAddress: itemState.providerAddress,
         ipfsMetadata: itemState.ipfsMetadata,
-        numberOfReplies: itemState.numberOfReplies,
     };
 
     // Store hashtagItem
@@ -96,8 +95,6 @@ async function handleEventFundItem(log, hashtagAddress) {
     let itemHash = log.returnValues.itemHash;
 
     logger.info('Got FundItem event. Hashtag '+hashtagAddress+', itemHash '+itemHash);
-
-    dbService.changeSelecteeToProvider(hashtagAddress, itemHash);
 
     // Update the item
     await updateItemState(hashtagAddress, itemHash);
@@ -118,11 +115,8 @@ async function handleEventItemStatusChange(log, hashtagAddress) {
     // )
 
     let itemHash = log.returnValues.itemHash;
-    let newstatus = log.returnValues.newstatus;
 
     logger.info('Got ItemStatusChange event. Hashtag '+hashtagAddress+', itemHash '+itemHash);
-
-    await dbService.updateItemStatus(hashtagAddress, itemHash, newstatus);
 
     // Update the item
     await updateItemState(hashtagAddress, itemHash);
@@ -184,23 +178,26 @@ async function handleEventNewItemForTwo(log, hashtagAddress) {
         item.seekerRep = itemState.seekerRep;
         item.providerAddress = itemState.providerAddress;
         item.ipfsMetadata = itemState.ipfsMetadata;
-        item.numberOfReplies = itemState.numberOfReplies;
+        // Default values
+        item.replies = {};
 
         // Store hashtagItem
         await dbService.setHashtagItem(hashtagAddress, item);
 
         // Get item's replies
-        const creationBlock = await hashtagContractInstance.methods.creationBlock().call();
-        const replies = await hashtagContractInstance.getPastEvents('ReplyItem', {
-            filter: {itemHash: itemHash},
-            fromBlock: creationBlock,
-            toBlock: 'latest',
-        });
-        if (replies.length) {
-            logger.info('Got '+replies.length+' past replies from itemhash: '+itemHash);
-            replies.forEach((reply) => {
-                handleEvent(reply, hashtagAddress);
+        if (itemState.numberOfReplies) {
+            const creationBlock = await hashtagContractInstance.methods.creationBlock().call();
+            const replies = await hashtagContractInstance.getPastEvents('ReplyItem', {
+                filter: {itemHash: itemHash},
+                fromBlock: creationBlock,
+                toBlock: 'latest',
             });
+            if (replies.length) {
+                logger.info('Got '+replies.length+' past replies from itemhash: '+itemHash);
+                replies.forEach((reply) => {
+                    handleEvent(reply, hashtagAddress);
+                });
+            }
         }
     } catch (e) {
         logger.error('Error handling event NewItemForTwo: %s', e);
@@ -246,9 +243,6 @@ async function handleEventReplyItem(log, hashtagAddress) {
             itemHash,
             reply
         );
-
-        // Update the item
-        await updateItemState(hashtagAddress, itemHash);
     } catch (e) {
         logger.error('Error handling event ReplyItem: %s', e);
     }
@@ -275,9 +269,6 @@ async function handleEventSelectReplier(log, hashtagAddress) {
             selectedReplier
         );
         logger.info('Stored selectee for item %s', itemHash);
-
-        // Update the item
-        await updateItemState(hashtagAddress, itemHash);
     } catch (e) {
         logger.error('Error handling event ReplyItem: %s', e);
     }
