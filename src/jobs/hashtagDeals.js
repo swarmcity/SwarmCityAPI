@@ -72,17 +72,17 @@ async function updateItemState(hashtagAddress, itemHash) {
     // providerAddress: '0x0000000000000000000000000000000000000000',
     // ipfsMetadata: 'QmddiYtBpq5igX6j1YPJ7v1e9cFRMdMabqvve3piiMwG65',
     // numberOfReplies: '0'
-    const item = {
-        status: itemState.status,
-        itemValue: itemState.itemValue,
-        providerRep: itemState.providerRep,
-        seekerRep: itemState.seekerRep,
-        providerAddress: itemState.providerAddress,
-        ipfsMetadata: itemState.ipfsMetadata,
-    };
+    const item = await dbService.getHashtagItem(hashtagAddress, itemHash);
+
+    item.status = itemState.status;
+    item.itemValue = itemState.itemValue;
+    item.providerRep = itemState.providerRep;
+    item.seekerRep = itemState.seekerRep;
+    item.providerAddress = itemState.providerAddress;
+    item.ipfsMetadata = itemState.ipfsMetadata;
 
     // Store hashtagItem
-    await dbService.setHashtagItem(hashtagAddress, item);
+    await dbService.setHashtagItem(hashtagAddress, itemHash, item);
 }
 
 /**
@@ -182,7 +182,7 @@ async function handleEventNewItemForTwo(log, hashtagAddress) {
         item.replies = {};
 
         // Store hashtagItem
-        await dbService.setHashtagItem(hashtagAddress, item);
+        await dbService.setHashtagItem(hashtagAddress, itemHash, item);
 
         // Get item's replies
         if (itemState.numberOfReplies) {
@@ -236,13 +236,13 @@ async function handleEventReplyItem(log, hashtagAddress) {
             dateTime: await getBlockTime(log.blockNumber), // 1528215492, unix timestamp in seconds
         });
 
-        logger.info('Storing replyRequest for item %s', itemHash);
         // Returns the new hashtagItem
         await dbService.addReplyToHashtagItem(
             hashtagAddress,
             itemHash,
             reply
         );
+        logger.debug('Stored replyRequest for item %s', itemHash);
     } catch (e) {
         logger.error('Error handling event ReplyItem: %s', e);
     }

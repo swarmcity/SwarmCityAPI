@@ -420,12 +420,16 @@ class DBService {
      * Set the hashtaglist
      *
      * @param       {Number}    address     The address of the hashtag
-     * @param       {String}    item        The hashtaglist
+     * @param       {String}    itemHash        The hashtaglist
+     * @param       {Object}    item        The hashtaglist
      * @return      {Promise}   promise
      */
-    setHashtagItem(address, item) {
-        const key = 'item-' + address + '-' + item.itemHash;
-        return this.get(key).catch((err) => ({}))
+    setHashtagItem(address, itemHash, item) {
+        const key = 'item-' + address + '-' + itemHash;
+        return this.get(key).catch((err) => {
+            if (err.message.includes('Key not found')) return {};
+            else throw err;
+        })
         .then((oldItem) => this.set(
             key,
             Object.assign(oldItem, item))
@@ -441,7 +445,7 @@ class DBService {
      */
     getHashtagItem(address, itemHash) {
         return this.get('item-' + address + '-' + itemHash).catch((err) => {
-            if (err.notFound) {
+            if (err.notFound || err.message.includes('Key not found')) {
                 logger.debug(
                     'no deal %s for %s in DB',
                     itemHash,
