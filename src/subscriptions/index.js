@@ -125,6 +125,7 @@ function subscribe(socket, data, callback) {
 				let reply = {
 					response: 500,
 					message: e.message,
+					stack: e.stack,
 				};
 				return callback(reply);
 			});

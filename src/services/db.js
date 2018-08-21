@@ -184,7 +184,7 @@ class DBService {
                 username: payload.username,
                 avatarHash: payload.avatarHash,
             });
-            return this.put(key, chatObject).then(() => {
+            return this.set(key, chatObject).then(() => {
                 return chatObject;
             });
         });
@@ -537,31 +537,6 @@ class DBService {
             }
             // Store modified item
             return this.set(key, hashtagItem).then(() => hashtagItem);
-        });
-    }
-
-    /**
-     * Change selectee key to provider
-     *
-     * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hashtagItem
-     * @param       {Object}    selectee    The metadata
-     * @return      {Promise}   promise
-     */
-    changeSelecteeToProvider(hashtagAddress, itemHash) {
-        let key = 'item-' + hashtagAddress + '-' + itemHash;
-        return this.get(key).then((hashtagItem) => {
-            // Change a key of the itemHash object
-            let selectee = null;
-            if (selectee && typeof selectee === typeof {}) {
-                selectee = JSON.parse(JSON.stringify(hashtagItem.selectee));
-            }
-            hashtagItem.provider = selectee;
-            delete hashtagItem.selectee;
-            // Store modified item
-            return this.set(key, hashtagItem).then(() => {
-                return hashtagItem;
-            });
         });
     }
 

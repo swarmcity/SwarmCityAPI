@@ -21,6 +21,7 @@ const wrapHandler = (handler) => async (data, callback) => {
 		callback({
 			response: 500,
 			message: e.message,
+			stack: e.stack,
 		});
 	}
 };

@@ -32,9 +32,7 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 		logger.info('connecting to %s', socketURL);
 		client = io.connect(socketURL, options);
 
-		let promises = [];
-		for (let i = 0; i < 1; i++) {
-			promises.push(new Promise((resolve, reject) => {
+
 				client.emit('subscribe', {
 					channel: 'txHistory',
 					args: {
@@ -47,17 +45,8 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 					subscriptions.push(data.subscriptionId);
 
 					logger.info('subscribe>>>txhistory %j', data);
-					resolve();
+					done();
 				});
-			}));
-		}
-
-        Promise.all(promises).then(() => {
-            done();
-        }).catch((err) => {
-            logger.info(err);
-            done();
-        });
     });
 
     it('should wait a while for a block', (done) => {
@@ -69,7 +58,7 @@ describe('Swarm City API socket client > test pubsub on \'txhistory\'', function
 
         setTimeout(() => {
             done();
-        }, 15 * 1000);
+        }, 1900);
     });
 
 
