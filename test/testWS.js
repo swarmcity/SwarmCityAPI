@@ -71,7 +71,7 @@ describe('Swarm City API socket client', function() {
 			done();
 		});
 		client.emit('newChatMessage', data, (reply) => {
-			should(reply.response).equal(200);
+			should(reply).equal(200);
 		});
 
         // client.emit('ping', function(res) {

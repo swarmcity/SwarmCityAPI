@@ -1,10 +1,10 @@
 'use strict';
 
-const validate = require('../../validators');
-const web3Default = require('../../globalWeb3').web3;
+const validate = require('../validators');
+const web3Default = require('../globalWeb3').web3;
 
-const hashtagSimpleDealContract = require('../../contracts/hashtagSimpleDeal.json');
-const erc20TokenContract = require('../../contracts/erc20Token.json');
+const hashtagSimpleDealContract = require('../contracts/hashtagSimpleDeal.json');
+const erc20TokenContract = require('../contracts/erc20Token.json');
 
 /**
  * clean up a task from the scheduler when socket wants to unsubscribe

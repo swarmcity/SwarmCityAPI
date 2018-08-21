@@ -12,7 +12,7 @@ const options = {
 // create a server
 const server = require('../src/socket');
 
-describe('Swarm City API socket client > test pubsub on \'hashtagitem\'', function() {
+describe.skip('Swarm City API socket client > test pubsub on \'hashtagitem\'', function() {
 	let client;
 	let subscriptions = [];
 

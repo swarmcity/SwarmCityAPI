@@ -4,8 +4,8 @@
     {
       "constant": true,
       "inputs": [],
-      "name": "hashtagList",
-      "outputs": [{ "name": "", "type": "address" }],
+      "name": "creationBlock",
+      "outputs": [{ "name": "", "type": "uint256" }],
       "payable": false,
       "stateMutability": "view",
       "type": "function"
@@ -16,12 +16,12 @@
       "name": "readItem",
       "outputs": [
         { "name": "status", "type": "uint8" },
-        { "name": "hashtagFee", "type": "uint256" },
         { "name": "itemValue", "type": "uint256" },
         { "name": "providerRep", "type": "uint256" },
         { "name": "seekerRep", "type": "uint256" },
         { "name": "providerAddress", "type": "address" },
-        { "name": "ipfsMetadata", "type": "string" }
+        { "name": "ipfsMetadata", "type": "string" },
+        { "name": "numberOfReplies", "type": "uint256" }
       ],
       "payable": false,
       "stateMutability": "view",
@@ -40,6 +40,18 @@
       "constant": false,
       "inputs": [{ "name": "_payoutaddress", "type": "address" }],
       "name": "setPayoutAddress",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        { "name": "_itemHash", "type": "bytes32" },
+        { "name": "_selectedReplier", "type": "address" }
+      ],
+      "name": "selectReplier",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -79,6 +91,15 @@
       "constant": false,
       "inputs": [],
       "name": "renounceOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [{ "name": "_itemHash", "type": "bytes32" }],
+      "name": "fundItem",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -127,15 +148,6 @@
     },
     {
       "constant": false,
-      "inputs": [{ "name": "_itemId", "type": "string" }],
-      "name": "fundItem",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
       "inputs": [{ "name": "_itemHash", "type": "bytes32" }],
       "name": "cancelItem",
       "outputs": [],
@@ -150,6 +162,18 @@
       "outputs": [{ "name": "", "type": "address" }],
       "payable": false,
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        { "name": "_itemHash", "type": "bytes32" },
+        { "name": "_ipfsMetadata", "type": "string" }
+      ],
+      "name": "replyItem",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -221,7 +245,6 @@
     },
     {
       "inputs": [
-        { "name": "_hashtagList", "type": "address" },
         { "name": "_token", "type": "address" },
         { "name": "_hashtagName", "type": "string" },
         { "name": "_hashtagFee", "type": "uint256" },
@@ -261,6 +284,25 @@
         { "indexed": false, "name": "seekerRep", "type": "uint256" }
       ],
       "name": "NewItemForTwo",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "name": "itemHash", "type": "bytes32" },
+        { "indexed": false, "name": "ipfsMetadata", "type": "string" },
+        { "indexed": false, "name": "provider", "type": "address" }
+      ],
+      "name": "ReplyItem",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "name": "itemHash", "type": "bytes32" },
+        { "indexed": false, "name": "selectedReplier", "type": "address" }
+      ],
+      "name": "SelectReplier",
       "type": "event"
     },
     {

@@ -13,7 +13,7 @@ const options = {
 const server = require('../src/socket');
 let subscription;
 
-describe('Swarm City API socket client > test subscribe hashtags', function() {
+describe.skip('Swarm City API socket client > test subscribe hashtags', function() {
 	let client;
 	let socketURL;
 

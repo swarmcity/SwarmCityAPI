@@ -242,7 +242,8 @@ describe('services/db/DBService', function() {
     describe('setHashtagItem(()', function() {
         it('should put correct information in the database', function() {
             let mockDB = {
-                put: function(key) { },
+                get: async (key) => {},
+                put: async (key, val) => {},
             };
 
             let spy = sinon.stub(mockDB, 'put').returns(Promise.resolve('thing'));
@@ -256,14 +257,15 @@ describe('services/db/DBService', function() {
             let address = '0x1234';
             let item = {temHash: 'Qm13'};
             dbService.setHashtagItem(address, item);
-            let key = 'deal-' + address + '-' + item.itemHash;
+            let key = 'item-' + address + '-' + item.itemHash;
             should(spy.calledWith(key, item)).be.ok;
         });
     });
     describe('getHashtagItem(()', function() {
         it('should reject on non existing getHashtagItem', function() {
             let mockDB = {
-                get: function(key) { },
+                get: async (key) => {},
+                put: async (key, val) => {},
             };
 
             let dbService = new DBService(
@@ -286,25 +288,29 @@ describe('services/db/DBService', function() {
     describe('addReplyToHashtagItem()', function() {
         const hashtagItem = {'hash': 'someHash'};
         const db = {
-            'deal-0x1234-hash': JSON.stringify(hashtagItem),
+            'item-0x1234-hash': JSON.stringify(hashtagItem),
         };
         let mockDB = {
             get: async (key) => db[key],
             put: async (key, val) => {db[key] = val;},
         };
-        const reply = 'reply';
+        const reply = {
+            address: 'replierAddress',
+        };
 
         let dbService = new DBService(mockDB);
 
         it('should reject on non existing getHashtagItem', () => {
-            return dbService.addReplyToHashtagItem('address', 'hash', {})
+            return dbService.addReplyToHashtagItem('address', 'hash', reply)
             .should.be.rejected();
         });
 
         it('should add a reply to the hashtagItem object', async () => {
             let res = await dbService.addReplyToHashtagItem('0x1234', 'hash', reply);
             should(res).deepEqual(Object.assign(hashtagItem, {
-                replies: [reply],
+                replies: {
+                    'replierAddress': reply,
+                },
             }));
         });
     });
@@ -312,7 +318,7 @@ describe('services/db/DBService', function() {
     describe('addSelecteeToHashtagItem()', function() {
         const hashtagItem = {'hash': 'someHash'};
         const db = {
-            'deal-0x1234-hash': JSON.stringify(hashtagItem),
+            'item-0x1234-hash': JSON.stringify(hashtagItem),
         };
         let mockDB = {
             get: async (key) => db[key],
@@ -329,37 +335,18 @@ describe('services/db/DBService', function() {
 
         it('should add a selectee to the hashtagItem object', async () => {
             let res = await dbService.addSelecteeToHashtagItem('0x1234', 'hash', selectee);
-            should(res).deepEqual(Object.assign(hashtagItem, {selectee}));
-        });
-    });
-
-    describe('changeSelecteeToProvider()', function() {
-        const hashtagItem = {'selectee': 'info'};
-        const db = {
-            'deal-0x1234-hash': JSON.stringify(hashtagItem),
-        };
-        let mockDB = {
-            get: async (key) => db[key],
-            put: async (key, val) => {db[key] = val;},
-        };
-
-        let dbService = new DBService(mockDB);
-
-        it('should reject on non existing getHashtagItem', () => {
-            return dbService.changeSelecteeToProvider('address', 'hash')
-            .should.be.rejected();
-        });
-
-        it('should change the selectee key to provider', async () => {
-            let res = await dbService.changeSelecteeToProvider('0x1234', 'hash');
-            should(res).deepEqual({'provider': 'info'});
+            should(res).deepEqual(Object.assign(hashtagItem, {
+                selectee: {
+                    address: 'selectee',
+                },
+            }));
         });
     });
 
     describe('updateItemStatus()', function() {
         const hashtagItem = {'hash': 'someHash'};
         const db = {
-            'deal-0x1234-hash': JSON.stringify(hashtagItem),
+            'item-0x1234-hash': JSON.stringify(hashtagItem),
         };
         let mockDB = {
             get: async (key) => db[key],
@@ -367,11 +354,6 @@ describe('services/db/DBService', function() {
         };
 
         let dbService = new DBService(mockDB);
-
-        it('should reject on non existing getHashtagItem', () => {
-            return dbService.updateItemStatus('address', 'hash', 1)
-            .should.be.rejected();
-        });
 
         it('should add a selectee to the hashtagItem object', async () => {
             let res = await dbService.updateItemStatus('0x1234', 'hash', 1);

@@ -10,6 +10,7 @@ const web3 = require('../globalWeb3').web3;
 const hashtagListContract = require('../contracts/hashtagList.json');
 const jsonHash = require('json-hash');
 
+const eventBus = require('../eventBus');
 const dbService = require('../services').dbService;
 const ipfs = require('../scheduler/IPFSQueueLight');
 
@@ -53,7 +54,7 @@ async function getHashtags() {
 		// hashtagAddress   address :  0x3a1a67501b75fbc2d0784e91ea6cafef6455a066
 		// hashtagShown   bool :  false
 		hashtags.push({
-			hashtagName: hashtag.hashtagName,
+			hashtagName: decodeURI(hashtag.hashtagName),
 			hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
 			hashtagAddress: hashtag.hashtagAddress,
 			hashtagShown: hashtag.hashtagShown,
@@ -65,9 +66,14 @@ async function getHashtags() {
 		return;
 	}
 
+	dbService.setHashtagList(hashtags);
 	dbService.setHashtags(hashtags);
 
 	hashtags.forEach((hashtag) => {
+		// Emit new hashtag found
+		logger.info('New or changed hashtag: %s %s', hashtag.hashtagName, hashtag.hashtagAddress);
+		eventBus.emit('hashtagChange', hashtag);
+
 		ipfs.cat(hashtag.hashtagMetaIPFS)
 		.catch((err) => {
 			logger.error('Can\'t fetch hashtag: '+hashtag.hashtagName+' IPFS metadata. err: '+err);
@@ -86,19 +92,18 @@ let subscription;
 
 module.exports = function() {
 	return ({
-		start: function() {
-			// start up this task... print some parameters
-			logger.info('process.env.HASHTAG_LIST_ADDRESS=%s',
-				process.env.HASHTAG_LIST_ADDRESS);
+		start: () => {
+			// Search immediatelly
+			getHashtags();
+			// Subscribe to new blocks
+			logger.info(
+				'Started to listen to HashtagList contract: =%s',
+				process.env.HASHTAG_LIST_ADDRESS
+			);
+			eventBus.on('newBlockHeader', getHashtags);
+			// Mantain legacy architecture
 
-			return new Promise((resolve, reject) => {
-				subscription = web3.eth.subscribe('newBlockHeaders', function(error, success) {
-					if (error) reject(error);
-					else resolve(success);
-				})
-				// Passes blockHeader as argument, but it's useless for now
-				.on('data', getHashtags);
-			});
+			return Promise.resolve();
 		},
 
 		stop: function() {

@@ -1,6 +1,8 @@
 'use strict';
 
 const logger = require('../logs')(module);
+const jsonHash = require('json-hash');
+const eventBus = require('../eventBus');
 
 /**
  * A service that collects all interactions with LevelDb
@@ -21,43 +23,133 @@ class DBService {
     }
 
     /**
+     * Parse utility of a db value.
+     *
+     * @param       {String}    val    value
+     * @return      {Promise}   promise
+     */
+    parse(val) {
+        return val ? JSON.parse(val) : val;
+    }
+
+    /**
+     * Get value of key.
+     *
+     * @param       {String}    key    key
+     * @return      {Promise}   promise
+     */
+    get(key) {
+        // proxy get
+        key = key.toLowerCase();
+        return this.db.get(key).then(this.parse);
+    }
+
+    /**
+     * Get values meeting of key followed by a wildcard.
+     *
+     * @param       {String}    key    key
+     * @return      {Promise}   promise
+     */
+    getRange(key) {
+        // proxy get
+        key = key.toLowerCase();
+        const getUnparsedValues = (key) => {
+            return new Promise((resolve, reject) => {
+                let values = [];
+                this.db.createValueStream({gte: key+'!', lte: key+'~'})
+                .on('data', (value) => values.push(value))
+                .on('end', () => resolve(values))
+                .on('error', (err) => reject(new Error(err)));
+            });
+        };
+        return getUnparsedValues(key)
+        .then((unparsedValues) => unparsedValues.map(this.parse));
+    }
+
+    /**
+     * Set value of key.
+     *
+     * @param       {String}    key    key
+     * @param       {Object}    data    data
+     * @return      {Promise}   promise
+     */
+    set(key, data) {
+        // proxy set
+        key = key.toLowerCase();
+        const newValue = JSON.stringify(data);
+        // First, verify if the value has changed
+        return this.db.get(key)
+        .catch((err) => {
+            if (err.message.includes('Key not found')) return;
+            else throw err;
+        })
+        .then((value) => {
+            if (jsonHash.digest(value) !== jsonHash.digest(newValue)) {
+                eventBus.emit('dbChange', key, data);
+            }
+            return this.db.put(key, newValue);
+        });
+    }
+
+    /**
+     * Get all items in database.
+     *
+     * @return      {Promise}   promise
+     */
+    getAll() {
+        return new Promise((resolve, reject) => {
+            let allDb = {};
+            this.db.createReadStream({
+                gte: '',
+            }).on('data', function(data) {
+                try {
+                    allDb[data.key] = JSON.parse(data.value);
+                } catch (e) {
+                    //
+                }
+            }).on('error', function(err) {
+                reject(new Error(err));
+            }).on('close', function() {
+                resolve(allDb);
+            });
+        });
+    }
+
+
+    /**
      * Get chat the object or create a new one.
      *
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
     getChat(itemHash) {
         let key = 'chat-' + itemHash;
-        return this.db.get(key).then(
-            (val) => JSON.parse(val),
-            (err) => {
-                if (err.message.includes('Key not found')) {
-                    let chat = {
-                        itemHash,
-                        members: {},
-                        messages: [],
-                    };
-                    return this.db.put(key, JSON.stringify(chat)).then(() => {
-                        return chat;
-                    });
-                } else {
-                    throw err;
-                }
+        return this.get(key).catch((err) => {
+            if (err.message.includes('Key not found')) {
+                let chat = {
+                    itemHash,
+                    members: {},
+                    messages: [],
+                };
+                return this.set(key, chat).then(() => {
+                    return chat;
+                });
+            } else {
+                throw err;
             }
-        );
+        });
     }
 
     /**
      * Add members to the chat object.
      *
-     * @param       {String}    itemHash    The hash of the hastagItem
-     * @param       {Array}    members    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
+     * @param       {Array}    members    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
     addMembersToChat(itemHash, members) {
         let key = 'chat-' + itemHash;
-        return this.db.get(key).then((val) => {
-            let chatObject = JSON.parse(val);
+        return this.get(key).then((chatObject) => {
             // Initialize the members object
             if (!chatObject.members) {
                 chatObject.members = {};
@@ -65,7 +157,7 @@ class DBService {
             for (const member of members) {
                 chatObject.members[member.address] = member;
             }
-            return this.db.put(key, JSON.stringify(chatObject)).then(() => {
+            return this.set(key, chatObject).then(() => {
                 return chatObject;
             });
         });
@@ -74,14 +166,13 @@ class DBService {
     /**
      * Add message to the chat object.
      *
-     * @param       {String}    itemHash    The hash of the hastagItem
-     * @param       {Object}    payload    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
+     * @param       {Object}    payload    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
     addMessageToChat(itemHash, payload) {
         let key = 'chat-' + itemHash;
-        return this.db.get(key).then((val) => {
-            let chatObject = JSON.parse(val);
+        return this.get(key).then((chatObject) => {
             // Initialize the messages array
             if (!chatObject.messages) {
                 chatObject.messages = [];
@@ -93,7 +184,7 @@ class DBService {
                 username: payload.username,
                 avatarHash: payload.avatarHash,
             });
-            return this.db.put(key, JSON.stringify(chatObject)).then(() => {
+            return this.set(key, chatObject).then(() => {
                 return chatObject;
             });
         });
@@ -292,13 +383,7 @@ class DBService {
      * @return      {Promise}   promise
      */
     setHashtags(hashtags) {
-        return this.db.put('hashtags', JSON.stringify(hashtags));
-        // returns an array of objects
-        // [ { hashtagName: 'Settler',
-        // 	hashtagMetaIPFS: 'zb2rhjRoj3v87kvser9pjj7nr...
-        // 	hashtagAddress: '0x3a1A67501b75FBC2D0784e91EA6cAFef6455A066',
-        // 	hashtagShown: true },
-        //  ... ]
+        return this.set('hashtags', hashtags);
     }
 
     /**
@@ -309,8 +394,7 @@ class DBService {
      * @return      {Promise}   promise
      */
     setHashtag(hashtagAddress, hashtag) {
-        const key = 'hashtag-'+hashtagAddress;
-        return this.db.put(key, JSON.stringify(hashtag));
+        return this.set('hashtag-'+hashtagAddress, hashtag);
     }
 
     /**
@@ -319,7 +403,7 @@ class DBService {
      * @return      {Promise}   promise
      */
     getHashtags() {
-        return this.db.get('hashtags').then(JSON.parse);
+        return this.get('hashtags');
     }
 
     /**
@@ -329,19 +413,27 @@ class DBService {
      * @return      {Promise}   promise
      */
     getHashtag(hashtagAddress) {
-        const key = 'hashtag-'+hashtagAddress;
-        return this.db.get(key).then(JSON.parse);
+        return this.get('hashtag-'+hashtagAddress);
     }
 
     /**
      * Set the hashtaglist
      *
      * @param       {Number}    address     The address of the hashtag
-     * @param       {String}    item        The hashtaglist
+     * @param       {String}    itemHash        The hashtaglist
+     * @param       {Object}    item        The hashtaglist
      * @return      {Promise}   promise
      */
-    setHashtagItem(address, item) {
-        return this.db.put('deal-' + address + '-' + item.itemHash, JSON.stringify(item));
+    setHashtagItem(address, itemHash, item) {
+        const key = 'item-' + address + '-' + itemHash;
+        return this.get(key).catch((err) => {
+            if (err.message.includes('Key not found')) return {};
+            else throw err;
+        })
+        .then((oldItem) => this.set(
+            key,
+            Object.assign(oldItem, item))
+        );
     }
 
     /**
@@ -352,21 +444,16 @@ class DBService {
      * @return      {Promise}   promise
      */
     getHashtagItem(address, itemHash) {
-        return new Promise((resolve, reject) => {
-            let key = 'deal-' + address + '-' + itemHash;
-            this.db.get(key).then((val) => {
-                resolve(JSON.parse(val));
-            }).catch((err) => {
-                if (err.notFound) {
-                    logger.debug(
-                        'no deal %s for %s in DB',
-                        itemHash,
-                        address
-                    );
-                    resolve({});
-                }
-                reject(new Error(err));
-            });
+        return this.get('item-' + address + '-' + itemHash).catch((err) => {
+            if (err.notFound || err.message.includes('Key not found')) {
+                logger.debug(
+                    'no deal %s for %s in DB',
+                    itemHash,
+                    address
+                );
+                return {};
+            }
+            throw err;
         });
     }
 
@@ -380,15 +467,14 @@ class DBService {
      */
     updateHashtagItem(address, item, metadata) {
         return new Promise((resolve, reject) => {
-            let key = 'deal-' + address + '-' + item.itemHash;
-            this.db.get(key).then((val) => {
-                let newItem = JSON.parse(val);
+            let key = 'item-' + address + '-' + item.itemHash;
+            this.get(key).then((newItem) => {
                 let data = JSON.parse(metadata);
                 newItem.description = data.description || '';
                 newItem.location = data.location || '';
                 newItem.seeker.username = data.username || '';
                 newItem.seeker.avatarHash = data.avatarHash || '';
-                this.db.put(key, JSON.stringify(newItem)).then(() => {
+                this.set(key, newItem).then(() => {
                     resolve({});
                 });
             }).catch((err) => {
@@ -406,72 +492,51 @@ class DBService {
     }
 
     /**
-     * Add reply to the hastagItem
+     * Add reply to the hashtagItem
      *
      * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @param       {Object}    reply       The metadata
      * @return      {Promise}   promise
      */
     addReplyToHashtagItem(hashtagAddress, itemHash, reply) {
-        let key = 'deal-' + hashtagAddress + '-' + itemHash;
-        return this.db.get(key).then((val) => {
-            if (!val) throw Error('Missing hashtagItem');
-            let hashtagItem = JSON.parse(val);
+        let key = 'item-' + hashtagAddress + '-' + itemHash;
+        return this.get(key).then((hashtagItem) => {
             // Initialize array of replies
-            if (!Array.isArray(hashtagItem.replies)) hashtagItem.replies = [];
+            if (!hashtagItem.replies || typeof hashtagItem.replies !== typeof {}) {
+                hashtagItem.replies = {};
+            }
             // Append reply
-            hashtagItem.replies.unshift(reply);
+            hashtagItem.replies[reply.address] = reply;
             // Store modified item
-            return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
-                return hashtagItem;
-            });
+            return this.set(key, hashtagItem).then(() => hashtagItem);
         });
     }
 
     /**
-     * Add selectee to the hastagItem
+     * Add selectee to the hashtagItem
      *
      * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @param       {Object}    selectee    The metadata
      * @return      {Promise}   promise
      */
     addSelecteeToHashtagItem(hashtagAddress, itemHash, selectee) {
-        let key = 'deal-' + hashtagAddress + '-' + itemHash;
-        return this.db.get(key).then((val) => {
-            if (!val) throw Error('Missing hashtagItem');
-            let hashtagItem = JSON.parse(val);
+        let key = 'item-' + hashtagAddress + '-' + itemHash;
+        return this.get(key).then((hashtagItem) => {
             // Add selectee
-            hashtagItem.selectee = selectee;
+            if (hashtagItem.replies
+                && typeof hashtagItem.replies === typeof {}
+                && hashtagItem.replies[selectee]
+            ) {
+                hashtagItem.selectee = hashtagItem.replies[selectee];
+            } else {
+                hashtagItem.selectee = {
+                    address: selectee,
+                };
+            }
             // Store modified item
-            return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
-                return hashtagItem;
-            });
-        });
-    }
-
-    /**
-     * Change selectee key to provider
-     *
-     * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hastagItem
-     * @param       {Object}    selectee    The metadata
-     * @return      {Promise}   promise
-     */
-    changeSelecteeToProvider(hashtagAddress, itemHash) {
-        let key = 'deal-' + hashtagAddress + '-' + itemHash;
-        return this.db.get(key).then((val) => {
-            if (!val) throw Error('Missing hashtagItem');
-            let hashtagItem = JSON.parse(val);
-            // Change a key of the itemHash object
-            const selectee = JSON.parse(JSON.stringify(hashtagItem.selectee));
-            hashtagItem.provider = selectee;
-            delete hashtagItem.selectee;
-            // Store modified item
-            return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
-                return hashtagItem;
-            });
+            return this.set(key, hashtagItem).then(() => hashtagItem);
         });
     }
 
@@ -479,58 +544,39 @@ class DBService {
      * update items status
      *
      * @param       {Number}    hashtagAddress     The hashtagAddress of the hashtag
-     * @param       {String}    itemHash    The hash of the hastagItem
+     * @param       {String}    itemHash    The hash of the hashtagItem
      * @param       {String}    newStatus    The metadata
      * @return      {Promise}   promise
      */
     updateItemStatus(hashtagAddress, itemHash, newStatus) {
-        let key = 'deal-' + hashtagAddress + '-' + itemHash;
-        return this.db.get(key).then((val) => {
-            if (!val) throw Error('Missing hashtagItem');
-            let hashtagItem = JSON.parse(val);
+        let key = 'item-' + hashtagAddress + '-' + itemHash;
+        return this.get(key).then((hashtagItem) => {
             // update the status
             hashtagItem.status = newStatus;
             // Store modified item
-            return this.db.put(key, JSON.stringify(hashtagItem)).then(() => {
-                return hashtagItem;
-            });
+            return this.set(key, hashtagItem).then(() => hashtagItem);
         });
     }
 
 
     /**
-    * Get all deals for a hastag
+    * Get all deals for a hashtag
     *
     * @param       {Number}    address     The address of the hashtag
     * @return      {stream.Readable}   A readable stream of the ShortCodes
     */
     getHashtagDeals(address) {
-        return new Promise((resolve, reject) => {
-            let items = [];
-            let searchKey = 'deal-' + address + '-0x';
-            this.db.createReadStream({
-                gte: searchKey,
-            }).on('data', function(data) {
-                try {
-                    if (data.key.startsWith(searchKey)) {
-                        let item = JSON.parse(data.value);
+        return this.getRange('item-' + address);
+    }
 
-                        if (item.itemHash) {
-                            items.push(item);
-                        }
-                    }
-                } catch (e) {
-                    logger.error(
-                        'Unable to fetch block to determine time of block. Error: %s',
-                        e
-                    );
-                }
-            }).on('error', function(err) {
-                reject(new Error(err));
-            }).on('close', function() {
-                resolve(items);
-            });
-        });
+    /**
+    * Get all deals for a hashtag
+    *
+    * @param       {Number}    hashtagAddress     The address of the hashtag
+    * @return      {Promise}   A readable stream of the ShortCodes
+    */
+    getHashtagItems(hashtagAddress) {
+        return this.getRange('item-' + hashtagAddress);
     }
 
     /**

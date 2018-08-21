@@ -67,7 +67,7 @@ async function createLogsForDirection(address, direction, startBlock, endBlock) 
 
     let filterParam = (direction == 'in') ? '_to' : '_from';
 
-    logs = swtContractInstance.getPastEvents('Transfer', {
+    logs = await swtContractInstance.getPastEvents('Transfer', {
         'fromBlock': web3.utils.toHex(startBlock),
         'toBlock': web3.utils.toHex(endBlock),
         'filter': {[filterParam]: address},
