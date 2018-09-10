@@ -73,10 +73,7 @@ async function createLogsForDirection(address, direction, startBlock, endBlock) 
         'filter': {[filterParam]: address},
     });
 
-    let mapped = logs.map((log) => {
-        return createTransferLog(log, direction, endBlock);
-    });
-    return mapped;
+    return await Promise.all(logs.map((log) => createTransferLog(log, direction, endBlock)));
 }
 
 /**
