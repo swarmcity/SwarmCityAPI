@@ -32,7 +32,7 @@ let q = queue((task, callback) => {
 			);
 			callback(null, task);
 		});
-}, 20);
+}, 8);
 
 module.exports = () => {
 	return (q);
