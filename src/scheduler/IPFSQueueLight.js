@@ -3,7 +3,7 @@ const {promisify} = require('util');
 
 const maxAttempts = 3;
 const pauseTime = 300;
-const concurrency = 20;
+const concurrency = 4;
 
 const ipfsService = require('../services').ipfsService;
 
