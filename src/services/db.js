@@ -220,7 +220,7 @@ class DBService {
                 if (err.notFound) {
                     logger.error('key %s not found (yet) in DB.', key);
                 }
-                reject('Error on readShortCode: '+(err.message ? err.message : err));
+                return reject(err);
             });
         });
     }

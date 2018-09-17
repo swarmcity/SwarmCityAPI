@@ -9,7 +9,7 @@ module.exports = function() {
         sendSignedTransaction: (data) => {
             return new Promise((resolve, reject) => {
                 if (!data.tx) {
-                    reject('No tx present. Can\'t send.');
+                    reject(new Error('No tx present. Can\'t send.'));
                 }
                 let tx = ethereumjsutil.addHexPrefix(data.tx);
                 logs.debug('Sending signed transaction: %s', tx);
@@ -28,7 +28,7 @@ module.exports = function() {
                             if (receipt) {
                                 logs.error('We might be out of Gas: %j', receipt);
                             }
-                            reject('Transaction error: ' + err);
+                            reject(new Error('Transaction error: ' + err));
                         }
                     });
             });

@@ -6,12 +6,14 @@ const logger = require('../logs')(module);
 
 let ipfs;
 if (process.env.IPFSAPIHOST && process.env.IPFSAPIPORT) {
-	logger.info('connecting via IPFSAPIHOST/IPFSAPIPORT on %s:%s',
+	logger.info('connecting via IPFSAPIHOST/IPFSAPIPORT on %s %s:%s',
+		process.env.IPFSAPIPROTOCOL,
 		process.env.IPFSAPIHOST,
 		process.env.IPFSAPIPORT);
 	ipfs = ipfsAPI({
 		host: process.env.IPFSAPIHOST,
 		port: process.env.IPFSAPIPORT,
+		protocol: process.env.IPFSAPIPROTOCOL,
 		timeout: 60000,
 	});
 } else {
