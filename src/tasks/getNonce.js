@@ -15,10 +15,10 @@ module.exports = function() {
 		getNonce: function(data) {
 			return new Promise((resolve, reject) => {
 				if (!data || !data.address) {
-					return reject(new Error('No data/address supplied'));
+					return reject('No data/address supplied');
 				}
 				if (!validate.isAddress(data.address)) {
-					return reject(new Error('No valid address supplied'));
+					return reject('No valid address supplied');
 				}
 
 				web3.eth.getTransactionCount(data.address).then((currentCount) => {

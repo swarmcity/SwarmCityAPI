@@ -89,7 +89,7 @@ describe('Test of shortCodeCleaner job', function() {
 
         promises.push(new Promise((resolve, reject) => {
             dbService.readShortCode('TEST1').then(() => {
-                reject(new Error('ShortCode TEST1 is still present in the db.'));
+                reject('ShortCode TEST1 is still present in the db.');
             }, (err) => {
                 logger.debug(err);
                 should(err.notFound).be.true;
@@ -99,7 +99,7 @@ describe('Test of shortCodeCleaner job', function() {
 
         promises.push(new Promise((resolve, reject) => {
             dbService.readShortCode('TEST2').then(() => {
-                reject(new Error('ShortCode TEST2 is still present in the db.'));
+                reject('ShortCode TEST2 is still present in the db.');
             }, (err) => {
                 logger.debug(err);
                 should(err.notFound).be.true;
@@ -118,7 +118,7 @@ describe('Test of shortCodeCleaner job', function() {
                 should(value).be.Object;
                 resolve();
             }).catch((err) => {
-                reject(new Error('ShortCode TEST3 should not have been removed.'));
+                reject('ShortCode TEST3 should not have been removed.');
             });
         }));
 

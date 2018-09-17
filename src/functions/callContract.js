@@ -45,7 +45,7 @@ function createTask(socket, data, callback) {
 								});
 						}
 					} else {
-						reject(new Error('input params not valid', data));
+						reject('input params not valid: '+JSON.stringify(data));
 					}
 				} catch (error) {
 					logs.error('callContract error', error);

@@ -19,11 +19,11 @@ module.exports = function() {
 		getBalance: function(data) {
 			return new Promise((resolve, reject) => {
 				if (!data || !data.address) {
-					return reject(new Error('No data/address supplied'));
+					return reject('No data/address supplied');
 				}
 
 				if (!validate.isAddress(data.address)) {
-					return reject(new Error('No valid address supplied'));
+					return reject('No valid address supplied');
 				}
 
 				let promisesList = [];
