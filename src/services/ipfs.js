@@ -36,13 +36,10 @@ class IPFSService {
      */
     cat(hash) {
         logger.debug('CAT hash: %s', hash);
-        // if (!this.isIPFSHash(hash)) {
-        //     return Promise.reject(new Error(hash + ' is not a valid IPFS hash'));
-        // }
         return new Promise((resolve, reject) => {
             this.ipfs.files.cat(hash, (err, file) => {
                 if (err) {
-                    return reject(new Error(err));
+                    return reject(err);
                 }
                 resolve(file.toString('utf8'));
             });
@@ -59,7 +56,7 @@ class IPFSService {
         return new Promise((resolve, reject) => {
             this.ipfs.files.add(Buffer.from(payload, 'utf8'), (err, result) => {
                 if (err) {
-                    return reject(new Error(err));
+                    return reject(err);
                 }
                 logger.info('IPFS item added, hash: '+result[0].hash);
                 return resolve(result[0].hash);

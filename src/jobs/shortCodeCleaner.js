@@ -29,7 +29,7 @@ let task = {
                                 return Promise.resolve('ShortCode not expired yet.');
                             }
                         } catch (err) {
-                            return reject(new Error('Unable to parse shortCode %j', data));
+                            return reject('Unable to parse shortCode '+JSON.stringify(data));
                         }
                     }));
                 })

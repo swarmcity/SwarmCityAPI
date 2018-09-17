@@ -59,7 +59,7 @@ class DBService {
                 this.db.createValueStream({gte: key+'!', lte: key+'~'})
                 .on('data', (value) => values.push(value))
                 .on('end', () => resolve(values))
-                .on('error', (err) => reject(new Error(err)));
+                .on('error', (err) => reject(err));
             });
         };
         return getUnparsedValues(key)
@@ -108,7 +108,7 @@ class DBService {
                     //
                 }
             }).on('error', function(err) {
-                reject(new Error(err));
+                reject('Error on getAll: '+(err.message ? err.message : err));
             }).on('close', function() {
                 resolve(allDb);
             });
@@ -219,7 +219,6 @@ class DBService {
             }).catch((err) => {
                 if (err.notFound) {
                     logger.error('key %s not found (yet) in DB.', key);
-                    return reject(err);
                 }
                 return reject(err);
             });
@@ -246,8 +245,8 @@ class DBService {
             this.db.put(key, JSON.stringify(val)).then(() => {
                 resolve();
             }).catch((err) => {
-                logger.error(err);
-                return reject(err);
+                logger.error('Error on saveDataToShortCode: '+(err.message ? err.message : err));
+                reject('Error on saveDataToShortCode: '+(err.message ? err.message : err));
             });
         });
     }
@@ -294,7 +293,7 @@ class DBService {
                     );
                     resolve(parseInt(this.options.hashtagproxycontractstartblock));
                 }
-                reject(new Error(err));
+                reject('Error on getLastBlock: '+(err.message ? err.message : err));
             });
         });
     }
@@ -318,7 +317,7 @@ class DBService {
                     );
                     resolve(parseInt(this.options.hashtagproxycontractstartblock));
                 }
-                reject(new Error(err));
+                reject('Error on getLastHashtagBlock: '+(err.message ? err.message : err));
             });
         });
     }
@@ -486,7 +485,7 @@ class DBService {
                     );
                     resolve({});
                 }
-                reject(new Error(err));
+                reject('Error on updateHashtagItem: '+(err.message ? err.message : err));
             });
         });
     }
@@ -612,13 +611,13 @@ class DBService {
                     resolve([]);
                 }
             }).catch((err) => {
-                logger.error(JSON.stringify(err));
+                logger.error('Error on getHashtagList: '+JSON.stringify(err));
                 if (err.notFound) {
                     logger.error('key %s not found (yet) in DB.', key);
                     logger.debug('Returning empty hashtag list');
                     resolve([]);
                 }
-                reject(new Error(err));
+                reject('Error on getHashtagList: '+(err.message ? err.message : err));
             });
         });
     }
@@ -708,13 +707,13 @@ class DBService {
                     logger.debug(history);
                     resolve(history);
                 });
-            }).catch((error) => {
-                logger.error(JSON.stringify(error));
-                if (error.notFound) {
+            }).catch((err) => {
+                logger.error('Error on getTransactionHistory: '+JSON.stringify(err));
+                if (err.notFound) {
                     logger.debug('key %s not found (yet) in DB.', key);
                     resolve(this._getEmptyTxHistory(pubkey));
                 }
-                reject(new Error(error));
+                reject('Error on getTransactionHistory: '+(err.message ? err.message : err));
             });
         });
     }

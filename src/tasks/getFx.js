@@ -15,10 +15,10 @@ module.exports = function() {
 					(error, response, body) => {
 						if (error && error.code === 'ETIMEDOUT') {
 							logger.error('updateFx timeout on request');
-							return reject(new Error(error));
+							return reject(error);
 						}
 						if (error || (response && response.statusCode !== 200)) {
-							return reject(new Error(error));
+							return reject(error);
 						}
 						try {
 							let parsedBody = JSON.parse(body);
@@ -31,7 +31,7 @@ module.exports = function() {
 							logger.debug('updateFx result=', result);
 							return resolve(result);
 						} catch (e) {
-							logger.error('updateFx err=', new Error(e));
+							logger.error('updateFx err: '+ e.message);
 							return reject(e);
 						}
 					});
