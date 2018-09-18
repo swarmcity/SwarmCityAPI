@@ -53,12 +53,14 @@ async function getHashtags() {
 		// hashtagMetaIPFS   string :  zb2rhbixVsHPSfBCUowDPDpkQ4QZR84rRpBSDym44i57NWmtE
 		// hashtagAddress   address :  0x3a1a67501b75fbc2d0784e91ea6cafef6455a066
 		// hashtagShown   bool :  false
-		hashtags.push({
-			hashtagName: decodeURI(hashtag.hashtagName),
-			hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
-			hashtagAddress: hashtag.hashtagAddress,
-			hashtagShown: hashtag.hashtagShown,
-		});
+		if (hashtag.hashtagShown) {
+			hashtags.push({
+				hashtagName: decodeURI(hashtag.hashtagName),
+				hashtagMetaIPFS: hashtag.hashtagMetaIPFS,
+				hashtagAddress: hashtag.hashtagAddress,
+				hashtagShown: hashtag.hashtagShown,
+			});
+		}
 	}
 
 	// Check if hashtag data has changed
