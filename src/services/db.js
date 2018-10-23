@@ -211,7 +211,7 @@ class DBService {
      * @param      {Bool}     throttled    throttled
      * @return     {Promise}  resolves with a JSON object, rejects with an Error object
      */
-    setIpRequestingShortcodea(clientIp, throttled) {
+    setIpRequestingShortcode(clientIp, throttled) {
         return this.db.put(`clientIp-${clientIp}`, throttled);
     }
 
