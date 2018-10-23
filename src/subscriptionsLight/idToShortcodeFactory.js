@@ -49,8 +49,12 @@ const idToShortcodeFactory = (
 	};
 };
 
-getShortcode(max) {
-	return String(Math.floor(max*Math.random())).padStart(5, '0')
+/**
+ * @param {Number} max shortcode number
+ * @return {String} shortcode
+ */
+function getShortcode(max) {
+	return String(Math.floor(max*Math.random())).padStart(5, '0');
 }
 
 module.exports = idToShortcodeFactory;
