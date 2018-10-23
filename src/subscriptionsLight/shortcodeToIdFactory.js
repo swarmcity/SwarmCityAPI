@@ -9,9 +9,7 @@ const shortcodeToIdFactory = (
 	if (!data) {
 		throw Error(`No data found for shortcode ${shortcode}`);
 	}
-	return {
-		data,
-	};
+	return data;
 };
 
 module.exports = shortcodeToIdFactory;
