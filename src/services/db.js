@@ -190,6 +190,100 @@ class DBService {
         });
     }
 
+
+    /**
+     * Returns true if this clientIp is throttled
+     *
+     * @param      {String}   clientIp    The ShortCode
+     * @return     {Promise}  resolves with a JSON object, rejects with an Error object
+     */
+    getIpRequestingShortcode(clientIp) {
+        return this.db.get(`clientIp-${clientIp}`).catch((err) => {
+            if (err.notFound) return null;
+            throw err;
+        });
+    }
+
+    /**
+     * Sets if clientIp is throttled
+     *
+     * @param      {String}   clientIp    The ShortCode
+     * @param      {Bool}     throttled    throttled
+     * @return     {Promise}  resolves with a JSON object, rejects with an Error object
+     */
+    setIpRequestingShortcodea(clientIp, throttled) {
+        return this.db.put(`clientIp-${clientIp}`, throttled);
+    }
+
+    /**
+     * Returns the cached data for a given
+     *
+     * @param      {String}   shortcode    The ShortCode
+     * @return     {Promise}  resolves with a JSON object, rejects with an Error object
+     */
+    getShortcodeData(shortcode) {
+        let key = 'sc-' + shortcode;
+        return this.db.get(key).then((val) => {
+            try {
+                return JSON.parse(val);
+            } catch (e) {
+                throw Error(`Error parsing shortcode data: ${e.message}`);
+            }
+        }).catch((err) => {
+            if (err.notFound) return null;
+            throw err;
+        });
+    }
+
+    /**
+     * Set data for a shortcode
+     *
+     * @param      {String}   shortcode    The Shortcode
+     * @param      {Object}   data         Data
+     * @return     {Promise}  resolves with a JSON object, rejects with an Error object
+     */
+    setShortcodeData(shortcode, data) {
+        return Promise.all([
+            this.db.put('sc-' + shortcode, JSON.stringify(data)),
+            this.db.get('sc-count').catch((err) => {
+                if (err.notFound) return 0;
+                else throw err;
+            }).then((scCount) => {
+                return this.db.put('sc-count', scCount++);
+            }),
+        ]);
+    }
+
+    /**
+     * Returns the cached data for a given
+     *
+     * @param      {String}   shortcode    The ShortCode
+     * @return     {Promise}  resolves with a JSON object, rejects with an Error object
+     */
+    deleteShortcodeData(shortcode) {
+        return Promise.all([
+            this.db.del('sc-' + shortcode),
+            this.db.get('sc-count').catch((err) => {
+                if (err.notFound) return 1;
+                else throw err;
+            }).then((scCount) => {
+                return this.db.put('sc-count', scCount--);
+            }),
+        ]);
+    }
+
+    /**
+     * Returns the number of current active shortcodes
+     *
+     * @return     {Promise}  resolves with a JSON object, rejects with an Error object
+     */
+    getNumberOfShortcodes() {
+        return this.db.get('sc-count').catch((err) => {
+            if (err.notFound) return 0;
+            else throw err;
+        });
+    }
+
     /**
      * Returns the cached data for a given
      *
