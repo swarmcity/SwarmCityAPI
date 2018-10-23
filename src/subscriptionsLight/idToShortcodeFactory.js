@@ -8,7 +8,7 @@ const idToShortcodeFactory = (
 		// 	<some user info>
 		// }
 
-		const digits = 4; // minim number of digits on the shortcode
+		const digits = 5; // minim number of digits on the shortcode
 		const rateLimitBetweenRequests = 500; // ms
 		const shortcodeDuration = 120 * 1000; // ms
 
