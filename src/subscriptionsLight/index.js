@@ -5,6 +5,8 @@ const newChatMessageFactory = require('./newChatMessageFactory');
 const subscribeToHashtagFactory = require('./subscribeToHashtagFactory');
 const subscribeToHashtagsFactory = require('./subscribeToHashtagsFactory');
 const getReputationFactory = require('./getReputationFactory');
+const idToShortcodeFactory = require('./idToShortcodeFactory');
+const shortcodeToIdFactory = require('./shortcodeToIdFactory');
 
 // Functionality to implement:
 // - Make sure sockets unsubscribe when they disconect (memory leak), DONE
@@ -50,6 +52,13 @@ function subscriptionsLight(db, web3, io) {
 
 		const getReputation = getReputationFactory(db, web3);
 		socket.on('getReputation', wrapHandler(getReputation));
+
+		// Shortcode new handlers
+		const idToShortcode = idToShortcodeFactory(db, socket);
+		socket.on('idToShortcode', wrapHandler(idToShortcode));
+
+		const shortcodeToId = shortcodeToIdFactory(db, socket);
+		socket.on('shortcodeToId', wrapHandler(shortcodeToId));
 
 		// For debugging purposes with a dedicated website
 		const getAllDb = async () => await db.getAll();
