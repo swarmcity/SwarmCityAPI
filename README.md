@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/swarmcity/SwarmCityAPI/badge.svg)](https://coveralls.io/github/swarmcity/SwarmCityAPI)
 
 ## Introduction
-The API ensures that all data the front end requires is ready the instant its requested without having to go over the wire to get it.
+The API ensures that all data the front end requires is ready the instant it's requested without having to go over the wire to get it.
 
 ## Usage
 
