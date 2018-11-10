@@ -170,10 +170,10 @@ class DBService {
      * Add message to the chat object.
      *
      * @param       {String}    itemHash    The hash of the hashtagItem
-     * @param       {Object}    payload    The hash of the hashtagItem
+     * @param       {Object}    message    message to be stored
      * @return      {Promise}   promise
      */
-    addMessageToChat(itemHash, payload) {
+    addMessageToChat(itemHash, message) {
         let key = 'chat-' + itemHash;
         return this.get(key).then((chatObject) => {
             if (!chatObject) chatObject = {};
@@ -181,11 +181,7 @@ class DBService {
             if (!chatObject.messages) {
                 chatObject.messages = [];
             }
-            chatObject.messages.push({
-                sender: payload.sender,
-                time: Math.floor(Date.now()/1000),
-                message: payload.message,
-            });
+            chatObject.messages.push(message);
             return this.set(key, chatObject).then(() => {
                 return chatObject;
             });
