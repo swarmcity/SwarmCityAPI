@@ -128,7 +128,7 @@ class DBService {
             if (err.message.includes('Key not found')) {
                 let chat = {
                     itemHash,
-                    members: {},
+                    accessKeys: [],
                     messages: [],
                 };
                 return this.set(key, chat).then(() => {
@@ -141,21 +141,24 @@ class DBService {
     }
 
     /**
-     * Add members to the chat object.
+     * Add accessKeys to the chat object.
      *
      * @param       {String}    itemHash    The hash of the hashtagItem
-     * @param       {Array}    members    The hash of the hashtagItem
+     * @param       {Array}    accessKeys    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
-    addMembersToChat(itemHash, members) {
+    addAccessKeysToChat(itemHash, accessKeys) {
         let key = 'chat-' + itemHash;
         return this.get(key).then((chatObject) => {
+            if (!chatObject) chatObject = {};
             // Initialize the members object
-            if (!chatObject.members) {
-                chatObject.members = {};
+            if (!chatObject.accessKeys) {
+                chatObject.accessKeys = [];
             }
-            for (const member of members) {
-                chatObject.members[member.address] = member;
+            for (const accessKey of accessKeys) {
+                if (!chatObject.accessKeys.includes(accessKey)) {
+                    chatObject.accessKeys.push(accessKey);
+                }
             }
             return this.set(key, chatObject).then(() => {
                 return chatObject;
@@ -173,6 +176,7 @@ class DBService {
     addMessageToChat(itemHash, payload) {
         let key = 'chat-' + itemHash;
         return this.get(key).then((chatObject) => {
+            if (!chatObject) chatObject = {};
             // Initialize the messages array
             if (!chatObject.messages) {
                 chatObject.messages = [];
@@ -181,8 +185,6 @@ class DBService {
                 sender: payload.sender,
                 time: Math.floor(Date.now()/1000),
                 message: payload.message,
-                username: payload.username,
-                avatarHash: payload.avatarHash,
             });
             return this.set(key, chatObject).then(() => {
                 return chatObject;
