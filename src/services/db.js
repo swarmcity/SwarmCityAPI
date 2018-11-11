@@ -128,7 +128,7 @@ class DBService {
             if (err.message.includes('Key not found')) {
                 let chat = {
                     itemHash,
-                    accessKeys: [],
+                    members: {},
                     messages: [],
                 };
                 return this.set(key, chat).then(() => {
@@ -141,24 +141,21 @@ class DBService {
     }
 
     /**
-     * Add accessKeys to the chat object.
+     * Add members to the chat object.
      *
      * @param       {String}    itemHash    The hash of the hashtagItem
-     * @param       {Array}    accessKeys    The hash of the hashtagItem
+     * @param       {Array}    members    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
-    addAccessKeysToChat(itemHash, accessKeys) {
+    addMembersToChat(itemHash, members) {
         let key = 'chat-' + itemHash;
         return this.get(key).then((chatObject) => {
-            if (!chatObject) chatObject = {};
             // Initialize the members object
-            if (!chatObject.accessKeys) {
-                chatObject.accessKeys = [];
+            if (!chatObject.members) {
+                chatObject.members = {};
             }
-            for (const accessKey of accessKeys) {
-                if (!chatObject.accessKeys.includes(accessKey)) {
-                    chatObject.accessKeys.push(accessKey);
-                }
+            for (const member of members) {
+                chatObject.members[member.address] = member;
             }
             return this.set(key, chatObject).then(() => {
                 return chatObject;
@@ -170,18 +167,23 @@ class DBService {
      * Add message to the chat object.
      *
      * @param       {String}    itemHash    The hash of the hashtagItem
-     * @param       {Object}    message    message to be stored
+     * @param       {Object}    payload    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
-    addMessageToChat(itemHash, message) {
+    addMessageToChat(itemHash, payload) {
         let key = 'chat-' + itemHash;
         return this.get(key).then((chatObject) => {
-            if (!chatObject) chatObject = {};
             // Initialize the messages array
             if (!chatObject.messages) {
                 chatObject.messages = [];
             }
-            chatObject.messages.push(message);
+            chatObject.messages.push({
+                sender: payload.sender,
+                time: Math.floor(Date.now()/1000),
+                message: payload.message,
+                username: payload.username,
+                avatarHash: payload.avatarHash,
+            });
             return this.set(key, chatObject).then(() => {
                 return chatObject;
             });

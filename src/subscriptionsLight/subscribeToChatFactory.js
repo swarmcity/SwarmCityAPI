@@ -3,10 +3,22 @@ const subscribeToChatFactory = (
 	socket
 ) => async (data) => {
 	// data = {
-	// 	accessKeys: [ '+TiSxGNciyjpba01hlMkunZCgdGUUlVL.mQ2wmJAOP
-	//    DBwQ59W+kxYt3dKLmaZ2KQv5sKwAmriP/AtNi1rM2O7JRvgzEterG24
-	//    cSbGhWNtL0i+KJBNvR78wFYN2CFtSWygmBmeZutZ+3w=:DiO5Rsk57c
-	//    AUVvwLSHfr22YMrdWojyL3s7Yf0PGeTw4=' ],
+	// 	emitterAddress: emitter address
+	// 	secrets: [
+	// 		{
+	// 			"address": "0xeba08e7a1d8145b25c78b473fbc35aa24973d908",
+	// 			"key": [encrypted] secret,
+	// 			"role": "provider",
+	// 			"username": "Goedele Liekens",
+	// 			"avatarHash": ipfsHash of the base64 image
+	// 		}, {
+	// 			"address": "0xeba08e7a1d8145b25c78b473fbc35aa24973d908",
+	// 			"key": [encrypted] secret,
+	// 			"role": "seeker",
+	// 			"username": "Kars Rhyder",
+	// 			"avatarHash": ipfsHash of the base64 image
+	// 		}
+	// 	],
 	// 	itemHash: this.hashtagItem.request.itemHash,
 	// }
 
@@ -14,10 +26,10 @@ const subscribeToChatFactory = (
 	// if it doesn't exist, or create it if it exist
 	let chatObject = await db.getChat(data.itemHash);
 
-	// 2. Should check if there is an accessKeys key,
+	// 2. Should check if there is a members key,
 	// and add those to the chat object
-	if (data.accessKeys) {
-		chatObject = await db.addAccessKeysToChat(data.itemHash, data.accessKeys);
+	if (data.members) {
+		chatObject = await db.addMembersToChat(data.itemHash, data.members);
 	}
 
 	// 3. Should subscribe the emitter to the chat room
@@ -28,6 +40,15 @@ const subscribeToChatFactory = (
 		'chatChanged',
 		chatObject
 	);
+
+	// 5. Should reply with a success message:
+	const emitter = chatObject.members[data.emitterAddress];
+	if (!emitter) {
+		throw Error('You are not allowed in this chat: '+data.emitterAddress);
+	}
+	return {
+		key: emitter.key,
+	};
 };
 
 module.exports = subscribeToChatFactory;
