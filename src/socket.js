@@ -6,132 +6,16 @@ const io = require('socket.io')(server, {
     transports: ['websocket', 'xhr-polling'],
 });
 const logs = require('./logs')(module);
-const validate = require('./validators');
 const eventBus = require('./eventBus');
 
-const scheduledTask = require('./scheduler/scheduledTask')();
-const blockHeaderTask = require('./scheduler/blockHeaderTask')();
 const dbService = require('./services').dbService;
-const web3 = require('./globalWeb3').web3;
-
-// scheduled task handlers
-const getFx = require('./tasks/getFx')();
-const getGasPrice = require('./tasks/getGasPrice')();
-
-// socket task handlers
-const getBalance = require('./tasks/getBalance')();
-
-// subscription handler
-const subscriptions = require('./subscriptions')();
 
 // subscription handler
 const subscriptionsLightFactory = require('./subscriptionsLight');
-const subscriptionsLight = subscriptionsLightFactory(dbService, web3, io);
-
-// functions handler
-const functions = require('./functions');
-
-
-let connectedSockets = {};
-
-(() => {
-	// schedule getFx task every minute
-	scheduledTask.addTask({
-		func: getFx.updateFx,
-		interval: 60 * 1000,
-	});
-})();
+const subscriptionsLight = subscriptionsLightFactory(dbService, io);
 
 io.on('connection', (socket) => {
 	logs.info('socket %s connected', socket.id);
-
-	let client = {
-		socket: socket,
-	};
-
-	connectedSockets[socket.id] = client;
-
-	// if user provided a pubkey , register getBalance tasks
-	if (validate.isAddress(socket.handshake.query.publicKey)) {
-		logs.info('publicKey provided: %s', socket.handshake.query.publicKey);
-		scheduledTask.addTask({
-			name: 'get initial balance', // a task name is optional
-			func: (task) => {
-				return getBalance.getBalance(task.data);
-			},
-			responsehandler: (res, task) => {
-				// logs.info('received getBalance RES=%j', res);
-				task.data.socket.emit('balanceChanged', res);
-			},
-			data: {
-				socket: socket,
-				address: socket.handshake.query.publicKey,
-			},
-		});
-	}
-
-	scheduledTask.addTask({
-		name: 'getFX',
-		func: (task) => {
-			return getFx.getFx();
-		},
-		responsehandler: (res, task) => {
-			// logs.info('received getFx RES=%j', res);
-			task.data.socket.emit('fxChanged', res);
-		},
-		data: {
-			socket: socket,
-			address: socket.handshake.query.publicKey,
-		},
-	});
-
-	scheduledTask.addTask({
-		name: 'get gasprice',
-		func: (task) => {
-			return getGasPrice.getGasPrice();
-		},
-		responsehandler: (res, task) => {
-			// logs.info('received getGasPrice RES=%j', res);
-			task.data.socket.emit('gasPriceChanged', res);
-		},
-		data: {
-			socket: socket,
-			address: socket.handshake.query.publicKey,
-		},
-	});
-
-	// scheduledTask.addTask({
-	// 	name: 'get hashtags',
-	// 	func: (task) => {
-	// 		return getHashtags.getHashtags();
-	// 	},
-	// 	responsehandler: (res, task) => {
-	// 		logs.info('received getHashtags RES=', JSON.stringify(res, null, 4));
-	// 		task.data.socket.emit('hashtagsChanged', res);
-	// 	},
-	// 	data: {
-	// 		socket: socket,
-	// 		address: socket.handshake.query.publicKey,
-	// 	},
-	// });
-
-	socket.on('disconnect', () => {
-		logs.info('socket %s disconnected', socket.id);
-		subscriptions.unsubscribeAll(socket.id);
-	});
-
-	// handle subscribe
-	socket.on('subscribe', (data, callback) => {
-		subscriptions.subscribe(socket, data, callback);
-	});
-
-	// handle unsubscribe
-	socket.on('unsubscribe', (data, callback) => {
-		subscriptions.unsubscribe(socket, data, callback);
-	});
-
-	// register all verbs for functions
-	functions.registerHandlers(socket);
 
 	// execute subscriptions light
 	subscriptionsLight.connect(socket);
@@ -203,14 +87,9 @@ function listen(customConfig) {
  */
 function close() {
 	return new Promise((resolve, reject) => {
-		scheduledTask.removeAllTasks();
-		blockHeaderTask.removeAllTasks();
 		server.close((err) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve();
-			}
+			if (err) reject(err);
+			else resolve();
 		});
 	});
 }
