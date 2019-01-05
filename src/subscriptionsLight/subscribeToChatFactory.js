@@ -8,11 +8,12 @@ const subscribeToChatFactory = (
 	//    cSbGhWNtL0i+KJBNvR78wFYN2CFtSWygmBmeZutZ+3w=:DiO5Rsk57c
 	//    AUVvwLSHfr22YMrdWojyL3s7Yf0PGeTw4=' ],
 	// 	itemHash: this.hashtagItem.request.itemHash,
+	//  info: { hashtagAddress, ... (other metadata) }
 	// }
 
 	// 1. Should create the chat object in the database
 	// if it doesn't exist, or create it if it exist
-	let chatObject = await db.getChat(data.itemHash);
+	let chatObject = await db.getChat(data.itemHash, data.info);
 
 	// 2. Should check if there is an accessKeys key,
 	// and add those to the chat object

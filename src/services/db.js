@@ -120,17 +120,18 @@ class DBService {
      * Get chat the object or create a new one.
      *
      * @param       {String}    itemHash    The hash of the hashtagItem
+     * @param       {Object}    info    The hash of the hashtagItem
      * @return      {Promise}   promise
      */
-    getChat(itemHash) {
+    getChat(itemHash, info = {}) {
         let key = 'chat-' + itemHash;
         return this.get(key).catch((err) => {
             if (err.message.includes('Key not found')) {
-                let chat = {
+                let chat = Object.assign(info, {
                     itemHash,
                     accessKeys: [],
                     messages: [],
-                };
+                });
                 return this.set(key, chat).then(() => {
                     return chat;
                 });
