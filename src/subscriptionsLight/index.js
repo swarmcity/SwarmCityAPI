@@ -2,9 +2,6 @@
 
 const subscribeToChatFactory = require('./subscribeToChatFactory');
 const newChatMessageFactory = require('./newChatMessageFactory');
-const subscribeToHashtagFactory = require('./subscribeToHashtagFactory');
-const subscribeToHashtagsFactory = require('./subscribeToHashtagsFactory');
-const getReputationFactory = require('./getReputationFactory');
 const idToShortcodeFactory = require('./idToShortcodeFactory');
 const shortcodeToIdFactory = require('./shortcodeToIdFactory');
 
@@ -32,26 +29,16 @@ const wrapHandler = (handler) => async (data, callback) => {
  * subscribe a socket from all subscriptions
  *
  * @param      {Object}  db  The socket identifier
- * @param      {Object}  web3  The socket identifier
  * @param      {Object}  io  The socket identifier
  * @return      {Object}  methods  The socket identifier
  */
-function subscriptionsLight(db, web3, io) {
+function subscriptionsLight(db, io) {
 	const connect = (socket) => {
-		const subscribeToHashtag = subscribeToHashtagFactory(db, socket);
-		socket.on('subscribeToHashtag', wrapHandler(subscribeToHashtag));
-
-		const subscribeToHashtags = subscribeToHashtagsFactory(db, socket);
-		socket.on('subscribeToHashtags', wrapHandler(subscribeToHashtags));
-
 		const subscribeToChat = subscribeToChatFactory(db, socket);
 		socket.on('subscribeToChat', wrapHandler(subscribeToChat));
 
 		const newChatMessage = newChatMessageFactory(db, io);
 		socket.on('newChatMessage', wrapHandler(newChatMessage));
-
-		const getReputation = getReputationFactory(db, web3);
-		socket.on('getReputation', wrapHandler(getReputation));
 
 		// Shortcode new handlers
 		const idToShortcode = idToShortcodeFactory(db, socket);

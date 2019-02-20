@@ -4,7 +4,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/swarmcity/SwarmCityAPI/badge.svg)](https://coveralls.io/github/swarmcity/SwarmCityAPI)
 
 ## Introduction
-The API ensures that all data the front end requires is ready the instant it's requested without having to go over the wire to get it.
+
+Slim API: A minimal version of the previous API that does two tasks:
+
+- Support shortcodes. It needs a db service.
+- Handle the chat. It needs a db service, and will need access to the blockchain.
 
 ## Usage
 
@@ -22,6 +26,6 @@ Once you are satisfied with the configuration, run
 
 `npm run test`
 
-## Linting 
+## Linting
 
 `npm run lint`
