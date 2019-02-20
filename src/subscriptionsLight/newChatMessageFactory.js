@@ -3,13 +3,13 @@ const newChatMessageFactory = (
 	io
 ) => async (data) => {
 	// data = {
-	// 	itemHash: this.hashtagItem.request.itemHash
-	// 	message: [encrypted] message,
+	// 	 itemHash: this.hashtagItem.request.itemHash
+	// 	 message: [encrypted] message,
 	// }
 
 	// 1. Should store the message in the database
 	// if it doesn't exist, return an error
-	let chatObject = await db.addMessageToChat(data.itemHash, data.payload);
+	let chatObject = await db.addMessageToChat(data.itemHash, data.message);
 
 	// 2. Should broadcast to everyone in the room, including the sender
 	io.in('chat-'+data.itemHash).emit(
