@@ -1,0 +1,25 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.12.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:hoek:20180212':
+    - eslint-watch > chokidar > fsevents > node-pre-gyp > hawk > hoek:
+        patched: '2018-10-17T08:42:22.002Z'
+    - eslint-watch > chokidar > fsevents > node-pre-gyp > hawk > boom > hoek:
+        patched: '2018-10-17T08:42:22.002Z'
+    - eslint-watch > chokidar > fsevents > node-pre-gyp > hawk > sntp > hoek:
+        patched: '2018-10-17T08:42:22.002Z'
+    - eslint-watch > chokidar > fsevents > node-pre-gyp > hawk > cryptiles > boom > hoek:
+        patched: '2018-10-17T08:42:22.002Z'
+    - web3 > web3-bzz > swarm-js > eth-lib > servify > request > hawk > hoek:
+        patched: '2018-10-17T08:42:22.002Z'
+    - web3 > web3-bzz > swarm-js > eth-lib > servify > request > hawk > boom > hoek:
+        patched: '2018-10-17T08:42:22.002Z'
+    - web3 > web3-bzz > swarm-js > eth-lib > servify > request > hawk > sntp > hoek:
+        patched: '2018-10-17T08:42:22.002Z'
+    - web3 > web3-bzz > swarm-js > eth-lib > servify > request > hawk > cryptiles > boom > hoek:
+        patched: '2018-10-17T08:42:22.002Z'
+  'npm:stringstream:20180511':
+    - web3 > web3-bzz > swarm-js > eth-lib > servify > request > stringstream:
+        patched: '2018-10-17T08:42:22.002Z'
