@@ -41,7 +41,7 @@
     "socket.io": "^2.0.4",
     "uuid": "^3.1.0",
     "web3": "1.0.0-beta.35",
-    "winston": "^3.0.0-rc1"
+    "winston": "^3.0.0"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
