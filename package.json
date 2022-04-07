@@ -26,7 +26,7 @@
     "node": ">= 7.6.0"
   },
   "dependencies": {
-    "async": "^2.5.0",
+    "async": "^3.2.2",
     "bl": "^1.2.1",
     "crypto-js": "^3.1.9-1",
     "dotenv": "^4.0.0",
@@ -41,7 +41,7 @@
     "socket.io": "^2.0.4",
     "uuid": "^3.1.0",
     "web3": "1.0.0-beta.35",
-    "winston": "^3.0.0-rc1"
+    "winston": "^3.3.0"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
